@@ -1,0 +1,34 @@
+# Command Menu Setup
+#
+# This is based on menu.scr that comes with Eagle.
+# To display the command menu in the editor windows you have to 
+# activate the option 'Command texts' in the 'Options/User Interface' menu.
+#
+
+MENU 	'PCB-GCode : run pcb-gcode;' \
+ 		'PCB-GCode Setup : run pcb-gcode-setup;' \
+		'---' \
+		'Grid {\
+             Metric   {\
+                        Fine   : Grid mm 0.1; |\
+                        Coarse : Grid mm 1;\
+                      } | \
+             Imperial {\
+                        Fine   : Grid inch 0.001; |\
+                        Coarse : Grid inch 0.1;\
+                      } | \
+             On  : Grid On; | \
+             Off : Grid Off;\
+           }'\
+     	'Display {\
+                Top       : Display None Top    Pads Vias Dimension; |\
+                Bottom    : Display None Bottom Pads Vias Dimension; |\
+                Placeplan {\
+                            Top    : Display None tPlace Dimension; |\
+                            Bottom : Display None bPlace Dimension;\
+                          }\
+              }'\
+     	'---'\
+     	'Fit : Window Fit;'\
+     	'Add' 'Delete' 'Move' ';' 'Edit' 'Quit'\
+     ;

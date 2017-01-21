@@ -1,0 +1,53 @@
+(.../Documents/src/pcbgcode/pcb-gcode.ulp)
+(Copyright 2005 - 2009 by John Johnson)
+(See readme.txt for licensing terms.)
+(This file generated from the board:)
+(.../pcbgcode/docs/examples/enabtmr.brd)
+(Current profile is .../pcbgcode/profiles/generic.pp  )
+(This file generated 2/7/09 10:26 AM)
+(Settings from pcb-machine.h)
+(  Tool Size)
+(0.0070 )
+(Z Axis Settings)
+(  High     Up        Down     Drill)
+(0.5000 	0.1000 	-0.0070 	-0.0320 )
+(spindle on time = 3.0000)
+(milling depth = -0.0100)
+(text depth = -0.0050)
+(tool change at 0.0000 0.0000 0.0000 )
+(feed rate xy = F20.00 )
+(feed rate z  = F10.00 )
+(Settings from pcb-defaults.h)
+(Isolate min = 0.0010)
+(isolate max = 0.0200)
+(isolate step = 0.0050)
+(Generated top outlines, top drill, bottom outlines, bottom drill, )
+(Unit of measure: inch)
+(Inch Mode)
+G20
+(Inch Mode)
+G20
+(Absolute Coordinates)
+G90
+(Absolute Coordinates)
+G90
+G00 X0.0000 Y0.0000 
+M03
+G04 P3.000000
+M03
+G04 P3.000000
+G00 Z0.1000 
+G00 X0.9700 Y0.6300 
+G01 Z-0.0100 F10.00 
+G01 X1.1100 Y0.6300 F20.00 
+G01 X1.1900 Y0.7100 
+G01 X1.2600 Y0.7100 
+G01 X1.2600 Y0.5000 
+G01 X1.1900 Y0.5000 
+G01 X1.1900 Y0.5100 
+G01 X1.1200 Y0.5800 
+G01 X0.9700 Y0.5800 
+G01 X0.9700 Y0.6300 
+G00 Z0.5000 
+M05
+M02

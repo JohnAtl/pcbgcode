@@ -1,0 +1,37 @@
+//Square X Y/Helps you square the X and Y axes of your machine./john
+
+/**********************************************************
+ *
+ * Diagnostic to help people square their machines in 
+ * the X and Y axes.
+ *
+ * Plugin Definitions
+ * NAME = square X and Y
+ * DESC = Helps a user square their machine.
+ * AUTHOR = John Johnson
+ * TAB_NAME = Plugins
+ **********************************************************/
+real depth;
+int passes;
+string nc_file;
+int unit_metric;
+real length;
+string result;
+
+dlgGridLayout {
+  dlgCell(0, 0, 0, 3) {
+    dlgCheckBox("Use Metric", unit_metric) { dlgRedisplay(); }
+  }
+  dlgCell(1, 0) { dlgLabel("Length"); dlgRealEdit(length); }
+  dlgCell(2, 0) { dlgLabel("Passes"); dlgIntEdit(passes); }
+  dlgCell(3, 0) { dlgLabel("Depth"); dlgRealEdit(depth); }
+  dlgCell(4, 0) { dlgLabel("NC File"); dlgStringEdit(nc_file); 
+    dlgPushButton("...") {
+      nc_file = dlgFileSave("Save gcode as...");
+    }
+  }
+  dlgCell(1,1) { 
+    sprintf(result, "tan(45) = %f", tan(PI / 4));
+    dlgLabel(result, 1);
+  }
+}

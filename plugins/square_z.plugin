@@ -1,0 +1,15 @@
+//Square X Y/Helps you square the X and Y axes of your machine./john
+
+/**********************************************************
+ *
+ * Diagnostic to help people square their machines in 
+ * the X and Y axes.
+ *
+ * Plugin Definitions
+ * NAME = square X and Y
+ * DESC = Helps a user square their machine.
+ * AUTHOR = John Johnson
+ * TAB_NAME = Plugins
+ **********************************************************/
+
+dlgLabel("Nice layout here");

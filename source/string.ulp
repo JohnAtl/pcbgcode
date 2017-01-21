@@ -1,0 +1,39 @@
+/*
+ *
+ * String utilities.
+ *
+ * Copyright 2007 - 2009 by John Johnson Software, LLC.
+ * All Rights Reserved.
+ *
+ */
+
+#include "string.h"
+
+if (leftstr("test string", 3) != "tes") exit(12);
+if (rightstr("test string", 3) != "ing") exit(13);
+if (ltrim("  test string") != "test string") exit(14);
+if (rtrim("test string  ") != "test string") exit(15);
+if (trim(" test string  ") != "test string") exit(16);
+if (remove_last_dir("c:/dir/thet/ssot/") != "c:/dir/thet") exit(17);
+
+string replacements;
+string original_string;
+string new_string;
+string board_filepath;
+int t = time();
+
+board(b) board_filepath = b.name;
+replacements = 
+  key_value_record("%P", filedir(board_filepath)) +
+  key_value_record("%F", filename(board_filepath)) +
+  key_value_record("%B", filesetext(filename(board_filepath), "")) +
+  key_value_record("%D", t2string(t)) +
+  key_value_record("%S", "top") +
+  key_value_record("%T", "drill");
+
+original_string = "Path = %P,\n Filename = %F,\n" + 
+  "Board Name = %B, Now is %D\n" +
+  "Side is %S, and this is the %T file.";
+
+new_string = substitute(original_string, replacements);
+dlgMessageBox(new_string);

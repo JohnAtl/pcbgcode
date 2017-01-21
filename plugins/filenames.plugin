@@ -1,0 +1,32 @@
+dlgGroup("File Naming") {
+  dlgHBoxLayout {
+    dlgLabel("Filename Base "); dlgStringEdit(FILENAME_BASE);
+  }
+  dlgGroup("Top (Component) Side Files") {
+    dlgGridLayout {
+      dlgCell(1, 0) dlgLabel("Etching "); 
+      dlgCell(1, 1) dlgStringEdit(FILENAME_TOP_ETCH_FILE);
+      dlgCell(2, 0) dlgLabel("Drill "); 
+      dlgCell(2, 1) dlgStringEdit(FILENAME_TOP_DRILL_FILE);
+      dlgCell(3, 0) dlgLabel("Mill "); 
+      dlgCell(3, 1) dlgStringEdit(FILENAME_TOP_MILL_FILE);
+      dlgCell(4, 0) dlgLabel("Fill "); 
+      dlgCell(4, 1) dlgStringEdit(FILENAME_TOP_FILL_FILE);
+    }
+  }
+  dlgGroup("Bottom (Solder) Side Files") {
+    dlgGridLayout {
+      dlgCell(1, 0) dlgLabel("Etching "); 
+      dlgCell(1, 1) dlgStringEdit(FILENAME_BOT_ETCH_FILE);
+      dlgCell(2, 0) dlgLabel("Drill "); 
+      dlgCell(2, 1) dlgStringEdit(FILENAME_BOT_DRILL_FILE);
+      dlgCell(3, 0) dlgLabel("Mill "); 
+      dlgCell(3, 1) dlgStringEdit(FILENAME_BOT_MILL_FILE);
+      dlgCell(4, 0) dlgLabel("Fill "); 
+      dlgCell(4, 1) dlgStringEdit(FILENAME_BOT_FILL_FILE);
+    }
+  }
+  dlgPushButton("Test Filenames") {
+    dlgMessageBox("Test");
+  }
+}

@@ -1,0 +1,27 @@
+#
+# Sample drill rack file for the enabtmr board.
+#
+# Drill is the size of the drill bit.
+# Min is the smallest hole the bit will be used for.
+# Max is the largest hole the bit will be used for.
+#
+# Each value can have a "unit of measure" added to it,
+# such as 0.500mm . If you do not provide the unit of measure,
+# values over 0.250 are considered millimeters, and
+# values under 0.250 are considered inches. For example:
+# 0.400 would be considered 0.400 mm.
+# 0.125 would be considered 0.125 inches.
+#
+# Please note that you must use a TAB character
+# between each setting on a line.
+# 
+# Tip: Set the TAB size of your editor to 12 characters.
+#
+tool	drill_size	minimum	maximum	length
+T01	0.500mm	0.000in	0.025in	1.5in
+T02	0.032in	0.025in	0.035in	1.5in
+T03	0.040in	0.035in	0.045in	1.5in
+T04	0.050in	0.045in	0.055in	1.5in
+T05	0.062in	0.055in	0.070in	1.5in
+T06	0.085in	0.070in	0.125in	1.5in
+T07	0.125in	0.100in	0.125in	1.5in

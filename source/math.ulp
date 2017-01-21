@@ -1,0 +1,86 @@
+/*
+ * math.h tester.
+ */
+
+#include "pcb-gcode.h"
+#include "settings/pcb-machine.h"
+#include "math.h"
+
+string test_strings[] = {
+  "0.100in",
+  "0.5mm",
+  "30#",
+  ".05",
+  ".7",
+  "5#",
+  ""
+};
+
+int answers_mu[] = {
+  25400,
+   5000,
+//  if you get far enough away, you'll be on your way home. Tom Waits
+  32766,
+  12700,
+  7000,
+  52324
+};
+
+int i;
+string str;
+int val;
+int failed = 0;
+
+for (i = 0; test_strings[i] != ""; i++) {
+  val = conv_to_units(test_strings[i]);
+  if ( val != answers_mu[i]) {
+    sprintf(str, "!Incorrect! String: '%s' converted to %dmu", test_strings[i], val);
+    dlgMessageBox(str);
+    failed = 1;
+  }
+}
+
+real r_val;
+
+r_val = convert(0.100, U_INCHES, U_MILLIMETERS);
+if (r_val != 2.54) {
+  sprintf(str, "!Incorrect! 0.1inches converted to %fmm", r_val);
+  dlgMessageBox(str);
+  failed = 1;
+}  
+
+r_val = convert(2.54, U_MILLIMETERS, U_INCHES);
+if (r_val != 0.100) {
+  sprintf(str, "!Incorrect! 2.54mm converted to %fin", r_val);
+  dlgMessageBox(str);
+  failed = 1;
+}  
+r_val = convert(0.100, U_INCHES, U_MICRONS);
+if (r_val != 2540) {
+  sprintf(str, "!Incorrect! 0.1inches converted to %fmicrons", r_val);
+  dlgMessageBox(str);
+  failed = 1;
+}  
+r_val = convert(16510, U_MICRONS, U_INCHES);
+if (r_val != 0.65) {
+  sprintf(str, "!Incorrect! 16510microns converted to %finches", r_val);
+  dlgMessageBox(str);
+  failed = 1;
+}  
+r_val = convert(0.735, U_INCHES, U_MILS);
+if (r_val != 735) {
+  sprintf(str, "!Incorrect! 0.1inches converted to %fmils", r_val);
+  dlgMessageBox(str);
+  failed = 1;
+}  
+r_val = convert(987, U_MILS, U_INCHES);
+if (r_val != 0.987) {
+  sprintf(str, "!Incorrect! 987mils converted to %finches", r_val);
+  dlgMessageBox(str);
+  failed = 1;
+}  
+
+
+if (failed == 0) {
+  dlgMessageBox("Passed");
+}

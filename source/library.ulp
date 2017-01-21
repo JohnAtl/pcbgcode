@@ -1,0 +1,36 @@
+//
+// Tests for library.h .
+//
+
+#include "math.h"
+#include "pcb-defaults.h"
+#include "library.h"
+
+int test_units[] = {
+  U_INCHES,
+  U_MICRONS,
+  U_MILLIMETERS,
+  U_MILS
+};
+
+int in_nums[] = {
+  5000,
+  125,
+  9950,
+  505
+};
+
+real out_nums[] = {
+};
+
+int i;
+
+string msg;
+
+for (i=0; i < 3; i++) {
+  OUTPUT_UNITS = test_units[i];
+  if (conv(in_nums[i]) != out_nums[i]) {
+    sprintf(msg, "Units %d in: %6d out: %7.4f", OUTPUT_UNITS, in_nums[i], out_nums[i]);
+    Error("test failed", msg);
+  }
+}

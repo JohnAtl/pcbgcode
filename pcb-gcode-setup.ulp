@@ -1,0 +1,875 @@
+//
+// Generate g-code for milling PC boards.
+//
+// Copyright 2004-2013 by John Johnson Software, LLC.
+// See readme.html for copyright information.
+//
+
+#include "source/pcb-gcode.h"
+#include "settings/pcb-defaults.h"
+#include "settings/pcb-machine.h"
+#include "settings/gcode-defaults.h"
+#include "settings/pcb-gcode-options.h"
+#include "source/filecopy.h"
+#include "source/math.h"
+#include "source/filename_subs.h"
+#include "plugin_headers.h"
+
+int m_current_units = OUTPUT_UNITS;
+string m_uom_suffix = "unknown";
+string M_UOM_SUFFIXES[] = {
+	"mc",	// microns
+	"mm",	// millimeters
+	"ml",	// mils
+	"in"	// inches
+};
+
+int m_setup_was_changed = NO;
+string m_cmd;
+
+string FILENAME_TOP_ETCH_FILE_SAMPLE;
+string FILENAME_TOP_DRILL_FILE_SAMPLE;
+string FILENAME_TOP_MILL_FILE_SAMPLE;
+string FILENAME_TOP_TEXT_FILE_SAMPLE;
+string FILENAME_TOP_FILL_FILE_SAMPLE;
+string FILENAME_BOT_ETCH_FILE_SAMPLE;
+string FILENAME_BOT_DRILL_FILE_SAMPLE;
+string FILENAME_BOT_MILL_FILE_SAMPLE;
+string FILENAME_BOT_TEXT_FILE_SAMPLE;
+string FILENAME_BOT_FILL_FILE_SAMPLE;
+
+string temp_str;
+
+void set_uom_suffix(int n)
+{
+	m_uom_suffix = M_UOM_SUFFIXES[n];
+}
+
+string get_uom_suffix()
+{
+	return m_uom_suffix;
+}
+
+void write_bool_param(string name, int value) 
+{
+  printf("int %s = %s;\n", name, (value) ? "YES" : "NO");
+}
+
+void write_int_param(string name, int value) 
+{
+  printf("int %s = %d;\n", name, value);
+}
+
+void write_int_defined(string name, string value) 
+{
+  printf("int %s = %s;\n", name, value);
+}
+
+void write_real_param(string name, real value) 
+{
+  printf("real %s = %f;\n", name, value);
+}
+
+void write_string_param(string name, string value) 
+{
+  printf("string %s = \"%s\";\n", name, value);
+}
+
+// UNIT CONVERSION BEGIN TAG DO NOT REMOVE
+
+void convert_units(int new_units)
+{
+    MILLING_DEPTH = convert(MILLING_DEPTH, m_current_units, new_units);
+    TEXT_DEPTH = convert(TEXT_DEPTH, m_current_units, new_units);
+    SPOT_DRILL_DEPTH = convert(SPOT_DRILL_DEPTH, m_current_units, new_units);
+    ISO_MIN = convert(ISO_MIN, m_current_units, new_units);
+    ISO_MAX = convert(ISO_MAX, m_current_units, new_units);
+    ISO_STEP = convert(ISO_STEP, m_current_units, new_units);
+    DEFAULT_WIDTH = convert(DEFAULT_WIDTH, m_current_units, new_units);
+    DEFAULT_Z_HIGH = convert(DEFAULT_Z_HIGH, m_current_units, new_units);
+    DEFAULT_Z_UP = convert(DEFAULT_Z_UP, m_current_units, new_units);
+    DEFAULT_Z_DOWN = convert(DEFAULT_Z_DOWN, m_current_units, new_units);
+    DRILL_DEPTH = convert(DRILL_DEPTH, m_current_units, new_units);
+    TOOL_CHANGE_POS_X = convert(TOOL_CHANGE_POS_X, m_current_units, new_units);
+    TOOL_CHANGE_POS_Y = convert(TOOL_CHANGE_POS_Y, m_current_units, new_units);
+    TOOL_CHANGE_POS_Z = convert(TOOL_CHANGE_POS_Z, m_current_units, new_units);
+    FEED_RATE = convert(FEED_RATE, m_current_units, new_units);
+    FEED_RATE_Z = convert(FEED_RATE_Z, m_current_units, new_units);
+    EPSILON = convert(EPSILON, m_current_units, new_units);
+
+    set_uom_suffix(OUTPUT_UNITS);
+    dlgRedisplay();
+    m_current_units = new_units;
+}
+
+// UNIT CONVERSION END TAG DO NOT REMOVE
+
+// Copy the *.release.h files to *.h, thereby restoring
+// their default contents.
+void restore_file_defaults()
+{
+	string restore_files[];
+	string file_name;
+	int num_files;
+	int i;
+	int release_start;
+	
+	num_files = fileglob(restore_files, 
+    g_path + "/safe_options/" + "*.release.h");
+	if (num_files == 0) {
+		dlgMessageBox("There aren't any .release.h files,"
+			" perhaps you should reinstall the program?");
+		exit(0);
+	}
+	
+	for (i=0; i < num_files; i++) {
+		release_start = strrstr(restore_files[i], ".release.h");
+		file_name = strsub(restore_files[i], 0, release_start) + ".h";
+		filecopy(restore_files[i], file_name);
+	}
+	
+	filecopy(g_path + "/profiles/generic.pp", 
+    g_path + "/settings/gcode-defaults.h");
+}
+
+int pp_selection = -1;
+string pp_files[];
+string pp_auth_desc[];
+int num_pp_files;
+
+num_pp_files = fileglob(pp_files, g_path + "/profiles/*.pp");
+
+for(int i=0; i < num_pp_files; i++) {
+  string lines[];
+  
+  pp_auth_desc[i] = pp_files[i];
+
+  int num_lines = fileread(lines, pp_files[i]);
+  for(int j=0; j < num_lines; j++) {
+    string fields[];
+
+    int num_fields = strsplit(fields, lines[j], '=');
+    for(int k=0; k < num_fields; k++) {
+
+      if(strlwr(fields[k]) == "// author") {
+        pp_auth_desc[i] = pp_auth_desc[i] + "  \t" + fields[k + 1];
+      }
+      else if(strlwr(fields[k]) == "// description") {
+        pp_auth_desc[i] = pp_auth_desc[i] + "  \t" + fields[k + 1];
+      }
+    }
+  }
+}
+
+string m_maximum_label = "Maximum";
+string m_step_size_label = "Step size";
+if (SINGLE_PASS) {
+  m_maximum_label = "not used";
+  m_step_size_label = "not used";
+}
+
+string m_eagle_compatibility = "";
+string m_compatibility = "";
+if (EAGLE_VERSION < 5) {
+  m_compatibility = "NOT COMPATIBLE";
+}
+else if (EAGLE_VERSION == 5) {
+  m_compatibility = "verified compatible";
+}
+else if (EAGLE_VERSION == 6) {
+  if (EAGLE_RELEASE <= 3) {
+    m_compatibility = "verified compatible";
+  }
+  else {
+    m_compatibility = "probably compatible";
+  }
+}
+sprintf(m_eagle_compatibility, "%d.%d (%s)", EAGLE_VERSION, EAGLE_RELEASE, m_compatibility);
+
+int Result = dlgDialog("pcb-gcode Setup") {
+
+	set_uom_suffix(OUTPUT_UNITS);
+
+	dlgVBoxLayout {
+		dlgLabel(
+			"<table>"
+			"<tr>"
+			"<td>"
+			"<a href=http://groups.yahoo.com/group/pcb-gcode>"
+				"<img src='docs/images/pcbgcode-600.gif' width='300'/>"
+			"</a>"
+			"</td>"
+			"<td><h6><center>Copyright 2004-2013 by"
+			" John Johnson Software, LLC.</center>"
+			"<center>All Rights Reserved</center>"
+			"<center>Version <em>3.6.0.1</em></center></h6></td>"
+			"</tr>"
+			"<tr><td></td><td><center>You have EAGLE version " + m_eagle_compatibility + "</center></td></tr>"
+			"</table>");
+		if (program_is_setup()) {
+			dlgLabel("<h5><center>Your current profile is based on the <em>" 
+				+ CURRENT_PROFILE[DESCRIPTION] + "</em> profile.</center><hr></h5>");
+			dlgLabel("<h6>Please use the settings under the tabs to"
+				" customize the gcode that is generated for you.</h6>");
+		}
+		else {
+			dlgLabel("<h4><center>Welcome!</center></h4><p>"
+				"<h6>Since this is the first time you have run this setup"
+				" program, please select the profile that best suits your machine."
+				" Click the <em>Accept</em> button to save your changes.</h6>");
+		}
+//		dlgLabel("");
+	}
+
+
+  dlgTabWidget {
+
+    /***************************************************************
+     *
+     * G E N E R A T I O N   O P T I O N S
+     *
+     ***************************************************************/
+    
+    if (program_is_setup()) dlgTabPage("Generation Options") {
+      dlgHBoxLayout {
+	    dlgStretch(20);
+        dlgVBoxLayout {
+        dlgGroup("Top Side") {
+          dlgCheckBox("Generate top outlines", GENERATE_TOP_OUTLINES);
+          dlgCheckBox("Generate top drills  ", GENERATE_TOP_DRILL);
+        }
+        dlgStretch(1);
+      }
+      dlgVBoxLayout {
+        dlgGroup("Bottom Side") {
+          dlgCheckBox("Generate bottom outlines", 
+            GENERATE_BOTTOM_OUTLINES);
+          dlgCheckBox("Generate bottom drills  ", 
+            GENERATE_BOTTOM_DRILL);
+          dlgCheckBox("Mirror ", 
+            MIRROR_BOTTOM);
+        }
+        dlgStretch(1);
+        dlgLabel("<img src='docs/images/isolation_settings_300.gif' width='300'/>");
+        dlgStretch(3);
+      }
+      dlgVBoxLayout {
+        dlgGroup("Board") {
+          dlgVBoxLayout {
+            dlgCheckBox("Show preview ", SHOW_PREVIEW);
+            dlgGridLayout {
+              dlgCell(0, 0) dlgCheckBox("Generate milling", GENERATE_MILLING);
+              dlgCell(0, 1) dlgLabel("Depth ");
+              dlgCell(0, 2) { dlgRealEdit(MILLING_DEPTH); dlgLabel(m_uom_suffix, YES); }
+
+              dlgCell(1, 0) dlgCheckBox("Generate text", GENERATE_TEXT);
+              dlgCell(1, 1) dlgLabel("Depth ");
+              dlgCell(1, 2) { dlgRealEdit(TEXT_DEPTH); dlgLabel(m_uom_suffix, YES); }
+              dlgCell(2, 0) dlgCheckBox("Spot drill holes", SPOT_DRILL);
+              dlgCell(2, 1) dlgLabel("Depth");
+              dlgCell(2, 2) { dlgRealEdit(SPOT_DRILL_DEPTH);  dlgLabel(m_uom_suffix, YES); }
+            }
+            dlgGridLayout {
+              dlgCell(0, 0, 0, 1) dlgLabel("Isolation");
+              dlgCell(0, 1) {
+                dlgCheckBox("Single pass", SINGLE_PASS) {
+                  if (SINGLE_PASS) {
+/*                    dlgMessageBox("You have selected the single pass option.\n" +
+                    "The next time you run pcb-gcode-setup, the Maximum and Step Size " +
+                    "options will be hidden. Only Minimum will be shown.\n" +
+                    "To change back, just turn Single pass off, " +
+                    "click Accept, and run pcb-gcode-setup again.\n" +
+                    "The minimum, maximum, and step size options will be available again.");
+                    */
+                    m_maximum_label = "not used";
+                    m_step_size_label = "not used";
+                  }
+                  else {
+                    m_maximum_label = "Maximum";
+                    m_step_size_label = "Step size";
+                  }
+                }
+              }
+              dlgCell(1, 0) dlgLabel("Minimum");
+              dlgCell(1, 1) { dlgRealEdit(ISO_MIN); 
+                dlgLabel(m_uom_suffix, YES); 
+              }
+              dlgCell(3, 0) dlgLabel(m_maximum_label, YES);
+              dlgCell(3, 1) { dlgRealEdit(ISO_MAX); 
+                dlgLabel(m_uom_suffix, YES); 
+              }
+              dlgCell(4, 0) dlgLabel(m_step_size_label, YES);
+              dlgCell(4, 1) { dlgRealEdit(ISO_STEP); 
+                dlgLabel(m_uom_suffix, YES); 
+              }
+            }
+            dlgSpacing(10);
+            dlgVBoxLayout {
+              dlgLabel("Etching Tool Size ");
+              dlgHBoxLayout { dlgRealEdit(DEFAULT_WIDTH); 
+                dlgLabel(m_uom_suffix, YES); 
+              }
+            }
+          }
+        }
+        dlgStretch(1);
+      }
+      dlgStretch(20);
+    }
+    dlgHBoxLayout {
+    }
+  }
+
+    /***************************************************************
+     *
+     * M A C H I N E
+     *
+     ***************************************************************/
+	if (program_is_setup()) dlgTabPage("Machine") {
+		dlgHBoxLayout {
+			dlgStretch(20);
+			dlgLabel("<img src='docs/images/z_axis.gif'/>");
+			dlgGroup("Z Axis") {
+				dlgGridLayout {
+					dlgCell(1, 0) dlgLabel("Z High ");
+					dlgCell(1, 1) { 
+						dlgRealEdit(DEFAULT_Z_HIGH); 
+						dlgLabel(m_uom_suffix, YES); 
+					}
+					dlgCell(2, 0) dlgLabel("Z Up ");
+					dlgCell(2, 1) { 
+						dlgRealEdit(DEFAULT_Z_UP); 
+						dlgLabel(m_uom_suffix, YES); 
+					}
+					dlgCell(3, 0) dlgLabel("Z Down ");
+					dlgCell(3, 1) { 
+						dlgRealEdit(DEFAULT_Z_DOWN); 
+						dlgLabel(m_uom_suffix, YES); 
+					}
+					dlgCell(4, 0) dlgLabel("Drill Depth ");
+					dlgCell(4, 1) {
+						dlgRealEdit(DRILL_DEPTH); 
+						dlgLabel(m_uom_suffix, YES); 
+					}
+					dlgCell(5, 0) dlgLabel("Drill Dwell ");
+					dlgCell(5, 1) dlgRealEdit(DRILL_DWELL, 0); // DO NOT CONVERT
+				}
+			}
+			dlgGroup("Tool Change") {
+				dlgGridLayout {
+					dlgCell(1, 0) dlgLabel("Position X ");
+					dlgCell(1, 1) { dlgRealEdit(TOOL_CHANGE_POS_X); 
+						dlgLabel(m_uom_suffix, YES); 
+					}
+					dlgCell(2, 0) dlgLabel("Position Y ");
+					dlgCell(2, 1) { dlgRealEdit(TOOL_CHANGE_POS_Y); 
+						dlgLabel(m_uom_suffix, YES); 
+					}
+					dlgCell(3, 0) dlgLabel("Position Z ");
+					dlgCell(3, 1) { dlgRealEdit(TOOL_CHANGE_POS_Z); 
+						dlgLabel(m_uom_suffix, YES); 
+					}
+				}
+			}
+			dlgStretch(20);
+		}
+		dlgHBoxLayout {
+			dlgStretch(20);
+			dlgGroup("Units") {
+				dlgRadioButton("Microns", OUTPUT_UNITS) { 
+					convert_units(U_MICRONS); 
+				}
+				dlgRadioButton("Millimeters", OUTPUT_UNITS) { 
+					convert_units(U_MILLIMETERS); 
+				}
+				dlgRadioButton("Mils", OUTPUT_UNITS) { 
+					convert_units(U_MILS); 
+				}
+				dlgRadioButton("Inches", OUTPUT_UNITS) { 
+					convert_units(U_INCHES); 
+				}
+			}
+			dlgGroup("Spindle") {
+				dlgGridLayout {
+					dlgCell(1, 0) dlgLabel("Spin Up Time ");
+					dlgCell(1, 1) dlgRealEdit(SPINDLE_ON_TIME); // DO NOT CONVERT
+				}
+			}
+			dlgGroup("Feed Rates") {
+				dlgGridLayout {
+					dlgCell(1, 0) dlgLabel("X Y ");
+					dlgCell(1, 1) { dlgRealEdit(FEED_RATE); 
+						dlgLabel(m_uom_suffix, YES); dlgLabel("/min"); 
+					}
+					dlgCell(2, 0) dlgLabel("Z ");
+					dlgCell(2, 1) { dlgRealEdit(FEED_RATE_Z); 
+						dlgLabel(m_uom_suffix, YES); dlgLabel("/min"); 
+					}
+				}
+			}
+			dlgGroup("Misc") {
+				dlgGridLayout {
+					dlgCell(1, 0) dlgLabel("Epsilon");
+					dlgCell(1, 1) { dlgRealEdit(EPSILON);
+						dlgLabel(m_uom_suffix, YES);
+						dlgPushButton("?") {
+							dlgMessageBox("If an X or Y move is less than this amount, do not "
+							"put a move in the g-code file. For instance, if one point is "
+							"only 0.00001\" away from another point, there is no need to "
+							"write the move to the g-code file, since the machine will not "
+							"move anyway. This helps make the g-code file smaller, and run faster.");
+						}
+					}
+					dlgCell(2, 0) dlgLabel("Default Drill Rack File");
+					dlgCell(2, 1) dlgStringEdit(DEFAULT_DRILL_FILE);
+					dlgCell(2, 2) {	
+						dlgPushButton("...") {
+						DEFAULT_DRILL_FILE = dlgFileOpen("Find default drill rack file", 
+						g_path + "/settings", 
+						"Drill files (*.drl);;All files (*.*)");
+						}
+						dlgPushButton("?") {
+							dlgMessageBox(
+							"Please see docs/readme.html for full details.<br />"
+							"pcb-gcode will look for (in order):<br />"
+							"board.drl<br />"
+							"The file you select here.<br />"
+							"path_to_pcbgcode/settings/default.drl<br />"
+							"If this setting is blank, and it does not find a file, "
+							"it will assume you do not want to use a rack file.<br />"
+							"If this setting is not blank, and it cannot find one of the "
+							"files listed above, it will give you an error message."
+							);
+						}
+					}
+				}
+			}
+			dlgStretch(20);
+		}
+	}
+    
+    /***************************************************************
+     *
+     * G C O D E   S T Y L E
+     *
+     ***************************************************************/
+		dlgTabPage("GCode Style") {
+			dlgLabel("Please select your style of gcode below.");
+			dlgLabel("If you make changes to gcode-defaults.h to "
+				"work with your machine,");
+			dlgLabel(
+        "Please email the file to <a href=mailto:pcbgcode@pcbgcode.org>"
+				"pcbgcode@pcbgcode.org</a> for possible inclusion "
+				"in the next release.");
+			dlgListView("File\tAuthor\tDescription", 
+        pp_auth_desc, pp_selection);
+		}
+
+    /***************************************************************
+     *
+     * G C O D E   O P T I O N S
+     *
+     ***************************************************************/
+		if (program_is_setup()) dlgTabPage("GCode Options") {
+      dlgHBoxLayout {
+        dlgVBoxLayout {
+        dlgGroup("NC File Comments") {
+          dlgCheckBox("NC File Comment from Board", 
+            NC_FILE_COMMENT_FROM_BOARD);
+          dlgCheckBox("Nc File Comment Date", 
+            NC_FILE_COMMENT_DATE);
+          dlgCheckBox("Nc File Comment Machine Settings", 
+            NC_FILE_COMMENT_MACHINE_SETTINGS);
+          dlgCheckBox("Nc File Comment Pcb Defaults Settings",
+            NC_FILE_COMMENT_PCB_DEFAULTS_SETTINGS);
+        }
+//        dlgStretch(1);
+      }
+	dlgGroup("Other Options") {
+		dlgHBoxLayout {
+			dlgVBoxLayout {
+				dlgCheckBox("Use user gcode (from user-gcode.h)", USER_GCODE);
+				dlgCheckBox("Debug Flag", g_debug_flag);
+				dlgCheckBox("Do tool change with zero step", DO_TOOL_CHANGE_WITH_ZERO_STEP);
+				dlgCheckBox("Flip board in Y instead of X", FLIP_BOARD_IN_Y);
+			}
+			dlgVBoxLayout {
+				dlgCheckBox("Compact gcode", COMPACT_GCODE);
+				dlgHBoxLayout {
+					dlgCheckBox("Use line numbers?", USE_LINE_NUMBERS);
+					dlgLabel("  Format "); dlgStringEdit(LINE_NUMBER_FORMAT);
+				}
+	          dlgCheckBox("Use simple drill code ", 
+	            SIMPLE_DRILL_CODE);
+			}
+		}
+		//        dlgStretch(1);
+	}
+    }
+    dlgHBoxLayout {
+      dlgGroup("File Naming") {
+        dlgGridLayout {
+          dlgCell(0, 0, 0, 1) { 
+            dlgLabel("Filename Base "); dlgStringEdit(FILENAME_BASE);
+          }
+          dlgCell(0, 2) { 
+            dlgLabel("Extension "); dlgStringEdit(DEFAULT_EXTENSION); 
+            dlgStretch(1);
+          }
+          dlgCell(2, 0) { dlgLabel("Word for 'etch'"); 
+            dlgStringEdit(ETCH_FILE_NAME); 
+          }
+          dlgCell(2, 1) { dlgLabel("Word for 'drill'"); 
+            dlgStringEdit(DRILL_FILE_NAME); 
+          }
+          dlgCell(2, 2) { dlgLabel("Word for 'mill'"); 
+            dlgStringEdit(MILL_FILE_NAME);
+          }
+          dlgCell(2, 3) { dlgLabel("Word for 'text'"); 
+            dlgStringEdit(TEXT_FILE_NAME); dlgStretch(1);
+          }
+          dlgCell(3, 0) { dlgLabel("Word for 'top'"); 
+            dlgStringEdit(TOP_FILE_NAME); 
+          }
+          dlgCell(3, 1) { dlgLabel("Word for 'bottom'"); 
+            dlgStringEdit(BOT_FILE_NAME); 
+          }
+        }
+        dlgHBoxLayout {
+          dlgGroup("Top (Component) Side Files") {
+            dlgGridLayout {
+              dlgCell(1, 0) dlgLabel("Etching "); 
+              dlgCell(1, 1) { dlgStringEdit(FILENAME_TOP_ETCH_FILE); }
+              dlgCell(2, 0) dlgLabel("Drill "); 
+              dlgCell(2, 1) { dlgStringEdit(FILENAME_TOP_DRILL_FILE); }
+              dlgCell(3, 0) dlgLabel("Mill "); 
+              dlgCell(3, 1) { dlgStringEdit(FILENAME_TOP_MILL_FILE); }
+              dlgCell(4, 0) dlgLabel("Text "); 
+              dlgCell(4, 1) { dlgStringEdit(FILENAME_TOP_TEXT_FILE); }
+            }
+          }
+          dlgGroup("Bottom (Solder) Side Files") {
+            dlgGridLayout {
+              dlgCell(1, 0) dlgLabel("Etching "); 
+              dlgCell(1, 1) dlgStringEdit(FILENAME_BOT_ETCH_FILE);
+              dlgCell(2, 0) dlgLabel("Drill "); 
+              dlgCell(2, 1) dlgStringEdit(FILENAME_BOT_DRILL_FILE);
+              dlgCell(3, 0) dlgLabel("Mill "); 
+              dlgCell(3, 1) dlgStringEdit(FILENAME_BOT_MILL_FILE);
+              dlgCell(4, 0) dlgLabel("Text "); 
+              dlgCell(4, 1) dlgStringEdit(FILENAME_BOT_TEXT_FILE);
+            }
+          }
+//          dlgStretch(1);
+        dlgVBoxLayout {
+          dlgPushButton("Test Filenames") {
+            FILENAME_TOP_ETCH_FILE_SAMPLE = sub_side_phase(
+              FILENAME_BASE + FILENAME_TOP_ETCH_FILE, 
+              TOP, PH_TOP_OUT_WRITE);
+            FILENAME_TOP_DRILL_FILE_SAMPLE = sub_side_phase(
+              FILENAME_BASE + FILENAME_TOP_DRILL_FILE, 
+              TOP, PH_TOP_DRILL);
+            FILENAME_TOP_MILL_FILE_SAMPLE = sub_side_phase(
+              FILENAME_BASE + FILENAME_TOP_MILL_FILE, 
+              TOP, PH_MILL);
+            FILENAME_TOP_TEXT_FILE_SAMPLE = sub_side_phase(
+              FILENAME_BASE + FILENAME_TOP_TEXT_FILE, 
+              TOP, PH_TEXT);
+            FILENAME_BOT_ETCH_FILE_SAMPLE = sub_side_phase(
+              FILENAME_BASE + FILENAME_BOT_ETCH_FILE, 
+              BOTTOM, PH_BOTTOM_OUT_WRITE);
+            FILENAME_BOT_DRILL_FILE_SAMPLE = sub_side_phase(
+              FILENAME_BASE + FILENAME_BOT_DRILL_FILE, 
+              BOTTOM, PH_BOTTOM_DRILL);
+            FILENAME_BOT_MILL_FILE_SAMPLE = sub_side_phase(
+              FILENAME_BASE + FILENAME_BOT_MILL_FILE, 
+              BOTTOM, PH_MILL);
+            FILENAME_BOT_TEXT_FILE_SAMPLE = sub_side_phase(
+              FILENAME_BASE + FILENAME_BOT_TEXT_FILE, 
+              BOTTOM, PH_TEXT);
+            FILENAME_TOP_ETCH_FILE_SAMPLE = substitute(
+              FILENAME_TOP_ETCH_FILE_SAMPLE, 
+              key_value_record(" ", "_"));
+            FILENAME_TOP_DRILL_FILE_SAMPLE = substitute(
+              FILENAME_TOP_DRILL_FILE_SAMPLE, 
+              key_value_record(" ", "_"));
+            FILENAME_TOP_MILL_FILE_SAMPLE  = substitute(
+              FILENAME_TOP_MILL_FILE_SAMPLE, 
+              key_value_record(" ", "_"));
+            FILENAME_TOP_TEXT_FILE_SAMPLE  = substitute(
+              FILENAME_TOP_TEXT_FILE_SAMPLE, 
+              key_value_record(" ", "_"));
+            FILENAME_BOT_ETCH_FILE_SAMPLE  = substitute(
+              FILENAME_BOT_ETCH_FILE_SAMPLE, 
+              key_value_record(" ", "_")); 
+            FILENAME_BOT_DRILL_FILE_SAMPLE = substitute(
+              FILENAME_BOT_DRILL_FILE_SAMPLE, 
+              key_value_record(" ", "_")); 
+            FILENAME_BOT_MILL_FILE_SAMPLE  = substitute(
+              FILENAME_BOT_MILL_FILE_SAMPLE, 
+              key_value_record(" ", "_"));
+            FILENAME_BOT_TEXT_FILE_SAMPLE  = substitute(
+              FILENAME_BOT_TEXT_FILE_SAMPLE, 
+              key_value_record(" ", "_"));
+            temp_str = ";Test Filenames\n"  
+            "Spaces in file paths have been "
+            "replaced with underscores _ to keep "
+            "the lines from wrapping.\n"
+            "Top:\n"
+            "Etch:\t" + FILENAME_TOP_ETCH_FILE_SAMPLE + "\n" +
+            "Drill:\t" + FILENAME_TOP_DRILL_FILE_SAMPLE + "\n" +
+            "Mill:\t" + FILENAME_TOP_MILL_FILE_SAMPLE + "\n" +
+            "Text:\t" + FILENAME_TOP_TEXT_FILE_SAMPLE + "\n" +
+            "\nBottom:\n"
+            "Etch:\t" + FILENAME_BOT_ETCH_FILE_SAMPLE + "\n" +
+            "Drill:\t" + FILENAME_BOT_DRILL_FILE_SAMPLE + "\n" +
+            "Mill:\t" + FILENAME_BOT_MILL_FILE_SAMPLE + "\n" +
+            "Text:\t" + FILENAME_BOT_TEXT_FILE_SAMPLE + "\n";
+            dlgMessageBox(temp_str);
+          }
+          dlgPushButton("Help") {
+            dlgMessageBox(filename_subs_help());
+          }
+//        dlgStretch(1);
+		}
+        }
+        }
+      }
+      
+		}
+		if (program_is_setup()) dlgTabPage("Plugins") {
+      #include "plugins/plugin_loader.h"
+    }
+    
+    /***************************************************************
+     *
+     * O T H E R
+     *
+     ***************************************************************/
+		if (program_is_setup()) dlgTabPage("Other") {
+      dlgHBoxLayout {
+	      dlgStretch(1);
+        dlgVBoxLayout {
+	      dlgStretch(1);
+          dlgGroup("Miscellaneous") {
+            dlgGridLayout {
+              dlgCell(0, 0, 0, 5) {
+                dlgLabel("All misc. options are deprecated.");
+              }
+            }
+          }
+          dlgPushButton("Reset to Factory Defaults") { 
+            if (dlgMessageBox(
+              "<qt>This is going to change the following files"
+              " back to their default contents, <em>erasing</em> any changes"
+              " you may have made to them:<p>"
+              "<table>"
+              "<tr><td>pcb-defaults.h</td><td>pcb-gcode-options.h</td></tr>"
+              "<tr><td>pcb-machine.h</td><td>user-gcode.h</td></tr>"
+              "</table><br>"
+              "Is that something you want to do?<p>"
+              "<b>If you aren't sure, click <em>No</em>.</b></qt>", 
+              "-Yes", "+No") == 0 /*Yes*/) {
+              restore_file_defaults();
+              exit("run pcb-gcode-setup");
+            }
+          }
+	      dlgStretch(1);
+        }
+		dlgStretch(1);
+      }
+		}
+	}
+
+	dlgHBoxLayout {
+		dlgStretch(5);
+		dlgPushButton("+&Accept") dlgAccept();
+		if (program_is_setup()) {
+      dlgPushButton("Accept and make my &board") dlgAccept(2);
+    }
+		dlgPushButton("-Cancel") {
+			if (dlgMessageBox("Cancel your changes.<p>"
+				"Are you sure?", "Yes", "No") == 0) dlgReject();
+		}
+	}
+};
+
+//         Accept          Accept and make board
+if (Result == 1 || Result == 2) {
+
+	fileerror();
+	output(g_path + "/settings/pcb-defaults.h", "wt") {
+
+		int now = time();
+
+		printf(
+      "//\n// Default values for generating gcode from a PCB.\n//\n");
+		printf("// These settings were last changed with "
+			"pcb-gcode-setup: %s\n//\n", t2string(now));
+		printf("//\n// Changes you make in this file will be overwritten "
+			"if you use pcb-gcode-setup.\n//\n\n");
+
+    write_bool_param("SINGLE_PASS", SINGLE_PASS);
+		write_real_param("ISO_MIN", ISO_MIN);
+		write_real_param("ISO_MAX", ISO_MAX);
+		write_real_param("ISO_STEP", ISO_STEP);
+		printf("\n");
+
+		write_bool_param("GENERATE_TOP_OUTLINES", GENERATE_TOP_OUTLINES);
+		write_bool_param("GENERATE_TOP_DRILL", GENERATE_TOP_DRILL);
+		write_bool_param("GENERATE_TOP_FILL", GENERATE_TOP_FILL);
+		printf("\n");
+
+		write_bool_param("GENERATE_BOTTOM_OUTLINES", 
+      GENERATE_BOTTOM_OUTLINES);
+		write_bool_param("GENERATE_BOTTOM_DRILL", GENERATE_BOTTOM_DRILL);
+		write_bool_param("GENERATE_BOTTOM_FILL", GENERATE_BOTTOM_FILL);
+    write_bool_param("MIRROR_BOTTOM", 
+      MIRROR_BOTTOM);
+    write_bool_param("SIMPLE_DRILL_CODE", SIMPLE_DRILL_CODE);
+    
+		printf("\n");
+
+		write_bool_param("GENERATE_MILLING", GENERATE_MILLING);
+		printf("\n");
+
+		write_bool_param("GENERATE_TEXT", GENERATE_TEXT);
+		printf("\n");
+    
+    write_bool_param("SPOT_DRILL", SPOT_DRILL);
+    write_real_param("SPOT_DRILL_DEPTH", SPOT_DRILL_DEPTH);
+    printf("\n");
+
+		write_bool_param("DO_TOOL_CHANGE_WITH_ZERO_STEP",
+			DO_TOOL_CHANGE_WITH_ZERO_STEP);
+		printf("\n");
+
+		write_bool_param("FLIP_BOARD_IN_Y", FLIP_BOARD_IN_Y);
+		printf("\n");
+    
+		// Place a // in front of units not being used
+		if (OUTPUT_UNITS != U_MICRONS) printf("//");
+		write_int_defined("OUTPUT_UNITS", "U_MICRONS");
+		if (OUTPUT_UNITS != U_MILLIMETERS) printf("//");
+		write_int_defined("OUTPUT_UNITS", "U_MILLIMETERS");
+		if (OUTPUT_UNITS != U_MILS) printf("//");
+		write_int_defined("OUTPUT_UNITS", "U_MILS");
+		if (OUTPUT_UNITS != U_INCHES) printf("//");
+		write_int_defined("OUTPUT_UNITS", "U_INCHES");
+	}
+	if(fileerror())
+		exit(1);
+
+	if(pp_selection > -1) {
+		if (dlgMessageBox(
+      "<qt>If you have made manual changes to gcode-defaults.h, they"
+			" will be overwritten by your new gcode style selection.<p>"
+			"(Click <b>Yes</b> if you aren't sure.)<p>"
+			"Save your selection?</qt>", "Yes", "No") == 0) {
+				
+			filecopy(pp_files[pp_selection], 
+        g_path + "/settings/gcode-defaults.h");
+
+			fileerror();
+			set_current_profile(pp_auth_desc[pp_selection]);
+			if(fileerror())
+				exit(1);
+				
+			m_setup_was_changed = YES;
+		}
+	}
+
+  output(g_path + "/settings/pcb-gcode-options.h") {
+    printf("//\n");
+    printf("// General Options ");
+	  printf("// Your edits to this file will be overwritten"
+				" by the setup program.\n");
+    printf("//\n");
+    write_bool_param("SHOW_PROGRESS", SHOW_PROGRESS);
+		write_string_param("RESTORE_MENU_FILE", RESTORE_MENU_FILE);
+    write_bool_param("NC_FILE_COMMENT_FROM_BOARD", 
+        NC_FILE_COMMENT_FROM_BOARD);
+    write_bool_param("NC_FILE_COMMENT_DATE", NC_FILE_COMMENT_DATE);
+    write_bool_param("NC_FILE_COMMENT_MACHINE_SETTINGS",
+        NC_FILE_COMMENT_MACHINE_SETTINGS);
+    write_bool_param("NC_FILE_COMMENT_PCB_DEFAULTS_SETTINGS",
+        NC_FILE_COMMENT_PCB_DEFAULTS_SETTINGS);
+		write_bool_param("USER_GCODE", USER_GCODE);
+    write_bool_param("g_debug_flag", g_debug_flag);
+    write_bool_param("COMPACT_GCODE", COMPACT_GCODE);
+    write_bool_param("USE_LINE_NUMBERS", USE_LINE_NUMBERS);
+    write_string_param("LINE_NUMBER_FORMAT", LINE_NUMBER_FORMAT);
+    write_bool_param("SHOW_PREVIEW", SHOW_PREVIEW);
+
+    write_string_param("FILENAME_BASE", FILENAME_BASE);
+    write_string_param("FILENAME_TOP_ETCH_FILE",  FILENAME_TOP_ETCH_FILE);
+    write_string_param("FILENAME_TOP_DRILL_FILE", FILENAME_TOP_DRILL_FILE);
+    write_string_param("FILENAME_TOP_MILL_FILE",  FILENAME_TOP_MILL_FILE);
+    write_string_param("FILENAME_TOP_TEXT_FILE",  FILENAME_TOP_TEXT_FILE);
+    write_string_param("FILENAME_TOP_FILL_FILE",  FILENAME_TOP_FILL_FILE);
+
+    write_string_param("FILENAME_BOT_ETCH_FILE",  FILENAME_BOT_ETCH_FILE);
+    write_string_param("FILENAME_BOT_DRILL_FILE", FILENAME_BOT_DRILL_FILE);
+    write_string_param("FILENAME_BOT_MILL_FILE",  FILENAME_BOT_MILL_FILE);
+    write_string_param("FILENAME_BOT_TEXT_FILE",  FILENAME_BOT_TEXT_FILE);
+    write_string_param("FILENAME_BOT_FILL_FILE",  FILENAME_BOT_FILL_FILE);
+    write_string_param("ETCH_FILE_NAME",  ETCH_FILE_NAME);
+    write_string_param("DRILL_FILE_NAME", DRILL_FILE_NAME);
+    write_string_param("MILL_FILE_NAME",  MILL_FILE_NAME);
+    write_string_param("TEXT_FILE_NAME",  TEXT_FILE_NAME);
+    write_string_param("TOP_FILE_NAME",   TOP_FILE_NAME);
+    write_string_param("BOT_FILE_NAME",   BOT_FILE_NAME);
+    write_string_param("DEFAULT_EXTENSION", DEFAULT_EXTENSION);
+
+	write_string_param("DEFAULT_DRILL_FILE", DEFAULT_DRILL_FILE);
+  }
+
+  output(g_path + "/settings/pcb-machine.h") {
+    printf("//\n");
+    printf("// For ease of use, and to avoid overwritting your settings,\n");
+    printf("// use pcb-gcode-setup to make changes to these settings.\n");
+    printf("//\n\n");
+    write_real_param("DEFAULT_Z_HIGH", DEFAULT_Z_HIGH);
+    write_real_param("DEFAULT_Z_UP", DEFAULT_Z_UP);
+    write_real_param("DEFAULT_Z_DOWN", DEFAULT_Z_DOWN);
+    write_real_param("DRILL_DEPTH", DRILL_DEPTH);
+    write_real_param("DRILL_DWELL", DRILL_DWELL);
+    write_real_param("SPINDLE_ON_TIME", SPINDLE_ON_TIME);
+    write_real_param("MILLING_DEPTH", MILLING_DEPTH);
+    write_real_param("TEXT_DEPTH", TEXT_DEPTH);
+    write_real_param("TOOL_CHANGE_POS_X", TOOL_CHANGE_POS_X);
+    write_real_param("TOOL_CHANGE_POS_Y", TOOL_CHANGE_POS_Y);
+    write_real_param("TOOL_CHANGE_POS_Z", TOOL_CHANGE_POS_Z);
+    write_real_param("FEED_RATE", FEED_RATE);
+    write_real_param("FEED_RATE_Z", FEED_RATE_Z);
+    write_real_param("DEFAULT_WIDTH", DEFAULT_WIDTH);
+    write_real_param("X_OFFSET", X_OFFSET);
+    write_real_param("Y_OFFSET",Y_OFFSET);
+    write_real_param("X_HOME", X_HOME);
+    write_real_param("Y_HOME",Y_HOME);
+	write_real_param("EPSILON", EPSILON);
+  }
+  
+}
+
+m_cmd = "";
+switch (Result) {
+	// Accept
+	case 1:
+		if (m_setup_was_changed)
+//			m_cmd = "run pcb-gcode-setup;\n";
+    m_cmd = "run " + g_path + "/pcb-gcode-setup;\n";
+
+		break;
+	//         Accept and make board
+	case 2:
+//	dlgMessageBox("g_path = \"" + g_path + "\"");
+//		m_cmd = "run pcb-gcode;\n";
+		m_cmd = "run " + g_path + "/pcb-gcode;\n";
+		break;
+}
+
+if (SHOW_PROGRESS && RESTORE_MENU_FILE != "") {
+	m_cmd = "script " + RESTORE_MENU_FILE + ";\n" + m_cmd;
+}
+exit(m_cmd);

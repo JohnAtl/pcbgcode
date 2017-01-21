@@ -1,0 +1,3 @@
+ -Xms64m -Xmx256m
+viewer
+viewer.jar,core.jar

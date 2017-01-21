@@ -1,0 +1,1115 @@
+//
+// Generate g-code for milling PC boards.
+//
+// Copyright 2004-2013 by John Johnson Software, LLC.
+// See readme.html for copyright information.
+//
+// See pcb-defaults.h, gcode-defaults.h and pcb-machine.h for options.
+//
+
+#include "source/pcb-gcode.h"
+#include "source/pcb-gcode-stack.h"
+#include "settings/pcb-defaults.h"
+#include "settings/pcb-machine.h"
+#include "settings/gcode-defaults.h"
+#include "settings/pcb-gcode-options.h"
+#include "settings/user-gcode.h"
+#include "source/math.h"
+#include "source/drill.h"
+#include "source/library.h"
+#include "source/pcb-file-utils.h"
+#include "source/filename_subs.h"
+
+#usage "<center><b>pcb-gcode&trade; Gcode Generation Utility</b><br>"
+			 " Version 3.6.0.1<p>"
+			 "Copyright&copy; 2004 - 2013 by John Johnson Software, LLC<br>"
+			 "All Rights Reserved</center>"
+       "<p>"
+       "Join the Yahoo! pcb-gcode group "
+			 "<a href=http://groups.yahoo.com/group/pcb-gcode>http://groups.yahoo.com/group/pcb-gcode</a>"
+       "<br>or contact the author at <a href=mailto:pcbgcode@pcbgcode.org>pcbgcode@pcbgcode.org</a>"
+			 "<br>"
+			 "<hr>"
+       "This program generates g-code for 'mechanically etching' PC boards. "
+       "Using a CNC router or milling machine, you can make PC boards without using etching chemicals.<p />"
+       "It will create files for the outlines of tracks, drilling holes, and milling cutouts in the board."
+       "<br>See the <a href=file://readme.html>readme.html</a> file for more info.<p>"
+       "There are <em>many</em> options in the setup program.<br />"
+       "To setup which files are generated, and how, use the following command:<br>"
+       "<code>run pcb-gcode --setup</code><p>"
+       "<p/>"
+       "If you want to produce a set of files without changing options, you can run pcb-gcode directly."
+       "Usage is as follows:<br>"
+       "<code>run pcb-gcode [option] [file]</code><br>"
+       "Where:\n"
+       "<table>"
+       "<tr><td><em>Option</em></td><td><em>Function</em></td></tr>"
+			 "<tr><td><code>--help</code></td><td>Show this help screen</td></tr>"			 
+			 "<tr><td><code>--setup</code></td><td>Run the setup / configuration program</td></tr>"
+       "<tr><td><code>file</code></td><td>Is the optional root filename.\n</td></tr>"
+       "<tr><td></td><td>If not given, the board name is used as the root filename.</td></tr>"
+			"</table>"
+			 "</td></tr>"
+       "</table>"
+			 "<hr>"
+     
+g_width = DEFAULT_WIDTH;
+
+// Filename to output to.
+string m_file_name = "";
+
+// Which side we're currently working on.
+g_side = TOP;
+
+// Tool currently being used.
+int m_current_tool = 0;
+
+// Amount to isolate traces.
+real m_isolate = 0.0;
+
+// Used to pass the pass info to the next pass of the program.
+int m_pass_num;
+
+// The layer being worked on.
+int m_layer;
+
+// Used to create command strings.
+string g_cmd;
+string g_cmd_temp;
+
+// Save the maximum and minimum coordinates.
+real m_max_x;
+real m_max_y;
+real m_min_x;
+real m_min_y;
+void save_extents(real x, real y)
+{
+	m_max_x = max(m_max_x, x);
+	m_max_y = max(m_max_y, y);
+	m_min_x = min(m_min_x, x);
+	m_min_y = min(m_min_y, y);
+}
+
+void preview()
+{
+	if (SHOW_PREVIEW) {
+		switch(get_os()) {
+			case OS_MACOSX:
+			system(g_path + "/viewer/application.macosx/viewer.app/Contents/MacOS/JavaApplicationStub");
+			break;
+			case OS_LINUX:
+			system(g_path + "/source/viewer.linux.sh");
+			break;
+			case OS_WINDOWS:
+			system(g_path + "/viewer/application.windows/viewer.exe");
+			dlgMessageBox("Close this window when you have finished with the preview");
+			break;
+			default:
+			Fatal("Oops!", "Can't figure out which OS you have.");
+		}
+	}
+}
+//
+// Determine the next phase, and set g_phase accordingly.
+//
+// Params: none
+// Return: none
+//
+void next_phase(void)
+{
+	if (g_phase == PH_TOP_OUT_GEN && GENERATE_TOP_OUTLINES != YES) {
+		g_phase += 2;
+		return;
+	}
+	if (g_phase == PH_BOTTOM_OUT_GEN && GENERATE_BOTTOM_OUTLINES != YES) {
+		g_phase += 2;
+		return;
+	}
+
+	if (g_phase == PH_TOP_OUT_WRITE || g_phase == PH_BOTTOM_OUT_WRITE) {
+		if (m_isolate < ISO_MAX && !SINGLE_PASS) {
+			m_isolate += ISO_STEP;
+			m_pass_num++;
+			g_phase--;
+		}
+		else {
+			m_isolate = ISO_MIN;
+			m_pass_num = 0;
+			g_phase++;
+
+			preview();
+		}
+	}
+	else {
+		g_phase++;
+	}
+}
+
+//////////////////////////////////////////////////
+//
+// Hole drilling routines.
+//
+//////////////////////////////////////////////////
+
+//
+// Add a hole drilling command to the command string.
+//
+// Params:
+//  Size    Drill size.
+//  x       x coordinate.
+//  y       y coordinate.
+// Returns:
+//  none
+// Changes:
+//  the stack
+//
+void add_hole(int req_size, int x, int y)
+{
+	string tempstr;
+	int drill_size;
+
+	drill_size = get_drill_for(req_size);
+
+	sprintf(tempstr, "%06d\t%06d\t%06d", drill_size, x, y);
+	stack_push(tempstr);
+}
+
+/*
+ * Create a drill file for the desired side.
+ *
+ * Params:
+ *  which_side    Side to produce the file for.
+ *  suffix        Suffix to use for the file name (i.e. bd).
+ * Returns:
+ *  none
+ * Changes:
+ *  side
+*/
+void drill(int which_side, string suffix)
+{
+	int num_lines;
+	int i;
+	real last_size;
+	string drill_args[];
+	m_current_tool = 0;
+	real drill_size_mm;
+	real drill_size_inch;
+	real drill_size;
+	real drill_x;
+	real drill_y;
+	int drill_tool_num;
+
+	g_side = which_side;
+
+	//
+	// Build a stack with all the holes.
+	//
+	board(B) {
+		B.holes(H) add_hole(H.drill, H.x, H.y);
+		B.signals(S) S.vias(V) add_hole(V.drill, V.x, V.y);
+		B.elements(E) {
+			E.package.contacts(C) {
+				if (C.pad) {
+					add_hole(C.pad.drill, C.pad.x, C.pad.y);
+				}
+			}
+			E.package.holes(H) add_hole(H.drill, H.x, H.y);
+		} 
+		// B.elements
+
+		// Sorts the drills by size, x and y.
+		stack_sort();
+
+		//
+		// Create the drill g-code file.
+		//
+		last_size = -1;
+		output(get_filename(), "wt") {
+			output_file_preamble();
+
+			//
+			// Create a tool table at the beginning of the file.
+			//
+			out(TOOL_CHANGE_TABLE_HEADER);
+			for (i=stack_fwd_iter(); i != END_OF_STACK; i=stack_fwd_next()) {
+				if (i==END_OF_STACK) break;
+				strsplit(drill_args, stack_elem(i), '\t');
+				drill_size_inch = u2inch(my_strtol(drill_args[DRILL_SIZE]));
+				drill_size_mm  = u2mm(my_strtol(drill_args[DRILL_SIZE]));
+				drill_size = my_strtol(drill_args[DRILL_SIZE]);
+
+				if (drill_size != last_size) {
+					++m_current_tool;
+					drill_tool_num = get_tool_num_for(my_strtol(drill_args[DRILL_SIZE]), m_current_tool);
+					out(TOOL_CHANGE_TABLE_FORMAT(drill_tool_num,
+					drill_size_mm, drill_size_inch, 
+					g_mins[drill_tool_num], g_maxs[drill_tool_num], 
+					g_drill_sub_cnt[drill_tool_num]));
+				}
+				last_size = drill_size;
+			} 
+			// for
+
+			// Set the mode for the user's UOM.
+			out(get_mode());
+			out(ABSOLUTE_MODE);
+
+			//
+			// Generate drill code.
+			//
+			m_current_tool = 0;
+			for (i=stack_fwd_iter(); i != END_OF_STACK; i=stack_fwd_next()) {
+				strsplit(drill_args, stack_elem(i), '\t');
+				drill_size = units(my_strtol(drill_args[DRILL_SIZE]));
+				drill_x = scale_x(my_strtol(drill_args[DRILL_X]));
+				drill_y = scale_y(my_strtol(drill_args[DRILL_Y]));
+				save_extents(drill_x, drill_y);
+
+				if (drill_size == last_size) {
+					output_drill_hole(drill_x, drill_y, DRILL_DEPTH);
+				}
+				else {
+					m_current_tool++;
+					// Tool change routine
+					output_tool_change_begin();
+					out(SPINDLE_OFF);
+					rz(TOOL_CHANGE_POS_Z);
+					rxy(TOOL_CHANGE_POS_X, TOOL_CHANGE_POS_Y);
+					out(fir(TOOL_CHANGE, get_tool_num_for(my_strtol(drill_args[DRILL_SIZE]), m_current_tool), drill_size));
+					output_tool_changed();
+
+					if (DO_TOOL_CHANGE_WITH_ZERO_STEP == YES) {
+						output_tool_zero_begin();
+						fzr(0.000, FEED_RATE_Z);
+						// fixme: wondering about the following line
+						out(fir(TOOL_CHANGE, m_current_tool, drill_size));
+						output_tool_zero_end();
+					}
+
+					rz(DEFAULT_Z_UP);
+					out(fr(SPINDLE_ON, SPINDLE_ON_TIME));
+					output_tool_change_end();
+
+					output_drill_first_hole(drill_x, drill_y, DRILL_DEPTH);
+					last_size = drill_size;
+				} 
+				// if drill_size != last_size
+			} 
+			// for
+
+			output_file_postamble();
+
+			// End of file
+			// change back to tool 1
+			out(fi(TOOL_CODE + EOL, 1));
+			end_gcode();
+		} 
+		// output
+	} 
+	// Board
+} 
+// drill
+
+int m_first_spot_drill = YES;
+void spot_drill_hole(int x, int y)
+{
+	real drill_x;
+	real drill_y;
+
+	drill_x = scale_x(x);
+	drill_y = scale_y(y);
+	save_extents(drill_x, drill_y);
+
+	if (m_first_spot_drill) {
+		output_drill_first_hole(drill_x, drill_y, SPOT_DRILL_DEPTH);
+		m_first_spot_drill = NO;
+	}
+	else {
+		output_drill_hole(drill_x, drill_y, SPOT_DRILL_DEPTH);
+	}
+}
+
+void spot_drill(UL_BOARD B)
+{
+	if (SPOT_DRILL == NO) { return; }
+
+	B.holes(H) spot_drill_hole(H.x, H.y);
+	B.signals(S) S.vias(V) spot_drill_hole(V.x, V.y);
+	B.elements(E) {
+		E.package.contacts(C) {
+			if (C.pad) {
+				spot_drill_hole(C.pad.x, C.pad.y);
+			}
+		}
+		E.package.holes(H) spot_drill_hole(H.x, H.y);
+	} 
+	// B.elements
+}
+
+string m_lines;
+string LINE_SEP = "\n";
+string COORD_SEP = ",";
+string COORD_FMT = "%8.5f";
+
+string coords(real x1, real y1, real x2, real y2)
+{
+	return frrrr(COORD_FMT + COORD_SEP + COORD_FMT + COORD_SEP +
+		COORD_FMT + COORD_SEP + COORD_FMT + LINE_SEP, x1, y1, x2, y2);
+}
+
+//
+// "Draw" on the output device, i.e. the gcode file.
+//
+// Params:
+//  x1,y1   Start of the line.
+//  x2,y2   End of the line.
+//  state
+//  z_down
+// Returns:
+//  none
+//
+real m_arc_begin_x;
+real m_arc_begin_y;
+int pair_count = 0;
+int MAX_COORDS_PER_LINE = 4;
+void device_draw(int x1, int y1, int x2, int y2, int state, real z_down)
+{
+	real rx1, ry1, rx2, ry2;
+	
+	rx1 = scale_x(x1);
+	ry1 = scale_y(y1);
+	rx2 = scale_x(x2);
+	ry2 = scale_y(y2);
+	save_extents(rx1, ry1);
+	save_extents(rx2, ry2);
+
+	// Output g-code based on the current state.
+	switch(state) {
+
+		// Start of a new line.
+		case ST_START_LINE:
+			user_track_begin(rx1, ry1, rx2, ry2);
+
+			m_lines += coords(rx1, ry1, rx2, ry2);
+
+			rz(DEFAULT_Z_UP);
+			rxy(rx1, ry1);
+			fzr(z_down, FEED_RATE_Z);
+			fxyr(rx2, ry2, FEED_RATE);
+			pair_count = 0;
+			break;
+
+		// A fill line.
+		case ST_FILL:
+			Fatal("Programmer Error", "The Fill functions are no longer supported.");
+			break;
+
+		// Continue a line.
+		// End a line.
+		case ST_CONTINUE_LINE:
+			user_track_continue(rx1, ry1, rx2, ry2);
+
+			m_lines += coords(rx1, ry1, rx2, ry2);
+
+			if (COMPACT_GCODE == YES) {
+				if (pair_count == 0) {
+					fxy(rx2, ry2);
+				}
+				else {
+					xy(rx2, ry2);
+				}
+				pair_count++;
+			}
+			else {
+				fxy(rx2, ry2);
+			}
+			break;
+
+		case ST_END_LINE:
+			user_track_end(rx1, ry1, rx2, ry2);
+
+			m_lines += coords(rx1, ry1, rx2, ry2);
+
+
+			if (COMPACT_GCODE == YES) {
+				xy(rx2, ry2);
+				pair_count = 0;
+			}
+			else {
+				fxy(rx2, ry2);
+			}
+			break;
+
+		// Drill a hole.
+		// todo is this valid?
+		case ST_DRILL:
+			printf("cause an error if used %d");
+			//      printf("drill (%f, %f)\n", rx2, ry2);
+			break;
+
+		// Create an arc.
+		case ST_ARC_BEGIN:
+			user_arc_begin(rx1, ry1, rx2, ry2);
+			m_arc_begin_x = rx1;
+			m_arc_begin_y = ry1;
+			break;
+
+		// Finish an arc.
+		case ST_ARC_END:
+			user_arc_end(rx1, ry1, rx2, ry2);
+			real cx = rx2;
+			real cy = ry2;
+			real end_x = rx1;
+			real end_y = ry1;
+		
+			if (1 /* USE_IJ_RELATIVE */) {
+				cx = rx2 - rx1;
+				cy = ry2 - ry1;
+			}
+
+			rz(DEFAULT_Z_UP);
+			rxy(end_x, end_y);
+			fzr(z_down, FEED_RATE_Z);
+			if (g_side == TOP || MIRROR_BOTTOM == YES) {
+				out(frrrr(CIRCLE_TOP, m_arc_begin_x, m_arc_begin_y, cx, cy));
+			}
+			else {
+				out(frrrr(CIRCLE_BOTTOM, m_arc_begin_x, m_arc_begin_y, cx, cy));
+			}
+			break;
+
+	}
+	// switch(state)
+}
+// device_draw
+
+
+//
+// Generate polygons for outline or fill.
+// This creates a series of commands for Eagle and puts them
+// in g_cmd to be passed when we exit from this phase of pcb-gcode.
+//
+// Params:
+//  which_side  The side to operate on.
+// Return:
+//  none
+//
+void generate_outlines(int which_side)
+{
+	string cmd_temp = "";
+
+	g_cmd = "";
+
+	if (which_side == TOP)
+	m_layer = TOP_LAYER;
+	else
+	m_layer = BOTTOM_LAYER;
+
+	board(B) {
+		real f = BORDER_SIZE;
+		real x1 = units(B.area.x1) - f;
+		real y1 = units(B.area.y1) - f;
+		real x2 = units(B.area.x2) + f;
+		real y2 = units(B.area.y2) + f;
+
+		B.signals(S) {
+			if (S.name == OUTLINES_SIGNAL_NAME) {
+				sprintf(cmd_temp, "delete (%f %f) (%f %f);\n",
+				x1, y1, x2, y2);
+				g_cmd = g_cmd + cmd_temp;
+			}
+		}
+
+		sprintf(cmd_temp, "grid %s;\n"
+		"change isolate %f;\n"
+		"change rank 6;\n"
+		"change pour solid;\n"
+		"change width %f;\n"
+		"change orphans on;\n"
+		"layer %d;\n"
+		"polygon %s %f (%f %f) (%f %f) (%f %f) (%f %f) (%f %f);\n"
+		"ratsnest;\n"
+		,
+		UNIT_OF_MEASURE,
+		m_isolate,
+		g_width,
+		m_layer,
+		OUTLINES_SIGNAL_NAME, g_width,
+		x1, y1, x2, y1, x2, y2, x1, y2, x1, y1
+		);
+		g_cmd = g_cmd + cmd_temp;
+		return;
+	} 
+	// board(B)
+} 
+// generate_outlines
+
+void out_lines(string path, string mode)
+{
+  output(path, mode) {
+	if (m_pass_num == 0) {
+		printf("# board=%s\n", elided_path(get_filename(), 30));
+		printf("# tool size=%f\n", g_width);
+	}
+	printf("# pass=%d\n", m_pass_num + 1);
+    printf(m_lines);
+  }
+}
+
+//
+// Write text from the Milling layer to a text engraving file.
+//
+// Params:
+//  file_name   Output filename.
+// Return:
+//  none
+//
+void output_text_code(string file_name)
+{
+	int state;
+	int old_x, old_y;
+
+	board(B) {
+		output(get_filename(), "wt") {
+			user_file_opened(get_filename(), "wt");
+
+			output_file_preamble();
+
+			// Initialize the device (i.e. the output file).
+			begin_gcode();
+
+			// Process all the wires.
+			B.texts(T) T.wires(W) {
+				if ((T.mirror && g_side == BOTTOM) || (! T.mirror && g_side == TOP)) {
+					// If this is a text layer, check if we should continue
+					// a line, or start a new one.
+					if (W.layer == TEXT_LAYER) {
+						if (W.x1 == old_x && W.y1 == old_y) {
+							state = ST_CONTINUE_LINE;
+						}
+						else {
+							state = ST_START_LINE;
+						}
+
+						// if this is an arc, it is treated specially.
+						if (W.arc) {
+							device_draw( W.arc.x1, W.arc.y1, W.arc.x2, W.arc.y2, ST_ARC_BEGIN, TEXT_DEPTH);
+							device_draw( W.arc.x2, W.arc.y2, W.arc.xc, W.arc.yc, ST_ARC_END, TEXT_DEPTH);
+							save_extents(W.x1, W.y1);
+							save_extents(W.x2, W.y2);
+							state = ST_START_LINE;
+						}
+						else {
+							// Draw the line (i.e. output the gcode for the line).
+							device_draw(W.x1, W.y1, W.x2, W.y2, state, TEXT_DEPTH);
+							old_x = W.x2;
+							old_y = W.y2;
+							save_extents(W.x1, W.y1);
+							save_extents(W.x2, W.y2);
+						} 
+						// if (W.arc)
+					} 
+					// if (W.layer == TEXT_LAYER)
+				}
+				// if (top and bottom check)
+			} 
+			// T.wires
+			output_file_postamble();
+			end_gcode();
+			user_file_closing();
+		} 
+		// output
+		user_file_closed(get_filename(), "wt");
+	} 
+	// board
+	g_width = abs(TEXT_DEPTH);
+	out_lines(g_path + "/viewer/data/optimize_me.txt", "wt");
+	out_lines(g_path + "/viewer/applet/data/optimize_me.txt", "wt");
+	out_lines(g_path + "/viewer/application.macosx/data/optimize_me.txt", "wt");
+	out_lines(g_path + "/viewer/application.linux/data/optimize_me.txt", "wt");
+	out_lines(g_path + "/viewer/application.windows/data/optimize_me.txt", "wt");
+	
+	preview();
+
+	m_lines = "";
+}
+// output_text_code
+
+
+//
+// Write layer data to mill files.
+//
+// Params:
+//  file_name   Output filename.
+// Return:
+//  none
+//
+void output_mill_code(string file_name)
+{
+	int state;
+	int old_x, old_y;
+
+	board(B) {
+		output(get_filename(), "wt") {
+			user_file_opened(get_filename(), "wt");
+
+			output_file_preamble();
+
+			// Initialize the device (i.e. the output file).
+			begin_gcode();
+
+			// Process all the wires.
+			B.wires(W) W.pieces(P) {
+				// If this is a mill layer, check if we should continue
+				// a line, or start a new one.
+				if (P.layer == MILL_LAYER) {
+					if (P.x1 == old_x && P.y1 == old_y) {
+						state = ST_CONTINUE_LINE;
+					}
+					else {
+						state = ST_START_LINE;
+					}
+
+					// if this is an arc, it is treated specially.
+					if (P.arc) {
+						device_draw( P.arc.x1, P.arc.y1, P.arc.x2, P.arc.y2, ST_ARC_BEGIN, MILLING_DEPTH);
+						device_draw( P.arc.x2, P.arc.y2, P.arc.xc, P.arc.yc, ST_ARC_END, MILLING_DEPTH);
+						save_extents(P.x1, P.y1);
+						save_extents(P.x2, P.y2);
+						state = ST_START_LINE;
+					}
+					else {
+						// Draw the line (i.e. output the gcode for the line).
+						device_draw(P.x1, P.y1, P.x2, P.y2, state, MILLING_DEPTH);
+						old_x = P.x2;
+						old_y = P.y2;
+						save_extents(P.x1, P.y1);
+						save_extents(P.x2, P.y2);
+					} 
+					// if (P.arc)
+				} 
+				// if (P.layer == MILL_LAYER)
+			} 
+			// pieces
+			output_file_postamble();
+			end_gcode();
+			user_file_closing();
+		} 
+		// output
+		user_file_closed(get_filename(), "wt");
+	} 
+	// board
+
+	g_width = abs(MILLING_DEPTH);
+	out_lines(g_path + "/viewer/data/optimize_me.txt", "wt");
+	out_lines(g_path + "/viewer/applet/data/optimize_me.txt", "wt");
+	out_lines(g_path + "/viewer/application.macosx/data/optimize_me.txt", "wt");
+	out_lines(g_path + "/viewer/application.linux/data/optimize_me.txt", "wt");
+	out_lines(g_path + "/viewer/application.windows/data/optimize_me.txt", "wt");
+	
+	preview();
+	
+	m_lines = "";
+}
+// output_mill_code
+
+
+//
+// Write polygon lines to the file.
+//
+// Params:
+//  which_side    Side of the board to work on.
+//  suffix        Suffix of the file.
+//  task
+// Return:
+//  none
+//
+void write_outlines(int which_side, string suffix, int task)
+{
+	string mode;
+	int x1 = INT_MAX, y1 = INT_MAX, x2 = INT_MIN, y2 = INT_MIN;
+	int x0, y0;
+	int first = 1;
+	int frame_wire;
+	int state;
+
+	if (m_pass_num == 0) {
+		mode = "wt";
+	}
+	else {
+		mode = "at";
+	}
+	g_side = which_side;
+	switch (which_side) {
+		case TOP:
+		m_layer = TOP_LAYER;
+		break;
+		case BOTTOM:
+		m_layer = BOTTOM_LAYER;
+		break;
+		case MILL:
+		m_layer = MILL_LAYER;
+		break;
+		case TEXT:
+		m_layer = TEXT_LAYER;
+		break;
+		default:
+		sprintf(g_debug, "Illegal which_side %d in write_outlines", which_side);
+		Fatal("Sorry...", g_debug);
+	}
+
+	if (m_layer == MILL_LAYER || m_layer == TEXT_LAYER) {
+		if (which_side == MILL) {
+			g_side = TOP;
+			output_mill_code(m_file_name + "mt" + DEFAULT_EXTENSION);
+			g_side = BOTTOM;
+			output_mill_code(m_file_name + "mb" + DEFAULT_EXTENSION);
+			return;
+		}
+		else {
+			g_side = TOP;
+			output_text_code(m_file_name + "tt" + DEFAULT_EXTENSION);
+			g_side = BOTTOM;
+			output_text_code(m_file_name + "tb" + DEFAULT_EXTENSION);
+			return;
+		}
+	} 
+	// if m_layer == MILL_LAYER
+
+	output(get_filename(), mode) {
+		board(B) {
+			user_file_opened(get_filename(), mode);
+
+			int rubout_layer = -1;
+			B.layers(L) {
+				if (strstr(strlwr(L.name), "rubout") != -1) {
+					if (strstr(strlwr(L.name), "top") != -1 && which_side == TOP) {
+						rubout_layer = L.number;
+					}
+					else if (strstr(strlwr(L.name), "bot") != -1 && which_side == BOTTOM) {
+						rubout_layer = L.number;
+					}
+				}
+			}
+
+			if (rubout_layer != -1) {
+				B.wires(W) {
+					if (W.layer == rubout_layer) {
+						device_draw(W.x1, W.y1, W.x2, W.y2, ST_START_LINE, DEFAULT_Z_DOWN);
+						device_draw(W.x1, W.y1, W.x2, W.y2, ST_END_LINE, DEFAULT_Z_DOWN); // fixme needed?
+					}
+				}
+			}
+
+			B.signals(S) {
+				if (S.name == OUTLINES_SIGNAL_NAME) {
+					S.polygons(P) {
+						P.wires(W) {
+							x1 = min(x1, W.x1);
+							x2 = max(x2, W.x1);
+							y1 = min(y1, W.y1);
+							y2 = max(y2, W.y1);
+						}
+						if (m_pass_num == 0) {
+							output_file_preamble();
+							begin_gcode();
+						}
+						else {
+							output_between_outline_passes();
+						}
+
+						switch (task) {
+							case TASK_OUTLINES:
+							// P.contours jtj
+							P.contours(W) {
+								if (first) {
+									x0 = W.x1;
+									y0 = W.y1;
+									frame_wire = (x0 == x1 || x0 == x2) && (y0 == y1 || y0 == y2);
+									state = ST_START_LINE;
+									first = 0;
+								}
+								else if (W.x2 == x0 && W.y2 == y0) {
+									state = ST_END_LINE;
+									first = 1;
+								}
+								else {
+									state = ST_CONTINUE_LINE;
+								}
+
+								if (!frame_wire) {
+									device_draw(W.x1, W.y1, W.x2, W.y2, state, DEFAULT_Z_DOWN);
+								}					
+							} 
+							// P.contours(W)
+							break;
+
+							case TASK_FILL:
+							P.fillings(W) {
+								device_draw(W.x1, W.y1, W.x2, W.y2, ST_START_LINE, DEFAULT_Z_DOWN);
+							}
+							break;
+						} 
+						// switch(task)
+
+						if (m_isolate >= ISO_MAX || SINGLE_PASS || task == TASK_FILL) {
+							output_file_postamble();
+							rz(DEFAULT_Z_UP);
+							spot_drill(B);
+							end_gcode();
+						}
+
+						sprintf(g_cmd, "delete (%f %f) (%f %f);\n",
+						units(x1), units(y1), units(x2), units(y2)
+						);
+					} 
+					// polygons
+				} 
+				// if(S.name == OUTLINES_SIGNAL_NAME)
+			} 
+			// signals
+		} 
+		// board
+		user_file_closing();
+	} 
+	// output
+	user_file_closed(get_filename(), mode);
+	out_lines(g_path + "/viewer/data/optimize_me.txt", mode);
+	out_lines(g_path + "/viewer/applet/data/optimize_me.txt", mode);
+	out_lines(g_path + "/viewer/application.macosx/data/optimize_me.txt", mode);
+	out_lines(g_path + "/viewer/application.linux/data/optimize_me.txt", mode);
+	out_lines(g_path + "/viewer/application.windows/data/optimize_me.txt", mode);
+
+} 
+// write_outlines
+
+/* string get_phase_name(int phase)
+{
+	return PHASE_NAME[phase];
+}
+ */
+void gen_progress_menu(int phase)
+{
+	output(path_scr[0] + '/' + "source/pcb-gcode-prg.scr") {
+		printf("MENU \\\n");
+		for(int i = 1; i < PH_LAST_PHASE; i++) {
+			if (i == phase) {
+				printf("--%s-- \\\n", get_phase_name(i));     
+				// " (for TextMate)
+			}
+			else {
+				printf("  %s  \\\n", get_phase_name(i));
+			}
+		}
+		printf(";\n");
+	}
+}
+
+// Make sure a board is available to work on.
+// todo move towards bottom
+if (!board) {
+     Fatal("No board!", "Please run this program from the board editor");
+}
+
+//
+// Process command line arguments.
+//
+switch (OUTPUT_UNITS) {
+	case U_MICRONS:
+	  UNIT_OF_MEASURE = "mic";
+	  break;
+	case U_MILLIMETERS:
+	  UNIT_OF_MEASURE = "mm";
+	  break;
+	case U_MILS:
+	  UNIT_OF_MEASURE = "mil";
+	  break;
+	case U_INCHES:
+	  UNIT_OF_MEASURE = "inch";
+	  break;
+}
+
+if (argv[FILENAME_ARG] == "--setup") {
+  exit("run pcb-gcode-setup");
+}
+
+if (argv[FILENAME_ARG] == "--attr") {
+	string attrs;
+	board(B) {
+		B.attributes(A) {
+			attrs = attrs + A.name + "\t" + A.value + "\n";
+		}
+	}
+	dlgMessageBox(attrs);
+	exit(0);
+}
+
+if (argv[FILENAME_ARG] == "--help") {
+	int choice = dlgMessageBox(usage, "+Return to Eagle", "Run Setup Now");
+	switch (choice) {
+		
+		// return to eagle
+		case 0:
+			exit(0);
+			break;
+		
+		// Run setup now
+		case 1:
+			exit("run pcb-gcode-setup");
+			break;
+	}
+	exit(0);
+}
+
+// Be sure a filename is specified.
+if (argv[FILENAME_ARG]) {
+	m_file_name = argv[FILENAME_ARG];
+	if (filedir(m_file_name) == "") {
+		board(B) m_file_name = filedir(B.name) + m_file_name;
+	}
+}
+else {
+	board(B) m_file_name = filesetext(B.name, "");
+}
+
+if (FILENAMES_8_CHARACTERS) {
+	m_file_name = filedir(m_file_name) + strsub(filename(m_file_name), 0, 5);
+}
+
+// Use a default width if one is not given.
+if (argv[WIDTH_ARG]) {
+	g_width = strtod(argv[WIDTH_ARG]);
+}
+else {
+	g_width = DEFAULT_WIDTH;
+}
+
+// Get the isolate parameter or use the default.
+if (argv[ISO_ARG]) {
+	m_isolate = strtod(argv[ISO_ARG]);
+}
+else {
+	m_isolate = ISO_MIN;
+}
+
+// Get the pass number, or default to first pass (0).
+if (argv[PASS_ARG]) {
+	m_pass_num = strtol(argv[PASS_ARG]);
+}
+else {
+	m_pass_num = 0;
+}
+
+// Get the phase we are processing, or default to the first one.
+if (argv[PHASE_ARG]) {
+	g_phase = strtol(argv[PHASE_ARG]);
+}
+else {
+	g_phase = PH_TOP_OUT_GEN;
+}
+
+get_current_profile();
+if (g_phase == PH_TOP_OUT_GEN && m_pass_num == 0 && program_is_setup() == NO)
+{
+	exit("run pcb-gcode-setup");
+}
+
+//
+// Do what we need to for this phase.
+//
+switch (g_phase) {
+ case PH_TOP_OUT_GEN:
+   if (GENERATE_TOP_OUTLINES == YES)
+     generate_outlines(TOP);
+   break;
+ case PH_TOP_OUT_WRITE:
+   if (GENERATE_TOP_OUTLINES == YES)
+     write_outlines(TOP, "top", OUTLINES);
+   break;
+
+ case PH_TOP_FILL_GEN:
+   if (GENERATE_TOP_FILL == YES)
+     generate_outlines(TOP);
+   break;
+ case PH_TOP_FILL_WRITE:
+   if (GENERATE_TOP_FILL == YES)
+     write_outlines(TOP, "tf", FILL);
+   break;
+
+ case PH_BOTTOM_OUT_GEN:
+   if (GENERATE_BOTTOM_OUTLINES == YES)
+     generate_outlines(BOTTOM);
+   break;
+ case PH_BOTTOM_OUT_WRITE:
+   if (GENERATE_BOTTOM_OUTLINES == YES)
+     write_outlines(BOTTOM, "bot", OUTLINES);
+   break;
+
+ case PH_BOTTOM_FILL_GEN:
+   if (GENERATE_BOTTOM_FILL == YES)
+     generate_outlines(BOTTOM);
+   break;
+ case PH_BOTTOM_FILL_WRITE:
+   if (GENERATE_BOTTOM_FILL == YES)
+     write_outlines(BOTTOM, "bf", FILL);
+   break;
+
+ case PH_TOP_DRILL:
+   if (GENERATE_TOP_DRILL == YES)
+     drill(TOP, "td");
+   break;
+ case PH_BOTTOM_DRILL:
+   if (GENERATE_BOTTOM_DRILL == YES)
+     drill(BOTTOM, "bd");
+   break;
+
+ case PH_MILL:
+   if (GENERATE_MILLING == YES)
+     write_outlines(MILL, "mil", MILL_BOARD);
+   break;
+
+ case PH_TEXT:
+   if (GENERATE_TEXT == YES)
+     write_outlines(TEXT, "txt", MILL_TEXT);
+   break;
+
+ default:
+   sprintf(g_debug, "Illegal phase %d in main routine", g_phase);
+   Fatal("Sorry...", g_debug);
+}
+
+// Set things up for the next phase.
+next_phase();
+
+if (SHOW_PROGRESS == YES) {
+	gen_progress_menu(g_phase);
+}
+
+// If this is not the last phase, exit with a command line for
+// Eagle to process. The command includes running this program again.
+if (g_phase < PH_LAST_PHASE) {
+	sprintf(g_cmd,
+		"%s"
+		"window fit;\n"
+		"%s"
+		"run '%s' '%s' '%f' '%f' '%d' '%d';\n",
+		g_cmd,
+		(SHOW_PROGRESS) ? "script pcb-gcode-prg.scr;\n" : "",
+		argv[PROGRAM_NAME_ARG], m_file_name, g_width, m_isolate,
+		m_pass_num, g_phase
+		);
+	exit(g_cmd);
+}
+else {
+	g_cmd = "window fit;\n";
+	if (SHOW_PROGRESS) {
+		if (RESTORE_MENU_FILE != "") {
+			g_cmd = g_cmd + "script " + RESTORE_MENU_FILE + ";\n";
+		}
+		else {
+			g_cmd = g_cmd + "menu;\n";
+		}
+	}
+
+	exit(g_cmd);
+}

@@ -1,0 +1,75 @@
+dlgGroup("Calculator (RPN)") {
+  dlgGridLayout {
+    int row;
+    dlgCell(row, 0) { dlgLabel("Result"); }
+    dlgCell(row, 1, row, 3) { 
+      dlgGroup("") { dlgLabel(m_result, 1); }
+    }
+    dlgCell(row, 4)  dlgLabel(g_angle_mode_str, 1);
+    dlgCell(++row, 0) { dlgLabel("Entry"); }
+    dlgCell(row, 1, row, 3) dlgGroup("") { dlgLabel(m_entry, 1); }
+    dlgCell(++row, 0) dlgPushButton("7") calc_enter("7");
+    dlgCell(row, 1) dlgPushButton("8") calc_enter("8");
+    dlgCell(row, 2) dlgPushButton("9") calc_enter("9");
+    dlgCell(row, 3) dlgPushButton("/") calc(m_entry, OP_DIVIDE);
+    dlgCell(row, 4) dlgPushButton("M+") calc(m_entry, OP_MEMORY_PLUS);
+    dlgCell(row, 5) dlgPushButton("deg") calc(m_entry, OP_DEGREE);
+    dlgCell(row, 6) dlgPushButton("rad") calc(m_entry, OP_RADIAN);  
+    
+    dlgCell(++row, 0) dlgPushButton("4") calc_enter("4");
+    dlgCell(row, 1) dlgPushButton("5") calc_enter("5");
+    dlgCell(row, 2) dlgPushButton("6") calc_enter("6");
+    dlgCell(row, 3) dlgPushButton("*") calc(m_entry, OP_MULTIPLY);
+    dlgCell(row, 4) dlgPushButton("->M") calc(m_entry, OP_MEMORY_STORE);
+    dlgCell(row, 5) dlgPushButton("sin") calc(m_entry, OP_SINE);
+    dlgCell(row, 6) dlgPushButton("arc sin") calc(m_entry, OP_ARC_SINE);
+
+    dlgCell(++row, 0) dlgPushButton("1") calc_enter("1");
+    dlgCell(row, 1) dlgPushButton("2") calc_enter("2");
+    dlgCell(row, 2) dlgPushButton("3") calc_enter("3");
+    dlgCell(row, 3) dlgPushButton("--") calc(m_entry, OP_SUBTRACT);
+    dlgCell(row, 4) dlgPushButton("<-M") calc(m_entry, OP_MEMORY_RECALL);
+    dlgCell(row, 5) dlgPushButton("cos") calc(m_entry, OP_COSINE);
+    dlgCell(row, 6) dlgPushButton("arc cos") calc(m_entry, OP_ARC_COSINE);
+
+    dlgCell(++row, 0) dlgPushButton(".") calc_enter(".");
+    dlgCell(row, 1) dlgPushButton("0") calc_enter("0");
+    dlgCell(row, 2) dlgPushButton("C") calc(m_entry, OP_CLEAR);
+    dlgCell(row, 3) dlgPushButton("++") calc(m_entry, OP_ADD);
+    dlgCell(row, 4) dlgPushButton("0->M") calc(m_entry, OP_MEMORY_CLEAR);
+    dlgCell(row, 5) dlgPushButton("tan") calc(m_entry, OP_TANGENT);
+    dlgCell(row, 6) dlgPushButton("arc tan") calc(m_entry, OP_ARC_TANGENT);
+
+    dlgCell(++row, 2, row, 4) dlgPushButton("ENTER") { 
+      set_accum(m_entry); 
+      m_result = m_entry; 
+      m_entry = "";
+      dlgRedisplay(); 
+    }
+    
+    dlgCell(row, 6) dlgPushButton("Help") {
+      dlgMessageBox("<h2>Help for the RPN Calculator</h2>"
+        "RPN stands for Reverse Polish Notation.<br/>"
+        "The calculator  has a number in the Result line.<br/>"
+        "You enter a number in the Entry line, then select an operation, "
+        "like add, subtract, etc. The answer of that operation will be "
+        "put into the Result line, ready for a new operation.<p/>"
+        "Here is an example:"
+        "Let's say you have a part and you want to drill a hole on a  circle "
+        "with a 5&quot; radius, 37&deg; counter-clockwise "
+        "from the center at X=1.2, Y=2.4.<br/>"
+        "Enter the following:<br/>"
+        "37 [sin]<br/>"
+        "5 [*]<br/>"
+        "1.2 [+]<br/>"
+        "The answer is 4.209. That is the Y coordinate<br/>"
+        "37 [cos]<br/>"
+        "5 [*]<br/>"
+        "2.4 [+]<br/>"
+        "The answer is 6.393, that is the X coordinate<p/>"
+        "I guess that is a complex example :-)"
+      );
+    }
+
+  }
+}

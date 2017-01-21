@@ -1,0 +1,83 @@
+/* test nonvolatile.h  */
+
+#include "nonvolatile.h"
+
+set_nv_param("first_name", "Jamile");
+set_nv_param("last_name", "Johnson");
+set_nv_param("email", "jamile@nowhere.com");
+
+m_params[0] = "";
+m_params[1] = "";
+m_params[2] = "";
+
+if (get_nv_param("first_name", "ERROR", 0) == "ERROR")
+{	dlgMessageBox("14 first_name failed");
+	exit(1);
+}
+if (get_nv_param("last_name", "ERROR", 0) == "ERROR")
+{	
+  dlgMessageBox("last_name failed");
+	exit(1);
+}
+if (get_nv_param("email", "ERROR", 0) == "ERROR")
+{
+	dlgMessageBox("email failed");
+	exit(1);
+}
+
+if (get_nv_param("first_name", "ERROR", 0) != "Jamile")
+{
+	dlgMessageBox("first_name failed");
+	exit(1);
+}
+if (get_nv_param("last_name", "ERROR", 0) != "Johnson")
+{
+	dlgMessageBox("last_name failed");
+	exit(1);
+}
+if (get_nv_param("email", "ERROR", 0) != "jamile@nowhere.com")
+{
+	dlgMessageBox("email failed");
+	exit(1);
+}
+
+
+set_nv_param("first_name", "John");
+set_nv_param("last_name", "Johnson");
+set_nv_param("email", "pcbgcode@pcbgcode.org");
+
+m_params[0] = "";
+m_params[1] = "";
+m_params[2] = "";
+
+if (get_nv_param("first_name", "ERROR", 0) == "ERROR")
+{
+	dlgMessageBox("55 first_name failed");
+	int t=1/0;
+}
+if (get_nv_param("last_name", "ERROR", 0) == "ERROR")
+{
+	dlgMessageBox("60 last_name failed");
+	int t=1/0;
+}
+if (get_nv_param("email", "ERROR", 0) == "ERROR")
+{
+	dlgMessageBox("65 email failed");
+	int t=1/0;
+}
+
+if (get_nv_param("first_name", "ERROR", 0) != "John")
+{
+	dlgMessageBox("71 first_name failed");
+	int t=1/0;
+}
+if (get_nv_param("last_name", "ERROR", 0) != "Johnson")
+{
+	dlgMessageBox("76 last_name failed");
+	int t=1/0;
+}
+if (get_nv_param("email", "ERROR", 0) != "pcbgcode@pcbgcode.org")
+{
+	dlgMessageBox("81 email failed");
+	int t=1/0;
+}
