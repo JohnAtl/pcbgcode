@@ -9,6 +9,6 @@ It supports two-layer boards.
 
 It's been a while since any updates have been made (I'm in grad school), but it still functions well, and is in use by hundreds of people around the world.
 
-For more information, see docs/pcbgcode.pdf for more info.
+For more information, see [docs/pcbgcode.pdf](https://github.com/JohnAtl/pcbgcode/blob/master/docs/pcbgcode.pdf) .
 
 There is a users group hosted at [groups.io](https://groups.io/g/pcbgcode).
