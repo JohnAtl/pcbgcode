@@ -6,10 +6,10 @@
 \usepackage{graphicx}
 \usepackage{geometry}
 
-%\usepackage[sc]{mathpazo} 	% Use the Palatino font
-%\usepackage[T1]{fontenc} 		% Use 8-bit encoding that has 256 glyphs
+\usepackage[sc]{mathpazo} 	% Use the Palatino font
+\usepackage[T1]{fontenc} 		% Use 8-bit encoding that has 256 glyphs
 %\linespread{1.05} 			% Line spacing - Palatino needs more space between lines
-%\usepackage{microtype} 		% Slightly tweak font spacing for aesthetics
+\usepackage{microtype} 		% Slightly tweak font spacing for aesthetics
 
 %\usepackage[hmarginratio=1:1,top=32mm,columnsep=20pt]{geometry} % Document margins
 
@@ -18,6 +18,9 @@
 	pdftitle={The PCB-GCODE User's Manual},%
 	pdfsubject={pcb-gcode mechanically etching printed circuit boards},%
 	pdfkeywords={pcb-gcode}{g-code}{pcb}{cnc}{etching},%
+	colorlinks=true,%
+	linkcolor=gray,%
+	urlcolor=gray%
 ]{hyperref} 		% For hyperlinks in the PDF
 
 \usepackage[hang, small,labelfont=bf,up,textfont=it,up]{caption} % Custom captions under/above floats in tables or figures
@@ -44,7 +47,7 @@
 
 \usepackage[section]{placeins}
 
-\usepackage{draftwatermark}
+%\usepackage{draftwatermark}
 
 \usepackage{makeidx}
 \makeindex
@@ -55,19 +58,36 @@
 %----------------------------------------------------------------------------------------
 
 \title{\vspace{-15mm}\fontsize{24pt}{10pt}\selectfont\textbf{The PCB-GCODE User's Manual}\\[1em]
-\fontsize{18pt}{10pt}\textsc{Version 3.6.0.1}\\[1em]
+\fontsize{18pt}{10pt}\textsc{Version 3.6.2.4}\\[1em]
 }
 
 \author{
 \large
-Copyright \copyright\ 2012\\[1em]
+Copyright \copyright\ 2014\\[1em]
 \textsc{John T. Johnson}\\[2mm] %\thanks{A thank you or further information}\\[2mm] % Your name
 \normalsize \href{mailto:pcbgcode@pcbgcode.org}{\texttt{pcbgcode@pcbgcode.org}} % Your email address
 \vspace{-5mm}
 }
 %\date{} % empty date, since it is shown in the header
 
-\makeglossary
+%\makeglossary
+
+% Adobe bug workoround
+\pdfminorversion=4
+
+% no-break code environment to prevent page-breaking a listing
+\lstnewenvironment{nbcode}[1][]%
+  {\minipage{\linewidth} 
+   \lstset{language=eagle,
+	basicstyle=\ttfamily\small,
+	numberstyle=\small\color{gray},
+	numbers=left,
+	showstringspaces=false,
+	stepnumber=1,
+%	frame=shadowbox,
+	breaklines=true,#1}}
+  {\endminipage}
+
 
 %======================================================================
 %======================================================================
@@ -110,7 +130,7 @@ Copyright \copyright\ 2012\\[1em]
 
   
 \setlength{\marginparwidth}{1.0in}
-\setlength{\marginparsep}{2em}
+\setlength{\marginparsep}{1em}
 
 
 \newcommand{\code}[1]{\texttt{#1}}
@@ -129,6 +149,65 @@ Copyright \copyright\ 2012\\[1em]
 \frontmatter
 
 \maketitle
+
+%
+%---------------------------------------------------------------------
+%
+\section*{About this book}
+
+This book is typeset with \href{http://en.wikipedia.org/wiki/LaTeX}{\LaTeX{}} using the Computer Modern and Palatino fonts.
+\vspace{1ex}
+
+\noindent The \LaTeX{} distribution used is \href{http://tug.org/mactex/}{MacTeX}. The editor is \href{http://texpadapp.com}{Texpad} for \href{http://www.apple.com/osx/}{Mac OS X} and \href{http://www.apple.com/ios/}{iOS}. When doing academic writing, I use \href{http://bibdesk.sourceforge.net}{BibDesk} on Mac OS X and \href{https://itunes.apple.com/us/app/pocketbib-for-bibtex-bibdesk/id524521749?mt=8}{PocketBib} on iOS.
+\vspace{1ex}
+
+\noindent Some words, such as MacTeX in the previous paragraph, are links to websites. In this manual, all links are colored gray. The reader will note that other words are links to figures, tables, or sections in this manual. These are also colored gray.
+\vspace{1ex}
+
+\noindent Throughout this book there are icons in the margins that will help the reader navigate the book and find material at an appropriate skill level. These icons are shown below.
+\vspace{1ex}
+
+\howitworks{} \noindent Sections marked with this icon provide background on the operation of pcb-gcode. This information is for curious users and can safely be skipped.
+\vspace{7ex}
+
+%\information{} \noindent Information.
+%\vspace{10ex}
+
+\warning{} \noindent Some parts of the manual are for intermediate or advanced users. This icon alerts the reader to this fact.
+
+\vspace{2ex}
+
+\newpage
+
+\section*{Supporters}
+
+\noindent There is a great community that has built up around pcb-gcode where users freely offer advice and help solve problems for other users. Despite the fact that pcb-gcode has always been free and always will be, a few outstanding individuals have donated time or money (which goes towards paying for web hosting for \url{pcbgcode.org}). Your generosity warms my heart, and I thank you all!
+
+\begin{itemize}
+	\item Art Eckstein is the tireless moderator of the \href{http://groups.yahoo.com/group/pcb-gcode}{Yahoo! group}, and the \href{http://www.pcbgcode.org}{phorum}.
+	\item Translations
+	\begin{itemize}
+		\item Maur\'icio Dias --- Portugu\^ese
+		\item Wolfgang Schmidt --- German
+	\end{itemize}
+	\item{Monetary Donations (If I missed you, \emph{please} let me know.) }
+	\begin{itemize}
+    	\raggedright
+		\item Anonymous (2007), Greg Brill, Paul Kiedrowski, Steven Manzer, Barry Ward, Ward Elder, Art Eckstein, World of ElectroMechanica, Austin~Valley~Software~Corporation, webstudio.co.uk, Juan Posada, Richard~McCarthy, Keeley~Electronics, Ron Watson, Andrew Mackenzie, {\L}ukasz Kuleszewicz, Alexandru Pirvulescu
+	\end{itemize}
+	\item{Code Contributions}
+	    \begin{itemize}
+	    \small
+	    \item Martin L. Marriott - G-code optimizer
+	    \item Peter Zotov - Stencil generation for cream layers
+	    \end{itemize}
+	\item{Beta Testers}
+	\begin{itemize}
+    	\raggedright
+	    \item Art Eckstein, Brett Pound, Danny Miller, Fabrice Engel, Juan Posada, Martin~Marriott, Maur\'icio Dias, Svend Poulsen, Zulfqar Ali.
+	\end{itemize}
+\end{itemize}
+
 
 \tableofcontents
 
@@ -149,7 +228,7 @@ Copyright \copyright\ 2012\\[1em]
 %
 \section{Purpose}\label{sec:Purpose}
 
-Pcb-gcode is a User Language Program (ULP) for EAGLE PCB design software produced by \href{http://cadsoftusa.com}{CadSoft}. Pcb-gcode allows one to make printed circuit boards by using a CNC router or milling machine to cut the traces out of the copper on the board. It also produces files for drilling holes. Two-sided boards are supported. By "mechanically etching" the boards, no toxic chemicals are needed -- making the process more environmentally friendly. Turn-around times and costs are much reduced from ordering a prototype from a board house.
+Pcb-gcode is a User Language Program (ULP) for EAGLE PCB design software produced by \href{http://cadsoftusa.com}{CadSoft}. Pcb-gcode allows one to make printed circuit boards by using a CNC router or milling machine to cut the traces out of the copper on the board. It also produces files for drilling holes and creating stencils for cream layers. Two-sided boards are supported. By "mechanically etching" the boards, no toxic chemicals are needed -- making the process more environmentally friendly. Turn-around times and costs are much reduced from ordering a prototype from a board house.
 
 %
 %---------------------------------------------------------------------
@@ -165,6 +244,7 @@ Though no program can be all things to all people, pcb-gcode has a lot of featur
 	\item[Preview] A preview for outlines is available.
 	\item[Milling] Milling code can be generated for any wires drawn on the Milling (46) layer.
 	\item[Text] Generates gcode to engrave any vector text that is on the Milling (46) layer.
+	\item[Stencils] Produce stencils for applying solder cream for surface-mount parts.
 	\item[Spot drill holes] Holes can be spot drilled with the outlines tool to help the drill bits to start straight when drilling holes.
 	\item[Tool change position] Where the machine should go so that the tool can be changed.
 	\item[Drill rack files] Allows using one drill bit for a range of hole sizes in the board.
@@ -180,11 +260,11 @@ Though no program can be all things to all people, pcb-gcode has a lot of featur
 %
 \section{How it Works}\label{sec:HowItWorks}
 \subsection{Overview}
-After designing your board in Eagle's board editor, the ULP pcb-gcode-setup is run and options are set (See \figurename \vref{fig:SetupGenerationOptions}). Pcb-gcode will generate a set of files that will cut out the tracks, pads, pours and vias (hereinafter called tracks) for the top and/or bottom of the board. Pcb-gcode can also generate files to drill holes from the top and/or bottom of the board. Since the holes usually go all the way through, they only need to be drilled from one side, although some users have drilled slightly more than half way from both sides for a cleaner finish. The user may also choose to create milling wires on the milling layer of the board. This can be used to cut out sections of the board, or cut the perimeter of the board out. There is also an option for engraving vector text that the user places on the milling layer.
+After designing your board in Eagle's board editor, the ULP \code{pcb-gcode-setup} is run and options are set (See \figurename \vref{fig:SetupGenerationOptions}). Pcb-gcode will generate a set of files that will cut out the tracks, pads, pours and vias (hereinafter called tracks) for the top and/or bottom of the board. Pcb-gcode can also generate files to drill holes from the top and/or bottom of the board. Since the holes usually go all the way through, they only need to be drilled from one side, although some users have drilled slightly more than half way from both sides for a cleaner finish. The user may also choose to create milling wires on the milling layer of the board. This can be used to cut out sections of the board, or cut the perimeter of the board out. There is also an option for engraving vector text that the user places on the milling layer.
 
 After the files are generated, they are transferred to the control software for the CNC router or milling machine. The PCB is mounted on the machine. The origin is set to the lower left for the top side of the board and the top files are run. The board is then flipped in the \code{X} axis (i.e. around the \code{Y} axis), the origin is set at the lower right, and the bottom files are run. After minimal inspection and cleanup, the board is ready to be loaded with components.
 
-\subsection{Isolation}
+\subsection{Isolation}\index{isolation!description}
 Pcb-gcode has the ability to generate g-code that cuts out tracks with increasing amounts of isolation. This is helpful because it can help eliminate small slivers of copper left behind by the cutting process.
 
 The isolation begins at a minimum amount and is increased by a step size until a maximum amount is reached. The builtin previewer can be used to see how this isolation works. See \figurename \vref{fig:MultipassBoard}. From the zoomed view shown in \figurename \vref{fig:MultipassBoardZoom} you can see that the passes start out close to the track, then move out by a step size. The colors of the preview tracks follow the standard resistor color codes, so brown is the first pass, red is the second, orange the third, etc.
@@ -214,8 +294,10 @@ isolation = EtchingToolSize+MinimumIsolation+PassNumber*StepSize
 	\label{fig:MultipassBoardZoom}
 \end{figure}
 
-\subsection{Drilling}
-Compared to the isolation passes and files, drill file creation is relatively straight forward. Each hole in the board is sorted according to size and then position. Optionally a rack file can be used. Rack files contain a list of drills the user has available and the size holes they can be used for. For more information on rack files, see Section \vref{sec:DrillRackFiles}. G-code is created to position and drill each hole. Tool changes can be included in the file so that the user or an automated tool changer can change the bit.
+\subsection{Drilling}\index{drill!description}
+Compared to the isolation passes and files, drill file creation is relatively straight forward. Each hole in the board is sorted according to size and distance from other holes of the same size. G-code is created to position and drill each hole. Tool changes can be included in the file so that the user or an automated tool changer can change the bit. Optionally a rack file can be used. 
+
+Rack files contain a list of drills the user has available and the size holes they can be used for. For example, if a library part has a 1mm hole, and another part has a 1.1mm hole, a 1.1mm drill bit could be used for both. For more information on rack files, see Section \vref{sec:DrillRackFiles}. 
 
 %======================================================================
 %
@@ -226,17 +308,16 @@ Compared to the isolation passes and files, drill file creation is relatively st
 %
 %---------------------------------------------------------------------
 %
-\section{EAGLE compatibility}\label{sec:EAGLECompatibility}\index{eagle!compatibility}
+\section{EAGLE compatibility}\label{sec:EAGLECompatibility}\index{compatibility!eagle}
 
 Pcb-gcode is compatible with EAGLE versions 5 and 6\footnote{CadSoft changed the way numbers were represented internally with their release of version 6. This effectively broke parts of pcb-gcode. Version 3.6 incorporates changes for compatibility with version 5 or 6.}. For versions of EAGLE before version 5, pcb-gcode version 3.3.3 is still available \href{http://groups.yahoo.com/group/pcb-gcode/files/\%21\%20Software/pcb-gcode-3.3.3.zip}{in the Yahoo! group}. This manual does not apply to version 3.3.3. Please see the documentation included with version 3.3.3.
-
 %
 %---------------------------------------------------------------------
 %
 \section{Installation}\label{sec:Installation}\index{installation}
 
 \subsection{Downloading and unarchiving}
-Pcb-gcode can be downloaded from the Yahoo! group's \href{http://groups.yahoo.com/group/pcb-gcode/files/\%21\%20Software}{software folder}. \index{download site} Unzip the archive into a place where the operating system will allow files to be saved. For Windows, this should be somewhere inside your Documents folder. For Mac OS X, it could be, for instance, \code{\textasciitilde/Documents/Eagle/pcbgcode}, and for Linux, somewhere off your home folder. Be sure to preserve the directory structure in the archive. See \figurename \vref{fig:folderstructure}.
+Pcb-gcode can be downloaded from the Yahoo! group's \href{http://groups.yahoo.com/group/pcb-gcode/files/\%21\%20Software}{software folder}. \index{download site} Unzip the archive into a place where the operating system will allow files to be saved. For Windows, this should be somewhere inside your Documents\footnote{For Windows XP: "C:\textbackslash{}Documents and Settings", for Windows 7: "C:\textbackslash{}Users\textbackslash{}[yourname]\textbackslash{}My Documents" } folder. For Mac OS X, it could be, for instance, \code{\textasciitilde/Documents/Eagle/pcbgcode}, and for Linux, somewhere off your home folder. Be sure to preserve the directory structure in the archive. See \figurename \vref{fig:folderstructure}.
 
 \begin{figure}
 	\center{
@@ -245,6 +326,9 @@ Pcb-gcode can be downloaded from the Yahoo! group's \href{http://groups.yahoo.co
 	\caption{The proper directory structure after uncompressing the archive.}
 	\label{fig:folderstructure}
 \end{figure}
+
+\subsubsection{Windows Note}
+Note that if you are using Windows, odd things might happen if you install pcb-gcode outside the Documents folder. This is due to \href{http://en.wikipedia.org/wiki/Windows_File_Protection}{Windows File Protection} or \href{http://en.wikipedia.org/wiki/Windows_Resource_Protection}{Windows Resource Protection}, which try to keep files outside the Documents folder from being changed. This could result in, for instance, the previewer always showing the same preview or an \code{Illegal phase 0 in main routine} error\index{Error!Illegal phase 0}. If you install outside the Documents folder and have trouble, try installing under your folder inside Documents. \index{Windows File Protection}
 
 \subsection{Configuring EAGLE}
 Now that pcb-gcode is uncompressed, Eagle must know where it is located. In Eagle's \code{Control Panel}, click \code{Options $|$ Directories}, then put the path to pcb-gcode in the \code{User Language Programs} field. See \figurename \vref{fig:EagleOptionsDirectories}.
@@ -257,18 +341,18 @@ Now that pcb-gcode is uncompressed, Eagle must know where it is located. In Eagl
 	\label{fig:EagleOptionsDirectories}
 \end{figure}
 
-\subsection{Selecting g-code style}\label{sub:SelectingGCodeStyle}\index{g-code style}
+\subsection{Selecting g-code style}\label{sub:SelectingGCodeStyle}\index{g-code!style}
 To complete the setup, pcb-gcode must be told which type of g-code it should generate. Open a board in Eagle, then click \code{File $|$ Run...}. Locate the folder where pcb-gcode is and select pcb-gcode-setup.ulp. You will see the screen in \figurename \vref{fig:SelectGcodeStyle}. Select the style g-code that most closely matches your controller.
 
 You will receive the warning shown in \figurename \vref{fig:GcodeDefaultsWarning}. If this is the first time pcb-gcode has been run, just click Yes and skip the rest of this paragraph. If this is an existing installation of pcb-gcode and gcode-defaults.h has been modified, make note of the modifications before clicking Yes, then make those modifications as needed to the new gcode-defaults.h file.
 
 \begin{figure}
 	\center{
-	\includegraphics[width=10cm]{figs/Select-Gcode-Style.png}
+	\includegraphics[width=10cm]{figs/Setup-Gcode-Style.png}
 	}
 	\caption{Select the style g-code pcb-gcode should produce.}
 	\label{fig:SelectGcodeStyle}
-\end{figure}
+\end{figure}\index{setup tabs!GCode Style}
 
 \begin{figure}
 	\center{
@@ -279,6 +363,14 @@ You will receive the warning shown in \figurename \vref{fig:GcodeDefaultsWarning
 \end{figure}
 
 After clicking Yes, \code{pcb-gcode-setup} will be run again, and you will see the screen shown in \figurename \vref{fig:SetupGenerationOptions}.
+
+\subsection{Previewer Setup}
+
+The previewer (See section \vref{sec:Previewer}) is written in \href{http://www.processing.org}{Processing} and requires javaw.exe to run. You can download a Java runtime environment (JRE) at \href{http://www.java.com}{java.com}. You will find installation instructions there. Windows note: for the previewer to work properly, javaw.exe must be in the system path. \index{javaw.exe}\index{Java}
+
+If you choose not to use the previewer, simply turn it off. See \figurename \vref{fig:SetupGenerationOptions}.
+
+
 
 %
 %---------------------------------------------------------------------
@@ -291,34 +383,37 @@ After clicking Yes, \code{pcb-gcode-setup} will be run again, and you will see t
 	}
 	\caption{Machine options.}
 	\label{fig:SetupMachine}
-\end{figure}
+\end{figure}\index{setup tabs!Machine}
 
 Click the \code{Machine} tab to view the machine options as shown in \figurename \vref{fig:SetupMachine}. First select the preferred unit of measure by selecting it under \code{Units}. \index{unit of measure}
 
-Now set the settings for the Z axis. \code{Z High} should be high enough to clear any clamps or fixtures that hold the PCB down.\index{Z High} Set \code{Z Up} high enough to clear the board when moving from location to location.\index{Z Up} Set \code{Z Down} to the depth into the board that the tool should cut.\index{Z Down} \code{Drill Depth} should be set deep enough to drill through the PCB.\index{Drill Depth} \code{Drill Dwell} is the time, in seconds, that the drill should pause at the bottom of the hole.\index{Drill Dwell}
+Now set the settings for the Z axis. \code{Z High} should be high enough to clear any clamps or fixtures that hold the PCB down.\index{z axis!high} Set \code{z up} high enough to clear the board when moving from location to location.\index{z axis!up} Set \code{Z Down} to the depth into the board that the tool should cut when etching.\index{z axis!down} \code{Drill Depth} should be set deep enough to drill through the PCB.\index{drill!depth} \code{Drill Dwell} is the time, in seconds, that the drill should pause at the bottom of the hole.\index{drill!dwell}
 
-The \code{Tool Change} options are the position where the tool should be moved for changing the tool.\index{Tool Change}
+The \code{Tool Change} options are the position where the tool should be moved when a new tool is required.\index{tool change!position}
 
-The \code{Spin Up Time} in the \code{Spindle} box should be set to the length of time in seconds that it takes the spindle to come up to speed. If the spindle is manually controlled, this can be set to \code{1}.\index{Spin Up Time}
+The \code{Spin Up Time} in the \code{Spindle} box should be set to the length of time in seconds that it takes the spindle to come up to speed. If the spindle is manually controlled, this can be set to \code{1}.\index{spindle!spin up time}
 
-The \code{Feed Rates} should be set for \code{X Y} moves as well as \code{Z} moves. Rates here will usually be quite low unless the machine has a very fast spindle. See a machinist's reference on how to calculate the optimal feed rate, use trial and error, or post to the Yahoo! group email list for advice.
+The \code{Feed Rates} should be set for \code{X Y} moves as well as \code{Z} moves. Rates here will usually be quite low unless the machine has a very fast spindle. See a machinist's reference on how to calculate the optimal feed rate, use trial and error, or post to the Yahoo! group email list for advice. Note that there are separate feed rates for \code{X Y}, and \code{Z}, and there is a spindle speed setting for each of the four operations pcb-gcode can generate files for.\index{feed rates}\index{z axis!feed rates}
 
-\code{Epsilon} is the minimum move that will be written to the g-code file. For instance, if \code{Epsilon} is set to $0.0001''$ and the g-code file will not contain movements less than $0.0001''$. This option will rarely need to be changed.
+A \code{Tool Dia.} parameter is available to set the diameter of the tool used to etch and for milling openings for stencils used to apply cream solder paste when surface mounted parts are used.\index{stencil!tool diameter}\index{etching!tool diameter}
+
+\code{Epsilon} is the minimum move that will be written to the g-code file. For instance, if \code{Epsilon} is set to $0.0001''$ then the g-code file will not contain movements less than $0.0001''$. This option will rarely need to be changed.
 
 The \code{Default Drill Rack File} option allows for the selection of a rack file to be used if one has not been setup for a particular board. In most cases this can be left blank to start with. See Section \vref{sec:DrillRackFiles} for more information about setting up rack files. 
 
 %
 %---------------------------------------------------------------------
 %
+\newpage
 \section{Generation Options}\label{sec:GenerationOptions}
 
 \begin{figure}
 	\center{
-	\includegraphics[width=14cm]{figs/Setup-Generation-Options.png}
+	\includegraphics[width=18cm]{figs/Setup-Generation-Options.png}
 	}
 	\caption{Options available when generating a board.}
 	\label{fig:SetupGenerationOptions}
-\end{figure}
+\end{figure}\index{setup tabs!Generation Options}
 
 Now that reasonable values have been set for the machine, click the \code{Generation Options} tab (See \figurename \vref{fig:SetupGenerationOptions}). This is where the various files produced by pcb-gcode can be selected, and common options can be set. A description of the options follows:
 
@@ -327,34 +422,38 @@ Now that reasonable values have been set for the machine, click the \code{Genera
 	\begin{description}
 		\item[Generate top outlines] Generate g-code to cut out the tracks, pads, pours and vias on the top side of the board.
 		\item[Generate top drills] Generate g-code to drill holes from the top side of the board.
+		\item[Generate top stencil] Generate g-code to cut out a stencil for the top cream layer.\index{stencil!Generate top option}
 	\end{description}
 	\item[Bottom Side] Options having to do with the tracks on the bottom of the board, and drill holes made from the bottom side of the board.
 	\begin{description}
 		\item[Generate bottom outlines] Generate g-code to cut out the tracks, pads, pours and vias on the bottom side of the board.
 		\item[Generate bottom drills] Generate g-code to drill holes from the bottom side of the board.
+		\item[Generate bottom stencil] Generate g-code to cut out a stencil for the bottom cream layer.\index{stencil!Generate bottom option}
 		\item[Mirror] X coordinates for the bottom of the board are usually negative. This makes setting the origin for a two-sided board easier. Turning this option on causes the X coordinates to be positive, however, the bottom tracks will be a mirror image of what they should be. So in general, leave this option off.
 	\end{description}
 	\item[Board] Options that apply to the board in general.
 	\begin{description}
-		\item[Show preview] Use the previewer in pcb-gcode to preview the g-code generated.
+		\item[Show preview] Use the previewer in pcb-gcode to preview the g-code generated.\index{previewer!option}
+		\subitem Width and height set the size of the preview window.\index{previewer!window size}
 		\item[Generate milling] Generate g-code for any wires the user has drawn on the \code{Milling} (46) layer. \code{Depth} sets the milling depth.
 		\item[Generate text] Generate g-code to engrave any vector text the user may have placed on the \code{Milling} layer. \code{Depth} sets the engraving depth. Not that text on the top or bottom layers will be outlined just as the tracks are, whereas text on the milling layer is engraved. That is, the tool along the center of the lines that make up the letter.
 		\item[Spot drill holes] Spot drilling helps the drill bits center themselves and helps prevent "walking." Depth sets the spot drill depth.
-		\item[Isolation] The cutting tool can make several passes around the tracks at an increasing distance each time. This helps eliminate slivers of copper that remain.
+		\item[Prefer climb] Prefer the \emph{climb} direction when etching tracks, that is, the clockwise direction.
+		\item[Isolation] The cutting tool can make several passes around the tracks at an increasing distance each time. This helps eliminate slivers of copper that remain.\index{isolation!settings}
 		\begin{description}
 			\item[Single pass] When turned on, only a single pass will be made around the tracks on the board.
 			\item[Minimum] The minimum distance the cutting tool will be away from tracks. That is, the starting isolation amount.
 			\item[Maximum] The maximum distance the cutting tool will be away from tracks. The maximum isolation amount.
 			\item[Step size] The amount the isolation increases with each pass.
 		\end{description}
-		\item[Etching Tool Size] The size of the cutter used to cut around tracks on the board.
 	\end{description}
+	\item[Operator message for gcode file] Text entered in this field will be inserted into each NC file generated, along with an operator pause command. Use this for reminders to the operator, such as, ``Use 30$^\circ$ bit for etching. Use 3mm bit for milling.''
 \end{description}
 
 %
 %---------------------------------------------------------------------
 %
-\section{GCode Options}\label{sec:GCodeOptions}
+\section{GCode Options}\label{sec:GCodeOptions}\index{g-code!options}
 
 \begin{figure}
 	\center{
@@ -362,12 +461,12 @@ Now that reasonable values have been set for the machine, click the \code{Genera
 	}
 	\caption{Options for generating g-code files.}
 	\label{fig:GCodeOptions}
-\end{figure}
+\end{figure}\index{setup tabs!GCode Options}
 
 The options under the GCode Options tab allows the customization of some of the g-code file's content, as well as how the files are named.
 
 \begin{description}
-	\item[NC File Comments] Comments added to the g-code file.
+	\item[NC File Comments] Comments added to the g-code file.\index{g-code!comments}
 	\begin{description}
 		\item[NC File Comment from Board] adds a comment with the name of the board file.
 		\item[NC File Comment Date] adds the date the g-code file is created.
@@ -377,16 +476,16 @@ The options under the GCode Options tab allows the customization of some of the 
 	
 	\item[Other Options] Options affecting how the g-code is generated.
 	\begin{description}
-		\item[Use user gcode (from user-gcode.h)] inserts user g-code into the generated file. See Section \vref{sec:UserGCode} for more details.
+		\item[Use user gcode (from user-gcode.h)] inserts user g-code into the generated file. See Section \vref{sec:UserGCode} for more details.\index{g-code!user}
 		\item[Debug Flag] sets the global debug flag. Used for development and troubleshooting.
-		\item[Do tool change with zero step] after moving to the tool change position and pausing for the operator to change the bit, the Z axis will move to Z0.000 and pause. This allows the operator to adjust the bit length to touch the surface of the PCB. Note that the tool should initially be set high into the spindle so that it won't dig into the PCB when it moves to Z0.
+		\item[Do tool change with zero step] after moving to the tool change position and pausing for the operator to change the bit, the Z axis will move to Z0.000 and pause. This allows the operator to adjust the bit length to touch the surface of the PCB. Note that the tool should initially be set high into the spindle so that it won't dig into the PCB when it moves to Z0.\index{tool change!zero step}
 		\item[Flip board in Y instead of X] changes the code generated so that after one side of the board is cut, the board should be flipped in the Y axis to complete cutting on the other side. The default is for the board to be flipped in the X axis.
-		\item[Compact gcode] eliminates some redundant commands in the g-code file, such as having G01 on every line.
-		\item[Use line numbers?] inserts line numbers into the g-code file. The format shown \code{\%05d} will insert 5 digit numbers with leading zeroes.
-		\item[Use simple drill code] uses XYZ movements to create drill holes. Usually \code{DRILL\_{}FIRST\_{}HOLE} and \code{DRILL\_{}HOLE} are used, but some controllers don't understand the command (typically \code{G82}).
+		\item[Compact gcode] eliminates some redundant commands in the g-code file, such as having G01 on every line.\index{g-code!compact}
+		\item[Use line numbers?] inserts line numbers into the g-code file. The format shown \code{\%05d} will insert 5 digit numbers with leading zeroes.\index{g-code!line numbers}
+		\item[Use simple drill code] uses simple XYZ movements to create drill holes. Usually \code{DRILL\_{}FIRST\_{}HOLE} and \code{DRILL\_{}HOLE} are used, but some controllers don't understand the command (typically \code{G82}).\index{drill!simple g-code}
 	\end{description}
 	
-	\item[File naming] every option one could want for naming files.
+	\item[File naming] every option one could want for naming files.\index{files!naming}
 	\begin{description}
 		\item[Macros] the following can be used in the file name to create the final file name. Note that paths do not include a \code{/} at the end. Also note that \code{/} is always the path delimiter, even on Windows. Eagle handles the conversion automatically.
 		\begin{description}
@@ -414,6 +513,22 @@ Using the options shown in \ref{fig:GCodeOptions}, here is how the filename for 
 Using examples for the board path and name, the final file name would be:\\
 \lstinline!/Users/john/Documents/pcbcode/examples/enabtmr.top.etch.tap!
 
+%
+%---------------------------------------------------------------------
+%
+\newpage
+\section{Support}\label{sec:Support}\index{support}
+
+Several options are available for support. First and foremost, read this manual and ensure that your question is not herein.
+
+\begin{description}
+    \item[Yahoo! Group] The \href{https://groups.yahoo.com/group/pcb-gcode}{Yahoo! group} has over 3 000 members, many of whom are very active and experienced in the use of pcb-gcode.\index{support!Yahoo group}
+    \item[Phorum] The \href{http://pcbgcode.org}{online BBS} where questions and answers may be posted, files downloaded, etc.\index{support!Phorum}
+    \item[Email] Very limited \href{mailto:pcbgcode@pcbgcode.org}{email support} is available. Please try all the other options first.
+    \item[On\-site Support] If you are in the Atlanta area, on\-site support is a possibility. Please \href{mailto:pcbgcode@pcbgcode.org}{email me}.\index{support!on site}
+\end{description}
+
+
 %======================================================================
 %
 \chapter{Using pcb-gcode}
@@ -427,9 +542,9 @@ Using examples for the board path and name, the final file name would be:\\
 
 Run pcb-gcode by selecting File $|$ Run... from EAGLE's board editor. Find the file \code{pcb-gcode-setup.ulp} and click the Open button. The setup screen will be shown where options can be changed (See \figurename~\ref{fig:SetupGenerationOptions}). When the options are correct, click the \code{Accept and make my board} button. To save the options without generating files for the board, click the \code{Accept} button.
 
-Pcb-gcode is actually two programs. The first, pcb-gcode-setup, allows for setting options and changing the way NC files are created. The second program is pcb-gcode, which actually creates the files. Most people run pcb-gcode-setup, check their settings, then click the \code{Accept and make my board} button to generate files. If settings don't need to be changed, pcb-gcode can be run directly and all the file selections and options from the last time pcb-gcode-setup was run will be used.
+Pcb-gcode is actually two programs. The first, \code{pcb-gcode-setup}, allows for setting options and changing the way NC files are created. The second program is \code{pcb-gcode}, which actually creates the files. Most people run \code{pcb-gcode-setup}, check their settings, then click the \code{Accept and make my board} button to generate files. If settings don't need to be changed, \code{pcb-gcode} can be run directly and all the file selections and options from the last time \code{pcb-gcode-setup} was run will be used.
 
-To make it easier to run pcb-gcode and pcb-gcode-setup, use EAGLE's Assign function to assign a shortcut key to \code{run pcb-gcode} and \code{run pcb-gcode-setup} (See \figurename~\vref{fig:EagleOptionsAssign}).
+To make it easier to run \code{pcb-gcode} and \code{pcb-gcode-setup}, use EAGLE's Assign function to assign a shortcut key to \code{run pcb-gcode} and \code{run pcb-gcode-setup} (See \figurename~\vref{fig:EagleOptionsAssign}).
 
 \begin{figure}
 	\center{
@@ -446,7 +561,7 @@ To make it easier to run pcb-gcode and pcb-gcode-setup, use EAGLE's Assign funct
 
 When creating files to etch a board, it is usually the case that the tracks should be made wide to allow for easier machining and to account for tolerances in the machine such as backlash and spindle runout. EAGLE's Design Rule Check (DRC) can be used to help ensure that all tracks on the board will be cut out, and no bridges will be left. 
 
-A bridge is formed when two parts (tracks, pads, vias) on the board are too close together for the etching tool to pass between them. An example is shown in \figurename~\vref{fig:TwoComponents}. For this example, Single Pass isolation is selected, minimum isolation is set to $0.010''$, and the etching tool size is set to $0.005''$. These setting are shown in \figurename~\vref{fig:DRCExampleSettings}.
+A bridge is formed when two parts (tracks, pads, vias) on the board are too close together for the etching tool to pass between them.\index{bridges} An example is shown in \figurename~\vref{fig:TwoComponents}. For this example, Single Pass isolation is selected, minimum isolation is set to $0.010''$, and the etching tool size is set to $0.005''$. These setting are shown in \figurename~\vref{fig:DRCExampleSettings}.
 
 \begin{figure}
 	\center{
@@ -524,8 +639,97 @@ The preview is enabled by turning on the \code{Show preview} option under the \c
 
 The previewer does not read and interpret the NC files directly, but uses an internal representation of the tool movements. This gives an accurate representation of the tool's movements and size, without the overhead of interpreting several different styles of g-code.
 
+\begin{figure}
+	\center{
+	\includegraphics[width=14cm]{figs/Previewer-Screen-Shot.png}
+	}
+	\caption{The previewer showing a multi-pass file for the bottom side of an example PCB included with pcb-gcode. Each $\times$ represents a drill hole in the drill file.}
+	\label{fig:PreviewerScreenShot}
+\end{figure}
+
+As can be seen in \figurename~\vref{fig:PreviewerScreenShot}, additional information is provided by the preview. In the upper-left corner is the name of the board file that was processed to produce this preview. At the upper-right, the viewer version number can be found. Just to the left of that is the etching tool size set in pcb-gcode-setup. Just below the version number is the number of passes generated. Back on the left-hand side near the top is an overview of the keys available.
+
+The four extents of the board are marked with red corners. At the upper right corner, the X and Y coordinates are given. The X and Y coordinates are also given at the lower-left corner. Note that in the figure, the X coordinate is negative because this is the bottom of the board. In the lower right corner, a circle and crosshairs mark the origin point for the board.
+
+If the milling and text options are turned on, the previewer will show any files generated for the top and bottom milling and text. Since the Milling (46) layer is not a top or bottom layer (it can be thought of as going through the board), NC files are generated to mill any lines drawn on it from either the top or bottom side. So in other words, if \code{Generate milling} is selected, both top and bottom milling files will be generated. The same for text placed on the Milling layer. If \code{Generate text} is selected, both top and bottom text engraving files will be generated. There is one caveat: if the text is mirrored, it will be output in the bottom milling file. If the text is not mirrored, it will be output in the top milling file. This is similar to the way text placed on the \code{Top} and \code{Bottom} layers looks. The following example will help clarify this.
+
+The example board \code{docs/examples/04151\_lcdi2c.brd} shown in \figurename~\vref{fig:014151Board} includes wires (shown in blue) drawn on the Milling layer, as well as mirrored vector text (also shown in blue) placed on the Milling layer. A prewiew of the bottom milling file is shown in \figurename~\vref{fig:BottomMilling}. A preview of the bottom text engraving file is shown in \figurename~\vref{fig:BottomText}. You can see that the text is oriented properly for engraving on the bottom side of the board. The object info for the text is shown in \figurename~\vref{fig:MirroredTextInfo}.
+
+The top milling file preview looks just like the bottom preview, and is not shown. The top text engraving file was empty since there is no non-mirrored text on the Milling layer, so its preview has also been omitted.
+
+\begin{figure}
+	\center{
+	\includegraphics[width=10cm]{figs/04151_lcdi2c.png}
+	}
+	\caption{The sample board \code{docs/examples/04151\_lcdi2c.brd} with wires and mirrored text on the Milling layer.}
+	\label{fig:014151Board}
+\end{figure}
+
+\begin{figure}
+	\center{
+	\includegraphics[width=10cm]{figs/Bottom-Milling.png}
+	}
+	\caption{Milling generated for milling from the bottom side of \code{docs/examples/04151\_lcdi2c.brd}.}
+	\label{fig:BottomMilling}
+\end{figure}
+
+\begin{figure}
+	\center{
+	\includegraphics[width=10cm]{figs/Bottom-Text.png}
+	}
+	\caption{Text engraving generated for cutting on the bottom side of \code{docs/examples/04151\_lcdi2c.brd}.}
+	\label{fig:BottomText}
+\end{figure}
+
+\clearpage
+
+\begin{figure}
+	\center{
+	\includegraphics[width=8cm]{figs/Mirrored-Text-Info.png}
+	}
+	\caption{The object info for the mirrored text on the Milling layer. Note that the Mirror checkbox is on. This indicates to pcb-gcode that the text should be engraved on the bottom side of the board.}
+	\label{fig:MirroredTextInfo}
+\end{figure}
+
+
 \howitworks{}
 For the curious reader, the previewer is written using a language called \href{http://processing.org}{Processing}, which is somewhat Java-like. Three versions of the previewer are included in pcb-gcode, one for each operating system supported: Mac OS X, Linux, and Windows. When the previewer is enabled, pcb-gcode detects which operating system it is running on, and runs the appropriate viewer.
+
+%
+%---------------------------------------------------------------------
+%
+\section{Saving and Loading Settings}\label{sec:SaveSettings}
+
+\subsection{Overview}\index{settings!saving and loading}
+
+\begin{figure}
+	\center{
+	\includegraphics[width=16cm]{figs/Setup-PlugIns.png}
+	}
+	\caption{The Plugins tab showing where settings can be saved and loaded.}
+	\label{fig:SaveSettings}
+\end{figure}\index{setup tabs!Plugins}
+
+Settings may be loaded and saved to settings files. This can be found on the Plugins tab, and is shown in figure \vref{fig:SaveSettings}. This allows the operator to set up groups of settings for different PC boards, save them, and load them when manufacturing the same board later. The settings saved include those on the Generation Options tab (shown in figure \vref{fig:SetupGenerationOptions}), as well as those on the Machine tab (see figure \vref{fig:SetupMachine}) except for the Units setting.
+
+\subsection{Saving Settings}\index{settings!saving}
+
+First, set up all settings on the Generation Options tab, and the Machine tab. When the settings are working as desired, select the Plugins tab, then click the \code{Save as} button. A standard file save dialog will appear where you can enter a file name. A confirmation dialog will appear telling you your settings have been saved, then setup will reload.
+
+If you would like to replace a set of settings that have already been saved, click the filename in the list of Settings, then click the Save button. A dialog will open confirming that your settings have been saved.
+\\
+
+\warning{Eagle Bug}
+\textbf{Note that settings must be saved in the \code{<pcb-gcode path>/settings/saved} folder.}\index{settings!path to}
+There is a bug on some platforms that prevents pcb-gcode from setting the proper directory for the save dialog. Please ensure the directory is set correctly, otherwise your saved files will not appear in the list of Settings.
+\\
+
+\subsection{Loading Settings}\index{settings!loading}
+
+To load a set of settings you have saved before, go to the Plugins tab, select the file from the Settings list, and click the Load button. The settings will be loaded, and the setup program will reload.
+
+\information{Intermediate}
+The settings from the Generation Options tab are saved in \code{pcb-defaults.h}, and the settings from the Machine tab are saved in \code{pcb-machine.h}. When the settings are saved from the Plugins tab, they are copied to \code{filename.def} and \code{filename.mac} files. When loading, the opposite operation takes place.
 
 %======================================================================
 %
@@ -582,6 +786,8 @@ The first option on line 11, \code{FILENAMES\_8\_CHARACTERS}, tells pcb-gcode wh
     \item[FR\_{}FORMAT] is the format used to insert feedrate parameters into the g-code. In the example, the leading \code{F} indicates this is a feedrate parameter. The rest of the format is similar to \code{FORMAT} --- leading negative sign possible, 5 digits wide, no digits to the right of the decimal point.
     
     \item[IJ\_{}FORMAT] is used to output \code{I J} coordinates to the g-code file. You can see by the definition on line 26 that this format reuses the \code{FORMAT} definition defined earlier.
+    
+    \item[R\_{}FORMAT] is used by commands that require an \code{R} parameter, usually the radius for an arc command.
 \end{description}
 
 \item[Modes] Inch, metric, etc. modes
@@ -669,15 +875,15 @@ The first option on line 11, \code{FILENAMES\_8\_CHARACTERS}, tells pcb-gcode wh
 
 \item[Circles / Arcs] Arc and circle commands.
 \begin{description}
-	\item[CIRCLE\_{}TOP] a clockwise circle on the top of the board. Takes \code{X Y I J} as parameters.
-	\item[CIRCLE\_{}BOTTOM] a counter-clockwise circle on the bottom of the board. Takes \code{X Y I J} as parameters.
+	\item[ARC\_{}TOP] is an arc on the top of the board. Takes \code{X Y R} as parameters.
+	\item[ARC\_{}BOTTOM] an arc on the bottom of the board. Takes \code{X Y R} as parameters.
 \end{description}
 \end{description}
 
 %
 %---------------------------------------------------------------------
 %
-\section{Profiles}\index{profiles}\label{sec:Profiles}
+\section{Profiles}\index{profiles}\label{sec:Profiles}\index{g-code!profiles}
 
 \warning{Advanced}
 Profiles, which are found in the \code{profiles} folder, control the format that pcb-gcode uses when writing g-code. The files ending in \code{.pp} are the list of files shown when pcb-gcode is initially set up (See Section \vref{sec:Installation}), and also in the list of profiles in the \code{GCode Styles} tab. When a profile is selected, it is copied to \code{settings/gcode-defaults.h}. A sample profile is shown in Appendix \vref{chp:SampleProfile}. 
@@ -690,7 +896,7 @@ For information on editing \code{gcode-defaults.h}, See Section \vref{sec:Custom
 %
 %---------------------------------------------------------------------
 %
-\section{Drill Rack Files}\index{rack files}\index{drill files}\label{sec:DrillRackFiles}
+\section{Drill Rack Files}\index{drill!rack files}\index{drill!substitutions}\label{sec:DrillRackFiles}
 
 Rack files allow the substitution of one drill size for a range of sizes that may be found in the board. For instance, a $0.031''$ drill might be used for hole sizes $0.025''$ -- $0.032''$. This cuts down on the number of drills that must be kept on hand, and the number of tool changes needed to drill a board. An example drill rack file is shown in Listing \ref{lst:SampleRackFile}. \textbf{Please heed the warning about using a tab character} between entries on a line. Otherwise, your rack file will not work.
 
@@ -699,7 +905,7 @@ As can be seen, drills with different units of measure are supported. This inclu
 Looking at Listing \ref{lst:SampleRackFile}, the meaning of the fields are as follows:
 
 \begin{description}
-	\item[tool] The tool number to use. This is somewhat arbitrary unless the machine has a tool changer. Just be sure to start with 1 and increment by 1.
+	\item[tool] The tool number to use. This is somewhat arbitrary unless the machine has a tool changer or you have offsets or lengths set up for different tool numbers. Tool numbers can begin at any reasonable number, such as T01, T16, etc.
 	\item[drill\_size] The size of the actual drill. These should be in ascending order from smallest to largest.
 	\item[minimum] The smallest hole size this drill should be used for.
 	\item[maximum] The largest hole this drill should be used for.
@@ -729,7 +935,7 @@ T05	0.062in		0.055in	0.070in	1.5in
 T06	0.085in		0.070in	0.125in	1.5in
 \end{lstlisting}
 
-\begin{lstlisting}[caption={Sample entries for rack files},label={lst:SampleEntries}]
+\begin{nbcode}[caption={Sample entries for rack files},label={lst:SampleEntries}]
 0.032in   0.032 inches
 62ml      62 mils, 0.062 inches
 0.43mm    0.43 millimeters
@@ -738,42 +944,104 @@ T06	0.085in		0.070in	0.125in	1.5in
 0.12      0.12 inches
 0.60      0.60 millimeters
 43        43 wire gage drill
-\end{lstlisting}
+\end{nbcode}
 
 
 
 %
 %---------------------------------------------------------------------
 %
-\section{User GCode}\index{user gcode}\label{sec:UserGCode}
+\section{User GCode}\index{user gcode}\label{sec:UserGCode}\index{g-code!user}
 
 \warning{Advanced}
-The pcb−gcode ULP allows you to customize the g−code created for your boards to a great degree. If you don't see an option in the profile that suits your needs, you can add your code to the \code{user-gcode.h} file. To enable user g-code, run \code{pcb-gcode-setup}, click the \code{GCode Options} tab, then turn the \code{Use user gcode...} option on. Generate a set of NC files for a board. Let's say, for example, that after you change the tool when you're drilling from the bottom of the board, you want the tool to move to X5 Y5 Z5, turn the spindle off, then turn it back on. Since this has to do with drilling the bottom of the board, we should look at the ...bot.drill.tap (bottom drill) file. An excerpt from a file is shown in Listing \vref{lst:BottomDrillBeforeGCode}.
+The pcb-gcode ULP allows you to customize the g-code created for your boards to a great degree. If you don't see an option in the profile that suits your needs, you can add your code to the \code{user-gcode.h} file. To enable user g-code, run \code{pcb-gcode-setup}, click the \code{GCode Options} tab, then turn the \code{Use user gcode...} option on. Generate a set of NC files for a board. Let's say, for example, that after you change the tool when you're drilling from the bottom of the board, you want the tool to move to X5 Y5 Z5, turn the spindle off, then turn it back on. Since this has to do with drilling the bottom of the board, we should look at the ...bot.drill.tap (bottom drill) file. An excerpt from a file is shown in Listing \vref{lst:BottomDrillBeforeGCode}.
 
-\begin{lstlisting}[caption={Bottom drill file before adding user g-code.},label={lst:BottomDrillBeforeGCode}]G90(Tool Change Begin)(Bottom Tool Change Begin)M05G00 X0.0000 Y0.0000 Z2.0000M06 T01  ; 0.0236(Bottom Tool changed)(Tool changed)G00 Z0.0200M03G04 P3.000000(Bottom Tool Change End)(Tool Change End)G82 X−1.6200 Y1.2900 Z−0.1000 F9.80  R0.0200 P0.250000G82 X−1.8800 Y0.5900G82 X−1.9500 Y1.4900G82 X−1.9500 Y1.8100
+\begin{lstlisting}[caption={Bottom drill file before adding user g-code.},label={lst:BottomDrillBeforeGCode}]
+G90
+(Tool Change Begin)
+(Bottom Tool Change Begin)
+M05
+G00 X0.0000 Y0.0000 Z2.0000
+M06 T01  ; 0.0236
+(Bottom Tool changed)
+(Tool changed)
+G00 Z0.0200
+M03
+G04 P3.000000
+(Bottom Tool Change End)
+(Tool Change End)
+G82 X-1.6200 Y1.2900 Z-0.1000 F9.80  R0.0200 P0.250000
+G82 X-1.8800 Y0.5900
+G82 X-1.9500 Y1.4900
+G82 X-1.9500 Y1.8100
 \end{lstlisting}
-We want to add our commands after the tool is changed when drilling the bottom of the board. Looking at the sample above, you will find this line:
-\begin{lstlisting}[firstnumber=12](Bottom Tool Change End)
-\end{lstlisting}
-That's where we want our code to go. Now you can open user-gcode.h in your favorite editor, and use the Search or Find feature to find the line with Bottom Tool Change End. Here's an excerpt from the user−gcode.h file:
 
-\begin{lstlisting}TOOL_ZERO_BEGIN[BOTTOM]	= "(Bottom Tool zero begin)\n";
-TOOL_ZERO_END[BOTTOM]	= "(Bottom Tool zero end)\n";TOOL_CHANGE_END[BOTTOM]	= "(Bottom Tool Change End)\n";TOOL_CHANGE_BEGIN[TOP]	= "(Top Tool Change Begin)\n";\end{lstlisting}The 3$^{rd}$ line is the one we're interested in:
-\begin{lstlisting}[firstnumber=3]TOOL_CHANGE_END[BOTTOM]   = "(Bottom Tool Change End)\n";
+We want to add our commands after the tool is changed when drilling the bottom of the board. Looking at the sample above, you will find this line:
+\begin{lstlisting}[firstnumber=12]
+(Bottom Tool Change End)
+\end{lstlisting}
+
+That's where we want our code to go. Now you can open user-gcode.h in your favorite editor, and use the Search or Find feature to find the line with Bottom Tool Change End. Here's an excerpt from the user-gcode.h file:
+
+\begin{lstlisting}
+TOOL_ZERO_BEGIN[BOTTOM]	= "(Bottom Tool zero begin)\n";
+TOOL_ZERO_END[BOTTOM]	= "(Bottom Tool zero end)\n";
+TOOL_CHANGE_END[BOTTOM]	= "(Bottom Tool Change End)\n";
+TOOL_CHANGE_BEGIN[TOP]	= "(Top Tool Change Begin)\n";
+\end{lstlisting}
+The 3$^{rd}$ line is the one we're interested in:
+\begin{lstlisting}[firstnumber=3]
+TOOL_CHANGE_END[BOTTOM]   = "(Bottom Tool Change End)\n";
 \end{lstlisting}
 Change the line so that it looks like this:
-\begin{lstlisting}[firstnumber=3]TOOL_CHANGE_END[BOTTOM] = "(Bottom Tool Change End)\n"                          "G00 X5 Y5 Z5\n"                          "M05 (spindle off)\n"                          "G04 P3.000000 (wait 3 seconds)\n"                          "M03 (spindle on)\n";                          "G04 P3.000000 (wait 3 more seconds\n";
+\begin{lstlisting}[firstnumber=3]
+TOOL_CHANGE_END[BOTTOM] = "(Bottom Tool Change End)\n"
+                          "G00 X5 Y5 Z5\n"
+                          "M05 (spindle off)\n"
+                          "G04 P3.000000 (wait 3 seconds)\n"
+                          "M03 (spindle on)\n";
+                          "G04 P3.000000 (wait 3 more seconds\n";
 \end{lstlisting}
-Notice that all the lines have a \lstinline!\n! before the last \lstinline!"! and that the last line is the only one that ends with a semi−colon \lstinline!;!.Generate the files again. Open the bottom drill file in the editor and have a look. Here's how the sample looks now:
+
+Notice that all the lines have a \lstinline!\n! before the last \lstinline!"! and that the last line is the only one that ends with a semi-colon \lstinline!;!.
+Generate the files again. Open the bottom drill file in the editor and have a look. Here's how the sample looks now:
 \begin{lstlisting}
-G90(Tool Change Begin)(Bottom Tool Change Begin)M05G00 X0.0000 Y0.0000 Z2.0000M06 T01  ; 0.0236(Bottom Tool changed)(Tool changed)G00 Z0.0200M03G04 P3.000000(Bottom Tool Change End)G00 X5 Y5 Z5M05 (spindle off)G04 P3.000000 (wait 3 seconds)M03 (spindle on)
-G04 P3.000000 (wait 3 more seconds)(Tool Change End)G82 X−1.6200 Y1.2900 Z−0.1000 F9.80  R0.0200 P0.250000G82 X−1.8800 Y0.5900G82 X−1.9500 Y1.4900G82 X−1.9500 Y1.8100
-\end{lstlisting}Note that the lines added to the user-gcode.h file are now in the generated g-code from lines 13-17.
-Since we put our code in the \lstinline!TOOL_CHANGE_END[BOTTOM]! definition, it will only be put in files for the bottom side of the board. So the code will be in the bot.drill file. If we only wanted our code in files for the top side, we would have put the code in \lstinline!TOOL_CHANGE_END[TOP]!. You can probably guess that if we wanted the code in both the top and bottom files, we would have put the code in \lstinline!TOOL_CHANGE_END[TOOL_CHANGE_END[ALL]!.To conclude, the steps to follow are:
+G90
+(Tool Change Begin)
+(Bottom Tool Change Begin)
+M05
+G00 X0.0000 Y0.0000 Z2.0000
+M06 T01  ; 0.0236
+(Bottom Tool changed)
+(Tool changed)
+G00 Z0.0200
+M03
+G04 P3.000000
+(Bottom Tool Change End)
+G00 X5 Y5 Z5
+M05 (spindle off)
+G04 P3.000000 (wait 3 seconds)
+M03 (spindle on)
+G04 P3.000000 (wait 3 more seconds)
+(Tool Change End)
+G82 X-1.6200 Y1.2900 Z-0.1000 F9.80  R0.0200 P0.250000
+G82 X-1.8800 Y0.5900
+G82 X-1.9500 Y1.4900
+G82 X-1.9500 Y1.8100
+\end{lstlisting}
+Note that the lines added to the user-gcode.h file are now in the generated g-code from lines 13-17.
+
+Since we put our code in the \lstinline!TOOL_CHANGE_END[BOTTOM]! definition, it will only be put in files for the bottom side of the board. So the code will be in the bot.drill file. If we only wanted our code in files for the top side, we would have put the code in \lstinline!TOOL_CHANGE_END[TOP]!. You can probably guess that if we wanted the code in both the top and bottom files, we would have put the code in \lstinline!TOOL_CHANGE_END[TOOL_CHANGE_END[ALL]!.
+To conclude, the steps to follow are:
 \begin{enumerate}
 
-\item Generate a set of files.\item Find the file that you want the code to be put in (bot, top, etc.).
-\item Find the location in the file that you want the code.\item Find the comment near that location.\item Find the comment in the user−gcode.h file.\item Insert your code after the comment.\item Generate the files again and check to be sure it is correct.
+\item Generate a set of files.
+\item Find the file that you want the code to be put in (bot, top, etc.).
+\item Find the location in the file that you want the code.
+\item Find the comment near that location.
+\item Find the comment in the user-gcode.h file.
+\item Insert your code after the comment.
+\item Generate the files again and check to be sure it is correct.
 \end{enumerate}
 
 %
@@ -817,6 +1085,7 @@ string PARAM      = "P";              /* some use P, some # for parameters */
 string FORMAT     = "%-7.4f ";        /* coordinate format */
 string FR_FORMAT  = "F%-5.0f ";       /* feedrate format */
 string IJ_FORMAT  = "I" + FORMAT + "J" + FORMAT;
+string R_FORMAT   = "R" + FORMAT;
 
 //
 // Modes
@@ -915,8 +1184,8 @@ string TOOL_CHANGE_TABLE_FORMAT(int tool_number, real size_mm, real size_inch, r
 //
 // Circles / Arcs
 //
-string CIRCLE_TOP     = ARC_CW + MOVE_XY + IJ_FORMAT + EOL;
-string CIRCLE_BOTTOM  = ARC_CCW + MOVE_XY + IJ_FORMAT + EOL;
+string ARC_TOP     = ARC_CW + MOVE_XY + R_FORMAT + EOL;
+string ARC_BOTTOM  = ARC_CCW + MOVE_XY + R_FORMAT + EOL;
 
 \end{lstlisting}
 

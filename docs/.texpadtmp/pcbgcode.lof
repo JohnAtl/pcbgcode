@@ -1,0 +1,26 @@
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {1.1}{\ignorespaces Preview showing color-coded multiple passes.\relax }}{3}{figure.caption.6}
+\contentsline {figure}{\numberline {1.2}{\ignorespaces Preview showing a zoomed version of the color-coded multiple passes. Brown is the first pass, red the second, orange the third, etc.\relax }}{4}{figure.caption.7}
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {2.1}{\ignorespaces The proper directory structure after uncompressing the archive.\relax }}{6}{figure.caption.8}
+\contentsline {figure}{\numberline {2.2}{\ignorespaces Add the path to pcb-gcode to the User Language Programs option.\relax }}{7}{figure.caption.10}
+\contentsline {figure}{\numberline {2.3}{\ignorespaces Select the style g-code pcb-gcode should produce.\relax }}{7}{figure.caption.11}
+\contentsline {figure}{\numberline {2.4}{\ignorespaces Overwrite warning for gcode-defaults.h.\relax }}{8}{figure.caption.12}
+\contentsline {figure}{\numberline {2.5}{\ignorespaces Machine options.\relax }}{9}{figure.caption.13}
+\contentsline {figure}{\numberline {2.6}{\ignorespaces Options available when generating a board.\relax }}{11}{figure.caption.14}
+\contentsline {figure}{\numberline {2.7}{\ignorespaces Options for generating g-code files.\relax }}{13}{figure.caption.15}
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces EAGLE shortcut key assignments.\relax }}{17}{figure.caption.16}
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Two components in the board layout editor.\relax }}{18}{figure.caption.17}
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Pcb-gcode settings for the DRC example.\relax }}{19}{figure.caption.18}
+\contentsline {figure}{\numberline {3.4}{\ignorespaces The pads are far enough apart to allow them to be isolated.\relax }}{19}{figure.caption.19}
+\contentsline {figure}{\numberline {3.5}{\ignorespaces The two pads are too close together and cannot be isolated. A bridge is formed.\relax }}{19}{figure.caption.20}
+\contentsline {figure}{\numberline {3.6}{\ignorespaces EAGLE's DRC indicating the two pads are too close together.\relax }}{20}{figure.caption.21}
+\contentsline {figure}{\numberline {3.7}{\ignorespaces The previewer showing a multi-pass file for the bottom side of an example PCB included with pcb-gcode. Each $\times $ represents a drill hole in the drill file.\relax }}{21}{figure.caption.23}
+\contentsline {figure}{\numberline {3.8}{\ignorespaces The sample board \texttt {docs/examples/04151\_lcdi2c.brd} with wires and mirrored text on the Milling layer.\relax }}{22}{figure.caption.24}
+\contentsline {figure}{\numberline {3.9}{\ignorespaces Milling generated for milling from the bottom side of \texttt {docs/examples/04151\_lcdi2c.brd}.\relax }}{23}{figure.caption.25}
+\contentsline {figure}{\numberline {3.10}{\ignorespaces Text engraving generated for cutting on the bottom side of \texttt {docs/examples/04151\_lcdi2c.brd}.\relax }}{23}{figure.caption.26}
+\contentsline {figure}{\numberline {3.11}{\ignorespaces The object info for the mirrored text on the Milling layer. Note that the Mirror checkbox is on. This indicates to pcb-gcode that the text should be engraved on the bottom side of the board.\relax }}{24}{figure.caption.27}
+\contentsline {figure}{\numberline {3.12}{\ignorespaces The Plugins tab showing where settings can be saved and loaded.\relax }}{25}{figure.caption.28}
+\addvspace {10\p@ }
+\addvspace {10\p@ }

@@ -28,9 +28,16 @@ int INTERNALS_PER_MM = INTERNAL_SCALAR;
 int INTERNALS_PER_MIL = MM_PER_INCH * (INTERNAL_SCALAR / 1000);
 int INTERNALS_PER_INCH = MM_PER_INCH * INTERNAL_SCALAR;
 
-/*
- * Return the suffix unit of measure from a string.
- */
+//
+// Return the suffix unit of measure from a string.
+//
+// Params:
+//  s   String containing the number with suffix.
+// Returns:
+//  string  Suffix of the string.
+// Changes:
+//  none
+//
 string get_units(string s)
 {
   int len;
@@ -44,8 +51,18 @@ string get_units(string s)
   return units;
 }  
 
-//enum { U_INVALID, U_MICRONS, U_MILLIMETERS, U_MILS, U_INCHES };
-
+//
+// Convert from one unit of measure to another.
+//
+// Params:
+//  value     Value to convert.
+//  old_units Unit of measure value is currently in.
+//  new_units Unit of measure to convert to.
+// Returns:
+//  real  Value converted to new unit of measure
+// Changes:
+//  none
+//
 real convert(real value, int old_units, int new_units)
 {
   real temp;
@@ -98,21 +115,27 @@ real convert(real value, int old_units, int new_units)
   return result;
 }
 
-
-/*
- * Convert a string with a number and a unit-of-measure suffix into 
- * Eagle internal units (microns).
- *
- *    0.032in   0.032 inches
- *    62ml      62 mils, 0.062 inches
- *    0.43mm    0.43 millimeters
- *    1500mc    1500 microns, 1.500 millimeters
- *    60#       60 wire gage drill (0.040" or 1.016mm)
- *    0.12      0.12 inches
- *    0.60      0.60 millimeters
- *    43        43 wire gage drill
- *
- */
+//
+// 
+// Convert a string with a number and a unit-of-measure suffix into 
+// Eagle internal units (microns).
+//
+//    0.032in   0.032 inches
+//    62ml      62 mils, 0.062 inches
+//    0.43mm    0.43 millimeters
+//    1500mc    1500 microns, 1.500 millimeters
+//    60#       60 wire gage drill (0.040" or 1.016mm)
+//    0.12      0.12 inches
+//    0.60      0.60 millimeters
+//    43        43 wire gage drill
+//
+// Params:
+//  s   String with number followed by suffix.
+// Returns:
+//  int   Value in internal units.
+// Changes:
+//  none
+//
 int conv_to_units(string s)
 {
   int val;
@@ -149,19 +172,50 @@ int conv_to_units(string s)
   return val;
 }
 
-/*
- * Determine if an integer value is within a range (inclusive).
- */
+//
+// Determine if an integer value is within a range (inclusive).
+//
+// Params:
+//  val       Value to test.
+//  min_val   Low range value.
+//  max_val   High range value.
+// Returns:
+//  int True if the value lies between min_val and max_val, inclusive.
+// Changes:
+//  none
+//
 int in_range_int(int val, int min_val, int max_val)
 {
   return((val >= min_val) && (val <= max_val));
 }
 
+//
+// Determine if two values should be considered "close."
+//
+// Params:
+//  val_a   First value to compare.
+//  val_b   Second value to compare.
+// Returns:
+//  int   True if values are close.
+// Changes:
+//  none
+//
 int close(real val_a, real val_b)
 {
 	return(abs(val_a - val_b) < EPSILON);
 }
 
+//
+// Determines if a pair of points are "close" to one another.
+//
+// Params:
+//  xa, xb  X values to compare.
+//  ya, yb  Y values to compare.
+// Returns:
+//  int   True if points are close.
+// Changes:
+//  none
+//
 int close2(real xa, real xb, real ya, real yb)
 {
 	if (close(xa, xb) && close(ya, yb)) {
@@ -170,6 +224,18 @@ int close2(real xa, real xb, real ya, real yb)
 	return false;
 }
 
+//
+// Determine if a pair of 3D points are "close" to one another.
+//
+// Params:
+//  xa, xb  X values to compare.
+//  ya, yb  Y values to compare.
+//  za, zb  Z values to compare.
+// Returns:
+//  int   True if points are close.
+// Changes:
+//  none
+//
 int close3(real xa, real xb, real ya, real yb, real za, real zb)
 {
 	if (close(xa, xb) && close(ya, yb) && close(za, zb)) {

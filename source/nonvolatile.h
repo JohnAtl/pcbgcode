@@ -11,12 +11,25 @@ char SEPARATOR = '=';
 string m_params[];
 string empty[];
 
+//
+// If the storage file does not exist, create it.
+//
 if (filetime(STORAGE_NAME) == 0) {
-  output(STORAGE_NAME, "wt") {
+  output(STORAGE_NAME, FILEMODE_WRITE_TEXT) {
     printf("created%c%s\s", SEPARATOR, t2string(time()));
   }
 }
 
+//
+// Empty the parameters array.
+//
+// Params:
+//  none
+// Returns:
+//  none
+// Changes:
+//  none
+//
 void empty_m_params()
 {
   int i;
@@ -25,6 +38,16 @@ void empty_m_params()
     m_params[i++] = "";
 }
 
+//
+// Load parameters from the nv parameters file.
+//
+// Params:
+//  can_abort Pass true if the program can abort on error.
+// Returns:
+//  int   Number of parameters.
+// Changes:
+//  m_params
+//
 int read_nv_file(int can_abort)
 {
   int num_params;
@@ -40,12 +63,22 @@ int read_nv_file(int can_abort)
       return 0;
     }
   }
-/*   string t;
-  sprintf(t, "there are %d params", num_params);
-  dlgMessageBox(t);
- */  return num_params;
+
+  return num_params;
 }
 
+//
+// Returns the value of a non-volatile parameter.
+//
+// Params:
+//  name  Name of the parameter.
+//  def   The default value.
+//  can_abort Whether the program can abort if an error occurs.
+// Returns:
+//  string  The value.
+// Changes:
+//  none
+//
 string get_nv_param(string name, string def, int can_abort)
 {
   string value;
@@ -59,6 +92,17 @@ string get_nv_param(string name, string def, int can_abort)
   return value;
 }
 
+//
+// Set a non-volatile parameter.
+//
+// Params:
+//  name  Name of the parameter.
+//  value The value to set.
+// Returns:
+//  none
+// Changes:
+//  m_params
+//
 void set_nv_param(string name, string value)
 {
   int num_params;
@@ -80,13 +124,24 @@ void set_nv_param(string name, string value)
      }
    }
   }
-  output(STORAGE_NAME, "wt") {
+  output(STORAGE_NAME, FILEMODE_WRITE_TEXT) {
    for (i = 0; i < num_params; i++) {
      printf("%s\n", m_params[i]);
    }
   }
 }
 
+//
+// Set a real non-volatile parameter.
+//
+// Params:
+//  name  Name of the parameter.
+//  value The value to set.
+// Returns:
+//  none
+// Changes:
+//  m_params
+//
 void set_real_nv_param(string name, real value)
 {
   string str;
@@ -94,6 +149,18 @@ void set_real_nv_param(string name, real value)
   set_nv_param(name, str);
 }
 
+//
+// Returns the value of a real non-volatile parameter.
+//
+// Params:
+//  name  Name of the parameter.
+//  def   The default value.
+//  can_abort Whether the program can abort if an error occurs.
+// Returns:
+//  real  The value.
+// Changes:
+//  none
+//
 real get_real_nv_param(string name)
 {
   string str;

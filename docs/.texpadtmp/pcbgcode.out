@@ -1,0 +1,32 @@
+\BOOKMARK [0][-]{chapter.1}{Introduction}{}% 1
+\BOOKMARK [1][-]{section.1.1}{Purpose}{chapter.1}% 2
+\BOOKMARK [1][-]{section.1.2}{Features}{chapter.1}% 3
+\BOOKMARK [1][-]{section.1.3}{How it Works}{chapter.1}% 4
+\BOOKMARK [2][-]{subsection.1.3.1}{Overview}{section.1.3}% 5
+\BOOKMARK [2][-]{subsection.1.3.2}{Isolation}{section.1.3}% 6
+\BOOKMARK [2][-]{subsection.1.3.3}{Drilling}{section.1.3}% 7
+\BOOKMARK [0][-]{chapter.2}{Setup}{}% 8
+\BOOKMARK [1][-]{section.2.1}{EAGLE compatibility}{chapter.2}% 9
+\BOOKMARK [1][-]{section.2.2}{Installation}{chapter.2}% 10
+\BOOKMARK [2][-]{subsection.2.2.1}{Downloading and unarchiving}{section.2.2}% 11
+\BOOKMARK [2][-]{subsection.2.2.2}{Configuring EAGLE}{section.2.2}% 12
+\BOOKMARK [2][-]{subsection.2.2.3}{Selecting g-code style}{section.2.2}% 13
+\BOOKMARK [2][-]{subsection.2.2.4}{Previewer Setup}{section.2.2}% 14
+\BOOKMARK [1][-]{section.2.3}{Machine Setup}{chapter.2}% 15
+\BOOKMARK [1][-]{section.2.4}{Generation Options}{chapter.2}% 16
+\BOOKMARK [1][-]{section.2.5}{GCode Options}{chapter.2}% 17
+\BOOKMARK [1][-]{section.2.6}{Support}{chapter.2}% 18
+\BOOKMARK [0][-]{chapter.3}{Using pcb-gcode}{}% 19
+\BOOKMARK [1][-]{section.3.1}{Running pcb-gcode}{chapter.3}% 20
+\BOOKMARK [1][-]{section.3.2}{Using EAGLE's DRC}{chapter.3}% 21
+\BOOKMARK [1][-]{section.3.3}{Previewer}{chapter.3}% 22
+\BOOKMARK [1][-]{section.3.4}{Saving and Loading Settings}{chapter.3}% 23
+\BOOKMARK [2][-]{subsection.3.4.1}{Overview}{section.3.4}% 24
+\BOOKMARK [2][-]{subsection.3.4.2}{Saving Settings}{section.3.4}% 25
+\BOOKMARK [2][-]{subsection.3.4.3}{Loading Settings}{section.3.4}% 26
+\BOOKMARK [0][-]{chapter.4}{Customizing}{}% 27
+\BOOKMARK [1][-]{section.4.1}{G-Code}{chapter.4}% 28
+\BOOKMARK [1][-]{section.4.2}{Profiles}{chapter.4}% 29
+\BOOKMARK [1][-]{section.4.3}{Drill Rack Files}{chapter.4}% 30
+\BOOKMARK [1][-]{section.4.4}{User GCode}{chapter.4}% 31
+\BOOKMARK [0][-]{appendix.A}{Sample Mach3 Profile}{}% 32

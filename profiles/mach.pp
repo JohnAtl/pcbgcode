@@ -24,6 +24,7 @@ string PARAM      = "P";				        /* some use P, some # for parameters */
 string FORMAT     = "%-7.4f ";        /* coordinate format */
 string FR_FORMAT  = "F%-5.0f "; 	  /* feedrate format */
 string IJ_FORMAT  = "I" + FORMAT + "J" + FORMAT;
+string R_FORMAT   = "R" + FORMAT;
 
 //
 // Modes
@@ -52,6 +53,11 @@ string SPINDLE_ON  = "M03" + EOL + DWELL;
 string SPINDLE_OFF = "M05" + EOL;
 string END_PROGRAM    = "M02" + EOL;
 string OPERATOR_PAUSE = "M06 ";
+
+//
+// Spindle speed
+//
+string SPINDLE_SPEED  = "S%.0f" + EOL;
 
 //
 // Coordinates
@@ -122,5 +128,5 @@ string TOOL_CHANGE_TABLE_FORMAT(int tool_number, real size_mm, real size_inch, r
 //
 // Circles / Arcs
 //
-string CIRCLE_TOP     = ARC_CW + MOVE_XY + IJ_FORMAT + EOL;
-string CIRCLE_BOTTOM  = ARC_CCW + MOVE_XY + IJ_FORMAT + EOL;
+string ARC_CLOCK     = ARC_CW + MOVE_XY + R_FORMAT + FR_FORMAT + EOL;
+string ARC_CCLOCK  = ARC_CCW + MOVE_XY + R_FORMAT + FR_FORMAT + EOL;

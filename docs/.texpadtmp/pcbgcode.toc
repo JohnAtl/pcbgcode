@@ -1,0 +1,33 @@
+\contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}
+\contentsline {section}{\numberline {1.1}Purpose}{1}{section.1.1}
+\contentsline {section}{\numberline {1.2}Features}{1}{section.1.2}
+\contentsline {section}{\numberline {1.3}How it Works}{2}{section.1.3}
+\contentsline {subsection}{\numberline {1.3.1}Overview}{2}{subsection.1.3.1}
+\contentsline {subsection}{\numberline {1.3.2}Isolation}{3}{subsection.1.3.2}
+\contentsline {subsection}{\numberline {1.3.3}Drilling}{4}{subsection.1.3.3}
+\contentsline {chapter}{\numberline {2}Setup}{5}{chapter.2}
+\contentsline {section}{\numberline {2.1}EAGLE compatibility}{5}{section.2.1}
+\contentsline {section}{\numberline {2.2}Installation}{5}{section.2.2}
+\contentsline {subsection}{\numberline {2.2.1}Downloading and unarchiving}{5}{subsection.2.2.1}
+\contentsline {subsubsection}{Windows Note}{5}{section*.9}
+\contentsline {subsection}{\numberline {2.2.2}Configuring EAGLE}{6}{subsection.2.2.2}
+\contentsline {subsection}{\numberline {2.2.3}Selecting g-code style}{6}{subsection.2.2.3}
+\contentsline {subsection}{\numberline {2.2.4}Previewer Setup}{8}{subsection.2.2.4}
+\contentsline {section}{\numberline {2.3}Machine Setup}{8}{section.2.3}
+\contentsline {section}{\numberline {2.4}Generation Options}{10}{section.2.4}
+\contentsline {section}{\numberline {2.5}GCode Options}{12}{section.2.5}
+\contentsline {section}{\numberline {2.6}Support}{15}{section.2.6}
+\contentsline {chapter}{\numberline {3}Using pcb-gcode}{17}{chapter.3}
+\contentsline {section}{\numberline {3.1}Running pcb-gcode}{17}{section.3.1}
+\contentsline {section}{\numberline {3.2}Using EAGLE's DRC}{18}{section.3.2}
+\contentsline {section}{\numberline {3.3}Previewer}{20}{section.3.3}
+\contentsline {section}{\numberline {3.4}Saving and Loading Settings}{24}{section.3.4}
+\contentsline {subsection}{\numberline {3.4.1}Overview}{24}{subsection.3.4.1}
+\contentsline {subsection}{\numberline {3.4.2}Saving Settings}{26}{subsection.3.4.2}
+\contentsline {subsection}{\numberline {3.4.3}Loading Settings}{26}{subsection.3.4.3}
+\contentsline {chapter}{\numberline {4}Customizing}{27}{chapter.4}
+\contentsline {section}{\numberline {4.1}G-Code}{27}{section.4.1}
+\contentsline {section}{\numberline {4.2}Profiles}{31}{section.4.2}
+\contentsline {section}{\numberline {4.3}Drill Rack Files}{31}{section.4.3}
+\contentsline {section}{\numberline {4.4}User GCode}{33}{section.4.4}
+\contentsline {chapter}{\numberline {A}Sample Mach3 Profile}{37}{appendix.A}

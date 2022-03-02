@@ -24,6 +24,10 @@ string setup_subs_side_phase(int l_side, int l_phase)
     case PH_BOTTOM_DRILL:
       file = DRILL_FILE_NAME;
       break;
+    case PH_TOP_STENCIL:
+    case PH_BOTTOM_STENCIL:
+      file = STENCIL_FILE_NAME;
+      break;
     case PH_MILL:
       file = MILL_FILE_NAME;
       break;
@@ -87,6 +91,7 @@ string filename_subs_help()
   "<tr><td>Drill:   </td><td><b>.$SIDE.$FILE.$EXT</b></td></tr>"
   "<tr><td>Mill:    </td><td><b>/mill_jobs/$BOARD_NAME.$SIDE.$FILE.tap</b></td></tr>"
   "<tr><td>Text:    </td><td><b>$SIDE.$FILE.tap</b></td></tr>"
+  "<tr><td>Stencil: </td><td><b>$SIDE.$FILE.$EXT</b></td></tr>"
   "</table>"
   "Would create the following filenames:<br/>"
   "<table>"
@@ -94,6 +99,7 @@ string filename_subs_help()
   "<tr><td>Drill:   </td><td><b>/home/john/eagle/my_stuff/enabtmr.top.drill.nc</td></tr>"
   "<tr><td>Mill:    </td><td><b>/home/john/eagle/my_stuff/enabtmr/mill_jobs/enabtmr.top.mill.tap</td></tr>"
   "<tr><td>Drill:   </td><td><b>/home/john/eagle/my_stuff/enabtmr.top.text.nc</td></tr>"
+  "<tr><td>Stencil: </td><td><b>/home/john/eagle/my_stuff/enabtmr.top.stencil.nc</td></tr>"
   "</table>"
   ;
 }
@@ -122,6 +128,9 @@ string get_filename()
     case PH_TOP_OUT_WRITE:
       name = FILENAME_TOP_ETCH_FILE;
       break;
+    case PH_TOP_STENCIL:
+      name = FILENAME_TOP_STENCIL_FILE;
+      break;
     case PH_TOP_DRILL:
       name = FILENAME_TOP_DRILL_FILE;
       break;
@@ -138,6 +147,9 @@ string get_filename()
     case PH_BOTTOM_OUT_GEN:
     case PH_BOTTOM_OUT_WRITE:
       name = FILENAME_BOT_ETCH_FILE;
+      break;
+    case PH_BOTTOM_STENCIL:
+      name = FILENAME_BOT_STENCIL_FILE;
       break;
     case PH_BOTTOM_DRILL:
       name = FILENAME_BOT_DRILL_FILE;

@@ -294,6 +294,39 @@ string frrrr(string f, real r1, real r2, real r3, real r4) {
   return str;
 }
 
+string frrrrr(string f, real r1, real r2, real r3, real r4, real r5) { 
+  string str;
+  if (strcnt(f, '%') < 5) {
+    return frrrr(f, r1, r2, r3, r4);
+  }
+  else {
+    sprintf(str, f, r1, r2, r3, r4, r5);
+  }
+  return str;
+}
+
+string frrrrrr(string f, real r1, real r2, real r3, real r4, real r5, real r6) { 
+  string str;
+  if (strcnt(f, '%') < 6) {
+    return frrrrr(f, r1, r2, r3, r4, r5);
+  }
+  else {
+    sprintf(str, f, r1, r2, r3, r4, r5, r6);
+  }
+  return str;
+}
+
+string frrrrrrr(string f, real r1, real r2, real r3, real r4, real r5, real r6, real r7) { 
+  string str;
+  if (strcnt(f, '%') < 7) {
+    return frrrrrr(f, r1, r2, r3, r4, r5, r6);
+  }
+  else {
+    sprintf(str, f, r1, r2, r3, r4, r5, r6, r7);
+  }
+  return str;
+}
+
 string fs(string f, string s) { 
   string str;
   if (strcnt(f, '%') < 1) {

@@ -68,6 +68,19 @@ FILL_END[BOTTOM]   = "(Bottom Fill End)\n";
 FILL_BEGIN[TOP]    = "(Top Fill Begin)\n";
 FILL_END[TOP]      = "(Top Fill End)\n";
 
+// Inserted into stencil files.
+string STENCIL_BEGIN[] = { "", "", "", "" };
+string STENCIL_END[]   = { "", "", "", "" };
+
+STENCIL_BEGIN[ALL]    = "(Stencil Begin)\n";
+STENCIL_END[ALL]      = "(Stencil End)\n";
+
+STENCIL_BEGIN[BOTTOM] = "(Bottom Stencil Begin)\n";
+STENCIL_END[BOTTOM]   = "(Bottom Stencil End)\n";
+
+STENCIL_BEGIN[TOP]    = "(Top Stencil Begin)\n";
+STENCIL_END[TOP]      = "(Top Stencil End)\n";
+
 // Inserted into milling files.
 string MILL_BEGIN[] = { "", "", "", "" };
 string MILL_END[]   = { "", "", "", "" };
@@ -80,6 +93,19 @@ MILL_END[BOTTOM]   = "(Bottom MILL End)\n";
 
 MILL_BEGIN[TOP]    = "(Top MILL Begin)\n";
 MILL_END[TOP]      = "(Top MILL End)\n";
+
+// Inserted into text files.
+string TEXT_BEGIN[] = { "", "", "", "" };
+string TEXT_END[]   = { "", "", "", "" };
+
+TEXT_BEGIN[ALL]    = "(TEXT Begin)\n";
+TEXT_END[ALL]      = "(TEXT End)\n";
+
+TEXT_BEGIN[BOTTOM] = "(Bottom TEXT Begin)\n";
+TEXT_END[BOTTOM]   = "(Bottom TEXT End)\n";
+
+TEXT_BEGIN[TOP]    = "(Top TEXT Begin)\n";
+TEXT_END[TOP]      = "(Top TEXT End)\n";
 
 // Tool change code.
 string TOOL_CHANGE_BEGIN[] = { "", "", "", "" };

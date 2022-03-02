@@ -1,0 +1,27 @@
+dlgGroup("Settings") {
+  dlgGridLayout {
+    int row;
+    dlgCell(row, 0) { dlgLabel("Settings"); }
+
+    dlgCell(++row, 0, row, 3) dlgGroup("") {
+//    dlgCell(++row, 0) {
+      dlgListBox(disp_files, set_selection);
+    }
+    dlgCell(++row, 0) dlgPushButton("Load") { 
+      if(set_selection > -1) {
+        load_settings(set_files[set_selection]);
+        exit("run pcb-gcode-setup");
+      }
+    };
+    dlgCell(row, 1) dlgPushButton("Save") {
+        if(set_selection > -1) {
+          save_settings(set_files[set_selection]);
+          dlgMessageBox("Saved settings to " + disp_files[set_selection]);
+        }
+      };
+    dlgCell(row, 2) dlgPushButton("Save as") {
+      save_settings_as();
+      exit("run pcb-gcode-setup");
+    };
+  }
+}
