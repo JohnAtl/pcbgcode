@@ -197,9 +197,9 @@ void rtext(String s, float x, float y) {
 }
 
 void resize_window() {
-  m_window_x = (screen.width - m_window_width) / 2;
-  m_window_y = (screen.height = m_window_height) / 4; // screen.height seems broken on Mac OS returning 600 for 900 high screen
-  size(m_window_width, m_window_height);
+  m_window_x = (width - m_window_width) / 2;
+  m_window_y = (height - m_window_height) / 4; // screen.height seems broken on Mac OS returning 600 for 900 high screen
+  //size(m_window_width, m_window_height);
   frame.setLocation(m_window_x, m_window_y);
   
 /*  
@@ -219,6 +219,7 @@ void resize_window() {
  *
  */
 void setup() {
+  size(800, 600);
   String matches[];
   
   String line = null;
@@ -287,7 +288,7 @@ void setup() {
       if (matches != null) {
         m_window_width = int(matches[1]);
         m_window_height = int(matches[2]);
-        size(m_window_width, m_window_height);
+        //size(m_window_width, m_window_height);
         //println("window size set to (" + nf(m_window_width, 5) + ", " + nf(m_window_height, 5) + ")");
       }
 
@@ -585,5 +586,3 @@ void keyPressed() {
   background(bg_color);
   redraw();  
 }
-
-

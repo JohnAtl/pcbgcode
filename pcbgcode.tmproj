@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>source/pcb-file-utils.h</string>
+	<string>pcb-gcode.ulp</string>
 	<key>documents</key>
 	<array>
 		<dict>
@@ -26,13 +26,13 @@
 			<key>filename</key>
 			<string>pcb-gcode-setup.ulp</string>
 			<key>lastUsed</key>
-			<date>2012-12-27T04:36:37Z</date>
+			<date>2014-11-18T02:29:50Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>pcb-gcode.ulp</string>
 			<key>lastUsed</key>
-			<date>2012-12-28T20:44:50Z</date>
+			<date>2016-05-24T20:30:43Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -99,6 +99,8 @@
 			<date>2009-01-03T00:27:28Z</date>
 		</dict>
 		<dict>
+			<key>expanded</key>
+			<true/>
 			<key>name</key>
 			<string>viewer</string>
 			<key>regexFolderFilter</key>
@@ -107,8 +109,6 @@
 			<string>viewer</string>
 		</dict>
 		<dict>
-			<key>expanded</key>
-			<true/>
 			<key>name</key>
 			<string>make</string>
 			<key>regexFolderFilter</key>
@@ -120,64 +120,48 @@
 			<key>filename</key>
 			<string>rakefile.rb</string>
 			<key>lastUsed</key>
-			<date>2012-12-26T22:18:02Z</date>
+			<date>2013-06-07T23:00:10Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>README</string>
 			<key>lastUsed</key>
-			<date>2012-12-16T18:04:41Z</date>
+			<date>2013-01-02T22:44:23Z</date>
 		</dict>
 	</array>
 	<key>fileHierarchyDrawerWidth</key>
 	<integer>296</integer>
 	<key>metaData</key>
 	<dict>
-		<key>docs/Where do I start.txt</key>
+		<key>README</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>84</integer>
+				<integer>28</integer>
 				<key>line</key>
-				<integer>1</integer>
+				<integer>0</integer>
 			</dict>
-			<key>columnSelection</key>
-			<false/>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
-			<key>selectFrom</key>
-			<dict>
-				<key>column</key>
-				<integer>78</integer>
-				<key>line</key>
-				<integer>1</integer>
-			</dict>
-			<key>selectTo</key>
-			<dict>
-				<key>column</key>
-				<integer>84</integer>
-				<key>line</key>
-				<integer>1</integer>
-			</dict>
 		</dict>
 		<key>docs/changelog.txt</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>0</integer>
+				<integer>65</integer>
 				<key>line</key>
-				<integer>13</integer>
+				<integer>3</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
 		</dict>
-		<key>docs/examples/04151_lcdi2c.drl</key>
+		<key>docs/examples/04151_lcdi2c.bot.etch.tap</key>
 		<dict>
 			<key>caret</key>
 			<dict>
@@ -185,143 +169,85 @@
 				<integer>0</integer>
 				<key>line</key>
 				<integer>0</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>10444</integer>
+		</dict>
+		<key>docs/pcbgcode.tex</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>494</integer>
+				<key>line</key>
+				<integer>330</integer>
 			</dict>
 			<key>columnSelection</key>
 			<false/>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>0</integer>
+			<integer>308</integer>
 			<key>selectFrom</key>
 			<dict>
 				<key>column</key>
-				<integer>0</integer>
+				<integer>479</integer>
 				<key>line</key>
-				<integer>27</integer>
+				<integer>330</integer>
 			</dict>
 			<key>selectTo</key>
 			<dict>
 				<key>column</key>
-				<integer>0</integer>
+				<integer>494</integer>
 				<key>line</key>
-				<integer>0</integer>
+				<integer>330</integer>
 			</dict>
-		</dict>
-		<key>docs/examples/enabtmr.top.drill.tap</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>29</integer>
-				<key>line</key>
-				<integer>7</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>466</integer>
-		</dict>
-		<key>docs/readme.html</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>0</integer>
-				<key>line</key>
-				<integer>0</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>0</integer>
-		</dict>
-		<key>docs/readme.textile</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>60</integer>
-				<key>line</key>
-				<integer>38</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>21</integer>
 		</dict>
 		<key>pcb-gcode-setup.ulp</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>19</integer>
+				<integer>15</integer>
 				<key>line</key>
-				<integer>249</integer>
+				<integer>204</integer>
 			</dict>
-			<key>columnSelection</key>
-			<false/>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>245</integer>
-			<key>selectFrom</key>
-			<dict>
-				<key>column</key>
-				<integer>12</integer>
-				<key>line</key>
-				<integer>249</integer>
-			</dict>
-			<key>selectTo</key>
-			<dict>
-				<key>column</key>
-				<integer>25</integer>
-				<key>line</key>
-				<integer>249</integer>
-			</dict>
+			<integer>178</integer>
 		</dict>
 		<key>pcb-gcode.ulp</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>31</integer>
+				<integer>34</integer>
 				<key>line</key>
-				<integer>536</integer>
+				<integer>1693</integer>
 			</dict>
 			<key>columnSelection</key>
 			<false/>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>515</integer>
+			<integer>1528</integer>
 			<key>selectFrom</key>
 			<dict>
 				<key>column</key>
-				<integer>24</integer>
+				<integer>21</integer>
 				<key>line</key>
-				<integer>536</integer>
+				<integer>1693</integer>
 			</dict>
 			<key>selectTo</key>
 			<dict>
 				<key>column</key>
-				<integer>31</integer>
+				<integer>34</integer>
 				<key>line</key>
-				<integer>536</integer>
+				<integer>1693</integer>
 			</dict>
-		</dict>
-		<key>profiles/emc.pp</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>0</integer>
-				<key>line</key>
-				<integer>0</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>0</integer>
 		</dict>
 		<key>profiles/generic.pp</key>
 		<dict>
@@ -330,236 +256,18 @@
 				<key>column</key>
 				<integer>0</integer>
 				<key>line</key>
-				<integer>0</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>0</integer>
-		</dict>
-		<key>profiles/isel.pp</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>0</integer>
-				<key>line</key>
-				<integer>0</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>0</integer>
-		</dict>
-		<key>profiles/mach.pp</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>0</integer>
-				<key>line</key>
-				<integer>0</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>0</integer>
-		</dict>
-		<key>profiles/turbocnc.pp</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>0</integer>
-				<key>line</key>
-				<integer>0</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>0</integer>
-		</dict>
-		<key>rakefile.rb</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>21</integer>
-				<key>line</key>
-				<integer>28</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>10</integer>
-		</dict>
-		<key>settings/gcode-defaults.h</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>1</integer>
-				<key>line</key>
-				<integer>2</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>0</integer>
-		</dict>
-		<key>settings/pcb-defaults.h</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>20</integer>
-				<key>line</key>
-				<integer>10</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>0</integer>
-		</dict>
-		<key>settings/pcb-gcode-options.h</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>11</integer>
-				<key>line</key>
-				<integer>11</integer>
+				<integer>109</integer>
 			</dict>
 			<key>columnSelection</key>
 			<false/>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>0</integer>
+			<integer>94</integer>
 			<key>selectFrom</key>
-			<dict>
-				<key>column</key>
-				<integer>4</integer>
-				<key>line</key>
-				<integer>11</integer>
-			</dict>
-			<key>selectTo</key>
-			<dict>
-				<key>column</key>
-				<integer>17</integer>
-				<key>line</key>
-				<integer>11</integer>
-			</dict>
-		</dict>
-		<key>settings/pcb-machine.h</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>12</integer>
-				<key>line</key>
-				<integer>18</integer>
-			</dict>
-			<key>columnSelection</key>
-			<false/>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>0</integer>
-			<key>selectFrom</key>
-			<dict>
-				<key>column</key>
-				<integer>5</integer>
-				<key>line</key>
-				<integer>18</integer>
-			</dict>
-			<key>selectTo</key>
-			<dict>
-				<key>column</key>
-				<integer>18</integer>
-				<key>line</key>
-				<integer>18</integer>
-			</dict>
-		</dict>
-		<key>source/drill.h</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>23</integer>
-				<key>line</key>
-				<integer>145</integer>
-			</dict>
-			<key>columnSelection</key>
-			<false/>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>80</integer>
-			<key>selectFrom</key>
-			<dict>
-				<key>column</key>
-				<integer>16</integer>
-				<key>line</key>
-				<integer>145</integer>
-			</dict>
-			<key>selectTo</key>
-			<dict>
-				<key>column</key>
-				<integer>29</integer>
-				<key>line</key>
-				<integer>145</integer>
-			</dict>
-		</dict>
-		<key>source/library.h</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>45</integer>
-				<key>line</key>
-				<integer>108</integer>
-			</dict>
-			<key>columnSelection</key>
-			<false/>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>87</integer>
-			<key>selectFrom</key>
-			<dict>
-				<key>column</key>
-				<integer>32</integer>
-				<key>line</key>
-				<integer>108</integer>
-			</dict>
-			<key>selectTo</key>
-			<dict>
-				<key>column</key>
-				<integer>45</integer>
-				<key>line</key>
-				<integer>108</integer>
-			</dict>
-		</dict>
-		<key>source/math.h</key>
-		<dict>
-			<key>caret</key>
 			<dict>
 				<key>column</key>
 				<integer>0</integer>
-				<key>line</key>
-				<integer>113</integer>
-			</dict>
-			<key>columnSelection</key>
-			<false/>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>138</integer>
-			<key>selectFrom</key>
-			<dict>
-				<key>column</key>
-				<integer>1</integer>
 				<key>line</key>
 				<integer>105</integer>
 			</dict>
@@ -568,10 +276,68 @@
 				<key>column</key>
 				<integer>0</integer>
 				<key>line</key>
-				<integer>113</integer>
+				<integer>109</integer>
 			</dict>
 		</dict>
-		<key>source/nonvolatile.h</key>
+		<key>profiles/mach.pp</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>32</integer>
+			</dict>
+			<key>columnSelection</key>
+			<false/>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>16</integer>
+			<key>selectFrom</key>
+			<dict>
+				<key>column</key>
+				<integer>42</integer>
+				<key>line</key>
+				<integer>32</integer>
+			</dict>
+			<key>selectTo</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>32</integer>
+			</dict>
+		</dict>
+		<key>rakefile.rb</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>28</integer>
+				<key>line</key>
+				<integer>8</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
+		<key>settings/gcode-defaults.h</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>2</integer>
+				<key>line</key>
+				<integer>111</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
+		<key>settings/user-gcode.h</key>
 		<dict>
 			<key>caret</key>
 			<dict>
@@ -583,67 +349,87 @@
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>33</integer>
+			<integer>0</integer>
 		</dict>
 		<key>source/pcb-file-utils.h</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>29</integer>
+				<integer>0</integer>
 				<key>line</key>
-				<integer>202</integer>
+				<integer>546</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>192</integer>
+			<integer>515</integer>
 		</dict>
 		<key>source/pcb-gcode.h</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>11</integer>
+				<integer>0</integer>
 				<key>line</key>
-				<integer>217</integer>
+				<integer>190</integer>
+			</dict>
+			<key>columnSelection</key>
+			<false/>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>181</integer>
+			<key>selectFrom</key>
+			<dict>
+				<key>column</key>
+				<integer>23</integer>
+				<key>line</key>
+				<integer>190</integer>
+			</dict>
+			<key>selectTo</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>190</integer>
+			</dict>
+		</dict>
+		<key>source/string.h</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>29</integer>
+				<key>line</key>
+				<integer>258</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>176</integer>
+			<integer>249</integer>
 		</dict>
 	</dict>
 	<key>openDocuments</key>
 	<array>
 		<string>pcb-gcode-setup.ulp</string>
 		<string>pcb-gcode.ulp</string>
-		<string>source/drill.h</string>
-		<string>source/math.h</string>
+		<string>docs/pcbgcode.tex</string>
+		<string>source/pcb-file-utils.h</string>
+		<string>source/string.h</string>
+		<string>profiles/generic.pp</string>
+		<string>docs/examples/04151_lcdi2c.bot.etch.tap</string>
 		<string>docs/changelog.txt</string>
-		<string>source/library.h</string>
+		<string>rakefile.rb</string>
 		<string>profiles/mach.pp</string>
 		<string>settings/gcode-defaults.h</string>
-		<string>profiles/turbocnc.pp</string>
-		<string>profiles/emc.pp</string>
-		<string>profiles/generic.pp</string>
-		<string>profiles/isel.pp</string>
-		<string>docs/examples/enabtmr.top.drill.tap</string>
-		<string>settings/pcb-defaults.h</string>
-		<string>settings/pcb-machine.h</string>
-		<string>settings/pcb-gcode-options.h</string>
-		<string>source/pcb-file-utils.h</string>
+		<string>settings/user-gcode.h</string>
 		<string>source/pcb-gcode.h</string>
-		<string>docs/examples/04151_lcdi2c.drl</string>
-		<string>source/nonvolatile.h</string>
-		<string>docs/readme.textile</string>
-		<string>docs/Where do I start.txt</string>
-		<string>docs/readme.html</string>
-		<string>rakefile.rb</string>
+		<string>README</string>
 	</array>
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
-	<string>{{483, 68}, {957, 795}}</string>
+	<string>{{377, 82}, {1018, 795}}</string>
 </dict>
 </plist>

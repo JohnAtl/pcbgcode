@@ -250,6 +250,17 @@ string fir(string f, int i, real r) {
   return str;
 }
 
+string firr(string f, int i, real r1, real r2) { 
+  string str;
+  if (strcnt(f, '%') < 3) {
+    return fir(f, i, r1);
+  }
+  else {
+    sprintf(str, f, i, r1, r2);
+  }
+  return str;
+}
+
 string fr(string f, real r) { 
   string str;
   if (strcnt(f, '%') < 1) {
