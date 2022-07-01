@@ -1,1 +1,12 @@
 .DS_Store
+docs/.texpadtmp
+docs/pcbgcode.aux
+docs/pcbgcode.idx
+docs/pcbgcode.ilg
+docs/pcbgcode.ind
+docs/pcbgcode.lof
+docs/pcbgcode.log
+docs/pcbgcode.lot
+docs/pcbgcode.out
+docs/pcbgcode.toc
+
