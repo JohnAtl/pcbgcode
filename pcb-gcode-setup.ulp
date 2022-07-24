@@ -501,7 +501,7 @@ int Result = dlgDialog("pcb-gcode Setup") {
 			"<tr>"
 			"<td>"
 			"<a href=https://groups.io/g/pcbgcode>"
-				"<img src='" + g_path + "/docs/images/pcbgcode-600.gif' width='300'/>"
+			"<img src='" + g_path + "/docs/images/pcbgcode-600.gif' width='300'/>"
 			"</a>"
 			"</td>"
 			"<td><h6><center>Copyright 2003-2022 by"
@@ -558,7 +558,7 @@ int Result = dlgDialog("pcb-gcode Setup") {
             MIRROR_BOTTOM);
         }
         dlgStretch(1);
-        dlgLabel("<img src='docs/images/isolation_settings_300.gif' width='300'/>");
+        dlgLabel("<img src='" + g_path + "/docs/images/isolation_settings_300.gif' width='300'/>");
         dlgStretch(3);
       }
       dlgVBoxLayout {
@@ -647,7 +647,7 @@ int Result = dlgDialog("pcb-gcode Setup") {
 	if (program_is_setup()) dlgTabPage("Machine") {
 		dlgHBoxLayout {
 			dlgStretch(20);
-			dlgLabel("<img src='docs/images/z_axis.gif'/>");
+			dlgLabel("<img src='" + g_path + "/docs/images/z_axis.gif'/>");
 			dlgGroup("Z Axis") {
 				dlgGridLayout {
 					dlgCell(0, 0) dlgLabel("Z High ");
