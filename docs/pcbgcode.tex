@@ -58,13 +58,13 @@
 %----------------------------------------------------------------------------------------
 
 \title{\vspace{-15mm}\fontsize{24pt}{10pt}\selectfont\textbf{The PCB-GCODE User's Manual}\\[1em]
-\fontsize{18pt}{10pt}\textsc{Version 3.6.2.4}\\[1em]
+\fontsize{18pt}{10pt}\textsc{Version 3.6.3}\\[1em]
 }
 
 \author{
 \large
-Copyright \copyright\ 2014\\[1em]
-\textsc{John T. Johnson}\\[2mm] %\thanks{A thank you or further information}\\[2mm] % Your name
+Copyright \copyright\ 2022\\[1em]
+\textsc{John T. Johnson, PhD}\\[2mm] %\thanks{A thank you or further information}\\[2mm] % Your name
 \normalsize \href{mailto:pcbgcode@pcbgcode.org}{\texttt{pcbgcode@pcbgcode.org}} % Your email address
 \vspace{-5mm}
 }
@@ -87,6 +87,8 @@ Copyright \copyright\ 2014\\[1em]
 %	frame=shadowbox,
 	breaklines=true,#1}}
   {\endminipage}
+
+\usepackage{xspace}
 
 
 %======================================================================
@@ -146,6 +148,13 @@ Copyright \copyright\ 2014\\[1em]
 %	frame=shadowbox,
 	breaklines=true}
 
+%
+% Abstract some links.
+%
+\newcommand{\group}[0]{\href{https://groups.io/g/pcbgcode}{Groups group}\xspace}
+
+\newcommand{\githubrepo}[0]{\href{https://github.com/johnatl/pcbgcode}{GitHub repository}\xspace}
+
 \frontmatter
 
 \maketitle
@@ -184,7 +193,7 @@ This book is typeset with \href{http://en.wikipedia.org/wiki/LaTeX}{\LaTeX{}} us
 \noindent There is a great community that has built up around pcb-gcode where users freely offer advice and help solve problems for other users. Despite the fact that pcb-gcode has always been free and always will be, a few outstanding individuals have donated time or money (which goes towards paying for web hosting for \url{pcbgcode.org}). Your generosity warms my heart, and I thank you all!
 
 \begin{itemize}
-	\item Art Eckstein is the tireless moderator of the \href{http://groups.yahoo.com/group/pcb-gcode}{Yahoo! group}, and the \href{http://www.pcbgcode.org}{phorum}.
+	\item Art Eckstein is the tireless moderator of the \group.
 	\item Translations
 	\begin{itemize}
 		\item Maur\'icio Dias --- Portugu\^ese
@@ -310,14 +319,14 @@ Rack files contain a list of drills the user has available and the size holes th
 %
 \section{EAGLE compatibility}\label{sec:EAGLECompatibility}\index{compatibility!eagle}
 
-Pcb-gcode is compatible with EAGLE versions 5 and 6\footnote{CadSoft changed the way numbers were represented internally with their release of version 6. This effectively broke parts of pcb-gcode. Version 3.6 incorporates changes for compatibility with version 5 or 6.}. For versions of EAGLE before version 5, pcb-gcode version 3.3.3 is still available \href{http://groups.yahoo.com/group/pcb-gcode/files/\%21\%20Software/pcb-gcode-3.3.3.zip}{in the Yahoo! group}. This manual does not apply to version 3.3.3. Please see the documentation included with version 3.3.3.
+Pcb-gcode is compatible with EAGLE versions 5 through 9\footnote{CadSoft changed the way numbers were represented internally with their release of version 6. This effectively broke parts of pcb-gcode. Version 3.6 incorporates changes for compatibility with version 5 or 6.}. For versions of EAGLE before version 5, pcb-gcode version 3.3.3 is still available in the \group. This manual does not apply to version 3.3.3. Please see the documentation included with version 3.3.3.
 %
 %---------------------------------------------------------------------
 %
 \section{Installation}\label{sec:Installation}\index{installation}
 
 \subsection{Downloading and unarchiving}
-Pcb-gcode can be downloaded from the Yahoo! group's \href{http://groups.yahoo.com/group/pcb-gcode/files/\%21\%20Software}{software folder}. \index{download site} Unzip the archive into a place where the operating system will allow files to be saved. For Windows, this should be somewhere inside your Documents\footnote{For Windows XP: "C:\textbackslash{}Documents and Settings", for Windows 7: "C:\textbackslash{}Users\textbackslash{}[yourname]\textbackslash{}My Documents" } folder. For Mac OS X, it could be, for instance, \code{\textasciitilde/Documents/Eagle/pcbgcode}, and for Linux, somewhere off your home folder. Be sure to preserve the directory structure in the archive. See \figurename \vref{fig:folderstructure}.
+Pcb-gcode can be downloaded from the \githubrepo, or the \group. \index{download site} Unzip the archive into a place where the operating system will allow files to be saved. For Windows, this should be somewhere inside your Documents\footnote{For Windows XP: "C:\textbackslash{}Documents and Settings", for Windows 7: "C:\textbackslash{}Users\textbackslash{}[yourname]\textbackslash{}My Documents" } folder. For Mac OS X, it could be, for instance, \code{\textasciitilde/Documents/Eagle/pcbgcode}, and for Linux, somewhere off your home folder. Be sure to preserve the directory structure in the archive. See \figurename{} \vref{fig:folderstructure}.
 
 \begin{figure}
 	\center{
@@ -393,7 +402,7 @@ The \code{Tool Change} options are the position where the tool should be moved w
 
 The \code{Spin Up Time} in the \code{Spindle} box should be set to the length of time in seconds that it takes the spindle to come up to speed. If the spindle is manually controlled, this can be set to \code{1}.\index{spindle!spin up time}
 
-The \code{Feed Rates} should be set for \code{X Y} moves as well as \code{Z} moves. Rates here will usually be quite low unless the machine has a very fast spindle. See a machinist's reference on how to calculate the optimal feed rate, use trial and error, or post to the Yahoo! group email list for advice. Note that there are separate feed rates for \code{X Y}, and \code{Z}, and there is a spindle speed setting for each of the four operations pcb-gcode can generate files for.\index{feed rates}\index{z axis!feed rates}
+The \code{Feed Rates} should be set for \code{X Y} moves as well as \code{Z} moves. Rates here will usually be quite low unless the machine has a very fast spindle. See a machinist's reference on how to calculate the optimal feed rate, use trial and error, or post to the \group email list for advice. Note that there are separate feed rates for \code{X Y}, and \code{Z}, and there is a spindle speed setting for each of the four operations pcb-gcode can generate files for.\index{feed rates}\index{z axis!feed rates}
 
 A \code{Tool Dia.} parameter is available to set the diameter of the tool used to etch and for milling openings for stencils used to apply cream solder paste when surface mounted parts are used.\index{stencil!tool diameter}\index{etching!tool diameter}
 
@@ -522,8 +531,7 @@ Using examples for the board path and name, the final file name would be:\\
 Several options are available for support. First and foremost, read this manual and ensure that your question is not herein.
 
 \begin{description}
-    \item[Yahoo! Group] The \href{https://groups.yahoo.com/group/pcb-gcode}{Yahoo! group} has over 3 000 members, many of whom are very active and experienced in the use of pcb-gcode.\index{support!Yahoo group}
-    \item[Phorum] The \href{http://pcbgcode.org}{online BBS} where questions and answers may be posted, files downloaded, etc.\index{support!Phorum}
+    \item[\group] The \group has over 3 000 members, many of whom are very active and experienced in the use of pcb-gcode.\index{support!group}
     \item[Email] Very limited \href{mailto:pcbgcode@pcbgcode.org}{email support} is available. Please try all the other options first.
     \item[On\-site Support] If you are in the Atlanta area, on\-site support is a possibility. Please \href{mailto:pcbgcode@pcbgcode.org}{email me}.\index{support!on site}
 \end{description}
@@ -888,7 +896,7 @@ The first option on line 11, \code{FILENAMES\_8\_CHARACTERS}, tells pcb-gcode wh
 \warning{Advanced}
 Profiles, which are found in the \code{profiles} folder, control the format that pcb-gcode uses when writing g-code. The files ending in \code{.pp} are the list of files shown when pcb-gcode is initially set up (See Section \vref{sec:Installation}), and also in the list of profiles in the \code{GCode Styles} tab. When a profile is selected, it is copied to \code{settings/gcode-defaults.h}. A sample profile is shown in Appendix \vref{chp:SampleProfile}. 
 
-To create a custom profile, such as for a controller that is not already supported, begin with a profile that most closely matches the g-code the controller supports. Select this profile in \code{GCode Styles} and \code{Accept} the change. This will copy the profile to \code{settings/gcode-defaults.h}. Generate code for a test board and open the generated files in an editor. Find commands that the controller does not support, and edit \code{gcode-defaults.h} to generate the proper code. When testing is complete, copy \code{settings/gcode-defaults.h} into the \code{profiles} folder, renaming it with a descriptive name and the extension \code{.pp}. Edit the file and change the author and description fields. And of course, save a backup somewhere outside the pcb-gcode folder heirarchy. To share this profile with other users of this controller, upload the profile file to the \href{http://groups.yahoo.com/group/pcb-gcode/files/%21%20Software/Profiles/}{Profiles folder} on the Yahoo! group.
+To create a custom profile, such as for a controller that is not already supported, begin with a profile that most closely matches the g-code the controller supports. Select this profile in \code{GCode Styles} and \code{Accept} the change. This will copy the profile to \code{settings/gcode-defaults.h}. Generate code for a test board and open the generated files in an editor. Find commands that the controller does not support, and edit \code{gcode-defaults.h} to generate the proper code. When testing is complete, copy \code{settings/gcode-defaults.h} into the \code{profiles} folder, renaming it with a descriptive name and the extension \code{.pp}. Edit the file and change the author and description fields. And of course, save a backup somewhere outside the pcb-gcode folder heirarchy. To share this profile with other users of this controller, upload the profile file to the \group.
 
 For information on editing \code{gcode-defaults.h}, See Section \vref{sec:CustomizingGCode}.
 
