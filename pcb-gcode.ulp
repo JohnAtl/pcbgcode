@@ -457,31 +457,31 @@ void spot_drill_hole(int drill_size, int x, int y)
 {
 	real drill_x;
 	real drill_y;
-  real offset;
+	real offset;
   
 	drill_x = scale_x(x);
 	drill_y = scale_y(y);
 	save_extents(drill_x, drill_y);
 
-  if (SPOT_DRILL == YES) {
-    if (m_first_spot_drill) {
-      output_drill_first_hole(drill_x, drill_y, SPOT_DRILL_DEPTH);
-      m_first_spot_drill = NO;
-    }
-    else {
-      output_drill_hole(drill_x, drill_y, SPOT_DRILL_DEPTH);
-    }
-  }
+	if (SPOT_DRILL == YES) {
+		if (m_first_spot_drill) {
+			output_drill_first_hole(drill_x, drill_y, SPOT_DRILL_DEPTH);
+			m_first_spot_drill = NO;
+		}
+		else {
+			output_drill_hole(drill_x, drill_y, SPOT_DRILL_DEPTH);
+		}
+	}
 	
 	offset = internals_to_user(get_drill_for(drill_size)) / 2;
   
-  //
-  // Generate X's for drill preview if drills are turned on for this side.
-  //
-  if ((g_side == TOP && GENERATE_TOP_DRILL == YES) ||
-      (g_side == BOTTOM && GENERATE_BOTTOM_DRILL == YES)) {
-	  m_lines += coords(drill_x - offset, drill_y - offset, drill_x + offset, drill_y + offset);
-	  m_lines += coords(drill_x - offset, drill_y + offset, drill_x + offset, drill_y - offset);
+	//
+	// Generate X's for drill preview if drills are turned on for this side.
+	//
+	if ((g_side == TOP && GENERATE_TOP_DRILL == YES) ||
+	(g_side == BOTTOM && GENERATE_BOTTOM_DRILL == YES)) {
+		m_lines += coords(drill_x - offset, drill_y - offset, drill_x + offset, drill_y + offset);
+		m_lines += coords(drill_x - offset, drill_y + offset, drill_x + offset, drill_y - offset);
 	}
 }
 
@@ -496,8 +496,8 @@ void spot_drill_hole(int drill_size, int x, int y)
 //
 void spot_drill(UL_BOARD B)
 {
-
-  m_lines += "# spot drills\n";
+	
+	m_lines += "# spot drills\n";
   
 	B.holes(H) spot_drill_hole(H.drill, H.x, H.y);
 	B.signals(S) S.vias(V) spot_drill_hole(V.drill, V.x, V.y);
