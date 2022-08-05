@@ -10,3 +10,5 @@ docs/pcbgcode.lot
 docs/pcbgcode.out
 docs/pcbgcode.toc
 
+*.b##
+*.s##
