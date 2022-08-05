@@ -550,7 +550,7 @@ void output_drill_hole(real drill_x, real drill_y, real depth)
 		rz(DEFAULT_Z_UP);
 	}
 	else {
-		out(frr(DRILL_HOLE, drill_x, drill_y));
+		out(frrr(DRILL_HOLE, drill_x, drill_y, depth));
 		update_cur_xy(drill_x, drill_y);		
 	}
 }

@@ -1,0 +1,54 @@
+{
+      "units": "imperial",
+      "resolution-mode": "very_high",
+      "resolution": 1,
+      "tools": {
+        "0": {
+          "units": "imperial",
+          "shape": "cylindrical",
+          "length": 0.393701,
+          "diameter": 0.007,
+          "description": ""
+        },
+        "1": {
+          "units": "metric",
+          "shape": "cylindrical",
+          "length": 10,
+          "diameter": 0.5,
+          "description": ""
+        },
+        "2": {
+          "units": "metric",
+          "shape": "cylindrical",
+          "length": 10,
+          "diameter": 0.813,
+          "description": ""
+        },
+        "3": {
+          "units": "metric",
+          "shape": "cylindrical",
+          "length": 10,
+          "diameter": 1.01,
+          "description": ""
+        },
+        "4": {
+          "units": "metric",
+          "shape": "cylindrical",
+          "length": 10,
+          "diameter": 2.16,
+          "description": ""
+        }
+      },
+      "workpiece": {
+        "automatic": false,
+        "margin": 5,
+        "bounds": {
+          "min": [-4.607578, -2.753378, -0.508],
+          "max": [74.759138, 35.820938, 0]
+        }
+      },
+      "files": [
+        "04151_lcdi2c.top.etch.tap",
+        "04151_lcdi2c.top.drill.tap"
+      ]
+    }
