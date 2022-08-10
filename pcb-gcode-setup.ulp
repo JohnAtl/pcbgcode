@@ -507,7 +507,7 @@ int Result = dlgDialog("pcb-gcode Setup") {
 			"<td><h6><center>Copyright 2003-2022 by"
 			" John Johnson Software, LLC.</center>"
 			"<center>All Rights Reserved</center>"
-			"<center>Version <em>3.6.4</em></center></h6></td>"
+			"<center>Version <em>3.6.5</em></center></h6></td>"
 			"</tr>"
 			"<tr><td></td><td><center>You have EAGLE version " + m_eagle_compatibility + "</center></td></tr>"
 			"</table>");
