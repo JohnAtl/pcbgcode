@@ -351,12 +351,20 @@ void output_drill_file(int which_side)
 				if (drill_size_mm == 0.0) continue;
 
 				if (drill_size != last_size) {
-					++m_current_tool;
-					drill_tool_num = get_tool_num_for(my_strtol(drill_args[DRILL_SIZE]), m_current_tool);
-					out(TOOL_CHANGE_TABLE_FORMAT(drill_tool_num,
-					drill_size_mm, drill_size_inch, 
-					g_mins[drill_tool_num], g_maxs[drill_tool_num], 
-					g_drill_sub_cnt[drill_tool_num]));
+					++m_current_tool_ndx;
+					drill_tool_num = get_tool_num_for(my_strtol(drill_args[DRILL_SIZE]), m_current_tool_ndx);
+                    if (get_tool_param_iu(drill_tool_num, RACK_TOOL_TYPE) == RACK_TOOL_DRILL) {
+    					out(TOOL_CHANGE_TABLE_FORMAT(drill_tool_num,
+    					drill_size_mm, drill_size_inch, 
+    					g_min_subbed_for[drill_tool_num], g_max_subbed_for[drill_tool_num], 
+    					g_drill_sub_cnt[drill_tool_num], ""));
+                    }
+                    else {
+    					out(TOOL_CHANGE_TABLE_FORMAT(drill_tool_num,
+    					drill_size_mm, drill_size_inch, 
+    					g_min_subbed_for[drill_tool_num], g_max_subbed_for[drill_tool_num], 
+    					g_drill_sub_cnt[drill_tool_num], "THIS IS AN ENDMILL"));
+                    }
 				}
 				last_size = drill_size;
 			} 
@@ -382,16 +390,22 @@ void output_drill_file(int which_side)
         // if so, output a tool change and optional zero code.
         //
 				if (drill_size == last_size) {
-					output_drill_hole(drill_x, drill_y, DRILL_DEPTH);
+                    if (get_tool_param_iu(m_current_tool_num, RACK_TOOL_TYPE) == RACK_TOOL_DRILL) {
+                        output_drill_hole(drill_x, drill_y, DRILL_DEPTH);
+                    }
+                    else {
+                        output_mill_hole(drill_x, drill_y, DRILL_DEPTH, m_current_tool_num);
+                    }
 				}
 				else {
-					m_current_tool++;
+					m_current_tool_ndx++;
 					// Tool change routine
 					output_tool_change_begin();
 					out(SPINDLE_OFF);
 					rz(TOOL_CHANGE_POS_Z);
 					rxy(TOOL_CHANGE_POS_X, TOOL_CHANGE_POS_Y);
-					out(fir(TOOL_CHANGE, get_tool_num_for(my_strtol(drill_args[DRILL_SIZE]), m_current_tool), drill_size));
+                    m_current_tool_num = get_tool_num_for(my_strtol(drill_args[DRILL_SIZE]), m_current_tool_ndx);
+					out(fir(TOOL_CHANGE, m_current_tool_num, drill_size));
 					output_tool_changed();
 					
 					// Output zero steps and a pause
@@ -406,7 +420,12 @@ void output_drill_file(int which_side)
 					out(fr(SPINDLE_ON, SPINDLE_ON_TIME));
 					output_tool_change_end();
 
-					output_drill_first_hole(drill_x, drill_y, DRILL_DEPTH);
+                    if (get_tool_param_iu(m_current_tool_num, RACK_TOOL_TYPE) == RACK_TOOL_DRILL) {
+                        output_drill_first_hole(drill_x, drill_y, DRILL_DEPTH);
+                    }
+                    else {
+                        output_mill_hole(drill_x, drill_y, DRILL_DEPTH, m_current_tool_num);
+                    }
 					last_size = drill_size;
 				} 
 				// if drill_size != last_size
