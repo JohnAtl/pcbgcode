@@ -75,23 +75,23 @@ int MILL_BOARD = 3;
 int MILL_TEXT  = 4;
 
 enum {
-	PH_INVALID					 =  0,
-  PH_TOP_OUT_GEN       =  1,
-  PH_TOP_OUT_WRITE     =  2,
-  PH_TOP_FILL_GEN      =  3,
-  PH_TOP_FILL_WRITE    =  4,
-  PH_TOP_STENCIL       =  5,
-  PH_BOTTOM_OUT_GEN    =  6,
-  PH_BOTTOM_OUT_WRITE  =  7,
-  PH_BOTTOM_FILL_GEN   =  8,
-  PH_BOTTOM_FILL_WRITE =  9,
-  PH_BOTTOM_STENCIL    = 10,
-  PH_TOP_DRILL         = 11,
-  PH_BOTTOM_DRILL      = 12,
-  PH_MILL              = 13,
-	PH_TEXT				       = 14,
+    PH_INVALID			 =  0,
+    PH_TOP_OUT_GEN       =  1,
+    PH_TOP_OUT_WRITE     =  2,
+    PH_TOP_FILL_GEN      =  3,
+    PH_TOP_FILL_WRITE    =  4,
+    PH_TOP_STENCIL       =  5,
+    PH_BOTTOM_OUT_GEN    =  6,
+    PH_BOTTOM_OUT_WRITE  =  7,
+    PH_BOTTOM_FILL_GEN   =  8,
+    PH_BOTTOM_FILL_WRITE =  9,
+    PH_BOTTOM_STENCIL    = 10,
+    PH_TOP_DRILL         = 11,
+    PH_BOTTOM_DRILL      = 12,
+    PH_MILL              = 13,
+    PH_TEXT              = 14,
 
-  PH_LAST_PHASE = 15
+    PH_LAST_PHASE        = 15
 };
 
 string FILEMODE_WRITE_TEXT = "wt";
