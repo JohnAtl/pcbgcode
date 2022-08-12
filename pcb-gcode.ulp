@@ -144,11 +144,11 @@ void preview()
 void next_phase(void)
 {
 	if (g_phase == PH_TOP_OUT_GEN && GENERATE_TOP_OUTLINES != YES) {
-		g_phase += 2;
+		g_phase = PH_BOTTOM_OUT_GEN;
 		return;
 	}
 	if (g_phase == PH_BOTTOM_OUT_GEN && GENERATE_BOTTOM_OUTLINES != YES) {
-		g_phase += 2;
+		g_phase = PH_TOP_DRILL;
 		return;
 	}
 
@@ -169,6 +169,8 @@ void next_phase(void)
 	else {
 		g_phase++;
 	}
+    
+    dlgMessageBox(fi("next_phase(): g_phase=%d", g_phase));
 }
 
 //////////////////////////////////////////////////
@@ -332,6 +334,7 @@ void drill(int which_side)
 			//
 			// Create a tool table at the beginning of the file.
 			//
+            comm("Rack file: " + elided_path(m_rack_file_name, 30));
 			out(TOOL_CHANGE_TABLE_HEADER);
 			for (i=stack_fwd_iter(); i != END_OF_STACK; i=stack_fwd_next()) {
 				if (i==END_OF_STACK) break;
@@ -1718,6 +1721,7 @@ if (g_phase < PH_LAST_PHASE) {
 	exit(g_cmd);
 }
 else {
+    dlgMessageBox("exiting");
 	g_cmd = "window fit;\n";
 	exit(g_cmd);
 }
