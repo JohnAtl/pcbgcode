@@ -9,7 +9,6 @@
  */
 
 
-
 int STR_NOT_FOUND = -1;
 char REC_SEP = '\v';
 char FIELD_SEP = '\t';
@@ -239,6 +238,17 @@ string fi(string f, int i) {
   return str;
 }
 
+string fii(string f, int i, int j) { 
+  string str;
+  if (strcnt(f, '%') < 2) {
+    return "";
+  }
+  else {
+    sprintf(str, f, i, j);
+  }
+  return str;
+}
+
 string fir(string f, int i, real r) { 
   string str;
   if (strcnt(f, '%') < 1) {
@@ -341,7 +351,8 @@ string frrrrrrr(string f, real r1, real r2, real r3, real r4, real r5, real r6, 
 string fs(string f, string s) { 
   string str;
   if (strcnt(f, '%') < 1) {
-    return "";
+      dlgMessageBox("fs error, no %% in format string");
+      exit(1);
   }
   else {
     sprintf(str, f, s);
