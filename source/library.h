@@ -133,8 +133,6 @@ int my_strtol(string s)
   return strtol(result);
 }
 
-
-
 //
 // Show a dialog with a message and details.
 //
@@ -177,6 +175,13 @@ void Fatal(string msg, string details)
   exit(1);
 }
 
+void assert(int condition, string message)
+{
+    if (!condition) {
+        dlgMessageBox("assertion failed:\n" + message);
+        exit(1);
+    }
+}
 
 int file_exists(string file)
 {
