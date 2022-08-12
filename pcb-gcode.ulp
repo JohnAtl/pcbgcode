@@ -61,8 +61,11 @@ string m_file_name = "";
 // Which side we're currently working on.
 g_side = TOP;
 
-// Tool currently being used.
-int m_current_tool = 0;
+// Index of current being used.
+int m_current_tool_ndx = 0;
+
+// Current tool number being used (e.g. agrees with e.g. T02)
+int m_current_tool_num = 0;
 
 // Amount to isolate traces.
 real m_isolate = 0.0;
@@ -192,7 +195,7 @@ void next_phase(void)
 // Changes:
 //  the stack
 //
-void add_hole(int req_size, int x, int y)
+void push_hole_onto_stack(int req_size, int x, int y)
 {
 	string tempstr;
 	int drill_size;
@@ -223,7 +226,7 @@ real distance(real x1, real y1, real x2, real y2) {
 // Changes: 
 //  the stack
 //
-void pythagorean_sort() {
+void pythagorean_sort_stack() {
 	real drill_size1;
 	real drill_x1;
 	real drill_y1;
@@ -286,7 +289,7 @@ void pythagorean_sort() {
  * Returns:
  *  none
  * Changes:
- *  m_current_tool
+ *  m_current_tool_ndx
  *  g_side
 */
 void output_drill_file(int which_side)
@@ -302,27 +305,27 @@ void output_drill_file(int which_side)
 	real drill_y;
 	int drill_tool_num;
 
-	m_current_tool = 0;
+	m_current_tool_ndx = 0;
 	g_side = which_side;
 
 	//
 	// Build a stack with all the holes.
 	//
 	board(B) {
-		B.holes(H) add_hole(H.drill, H.x, H.y);
-		B.signals(S) S.vias(V) add_hole(V.drill, V.x, V.y);
+		B.holes(H) push_hole_onto_stack(H.drill, H.x, H.y);
+		B.signals(S) S.vias(V) push_hole_onto_stack(V.drill, V.x, V.y);
 		B.elements(E) {
 			E.package.contacts(C) {
 				if (C.pad) {
-					add_hole(C.pad.drill, C.pad.x, C.pad.y);
+					push_hole_onto_stack(C.pad.drill, C.pad.x, C.pad.y);
 				}
 			}
-			E.package.holes(H) add_hole(H.drill, H.x, H.y);
+			E.package.holes(H) push_hole_onto_stack(H.drill, H.x, H.y);
 		} 
 		// B.elements
 
 		// Sorts the drills by size, then distance from previous hole.
-		pythagorean_sort();
+		pythagorean_sort_stack();
 
 		//
 		// Create the drill g-code file.
@@ -335,6 +338,8 @@ void output_drill_file(int which_side)
 			// Create a tool table at the beginning of the file.
 			//
             comm("Rack file: " + elided_path(m_rack_file_name, 30));
+            comm("Min Sub is the minimum hole size this tool was subbed for.");
+            comm("Max Sub is the maximum hole size this tool was subbed for.");
 			out(TOOL_CHANGE_TABLE_HEADER);
 			for (i=stack_fwd_iter(); i != END_OF_STACK; i=stack_fwd_next()) {
 				if (i==END_OF_STACK) break;
@@ -362,7 +367,7 @@ void output_drill_file(int which_side)
 			//
 			// Generate drill code.
 			//
-			m_current_tool = 0;
+			m_current_tool_ndx = 0;
 			for (i=stack_fwd_iter(); i != END_OF_STACK; i=stack_fwd_next()) {
 				strsplit(drill_args, stack_elem(i), '\t');
 				drill_size = internals_to_user(my_strtol(drill_args[DRILL_SIZE]));
