@@ -183,6 +183,17 @@ void assert(int condition, string message)
     }
 }
 
+void assertrr(int condition, string message, real x, real y)
+{
+    string tt;
+    
+    if (!condition) {
+        sprintf(tt, message, x, y);
+        dlgMessageBox("assertion failed:\n" + tt);
+        exit(1);
+    }
+}
+
 int file_exists(string file)
 {
   string files[];

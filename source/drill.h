@@ -287,3 +287,87 @@ int get_tool_num_for(int req_size, int default_tool)
 	if (m_last_match == -1) m_last_match = default_tool;
 	return m_last_match;
 }
+
+enum { RACK_TOOL_NUM  = 0, 
+    RACK_SIZE         = 1, 
+    RACK_MIN          = 2, 
+    RACK_MAX          = 3, 
+    RACK_LENGTH       = 4,
+    RACK_STEP_XY      = 5,
+    RACK_STEP_Z       = 6,
+
+    RACK_TOOL_TYPE    = 20,
+    RACK_TOOL_DRILL   = 21,
+    RACK_TOOL_ENDMILL = 22
+};
+
+/*
+ * Returns tool parameters in internal units, except for the tool number, which is just an integer.
+ *
+ * Parameters
+ * tool_num     The tool number to obtain parameters for.
+ * param        Which parameter to obtain. Use the RACK_* definitions above.
+ *
+ * Returns
+ * int          An integer with the following characteristics:
+ *                  For RACK_TOOL_NUM, returns the tool number as a regular integer, i.e. tool 4 returns 4.
+ *                  For tool measurements, such as RACK_SIZE, returns a value in Eagle internal units.
+ *                  For RACK_TOOL_TYPE, returns either RACK_TOOL_DRILL if a drill, or RACK_TOOL_ENDMILL if an endmill.
+ *
+ */
+int get_tool_param_iu(int tool_num, int param)
+{
+    string params[];
+    
+    for (int i=0; i < g_num_drills; i++) {
+        strsplit(params, g_rack[i], '\t');
+        if (my_strtol(strsub(params[RACK_TOOL_NUM],1)) == tool_num) {
+            if (strsub(params[RACK_TOOL_NUM], 0, 1) == "T") {
+                if (param > RACK_LENGTH && param < RACK_TOOL_TYPE) {
+                    Fatal("get_tool_param_iu()",fi("Requested param=%d for a drill", param));
+                }
+            }
+            if (param == RACK_TOOL_NUM) {
+                return my_strtol(strsub(params[param], 1));
+            }
+            else if (param == RACK_TOOL_TYPE) {
+                if (strsub(params[RACK_TOOL_NUM], 0, 1) == "T")
+                    return RACK_TOOL_DRILL;
+                else if (strsub(params[RACK_TOOL_NUM], 0, 1) == "E")
+                    return RACK_TOOL_ENDMILL;
+                else
+                    Fatal("get_tool_param_iu", "Unknown tool type " + strsub(params[RACK_TOOL_NUM], 0, 1));
+            }
+            return conv_to_internal_units(params[param]);
+        }
+    }
+    Fatal("get_tool_param_iu", fi("Requested param for unknown tool %d", tool_num));
+}
+
+void test_get_tool_param()
+{
+    dlgMessageBox("test_get_tool_param");
+    read_rack_file(g_path + "/source/test.drl");
+    
+    // test a "normal" drill
+    assert(get_tool_param_iu(4, RACK_TOOL_NUM) == 4, "tool is not 4 for tool 4");
+    assert(get_tool_param_iu(4, RACK_SIZE) == conv_units_from_to(0.050, U_INCHES, U_INTERNALS), "343 size is wrong");
+    assert(get_tool_param_iu(4, RACK_MIN) == conv_units_from_to(1.143, U_MILLIMETERS, U_INTERNALS), "344 min is wrong");
+    assert(get_tool_param_iu(4, RACK_MAX) == conv_units_from_to(0.055, U_INCHES, U_INTERNALS), "345 max is wrong");
+    assert(get_tool_param_iu(4, RACK_LENGTH) == conv_units_from_to(1.5, U_INCHES, U_INTERNALS), "346 length is wrong");
+    assert(get_tool_param_iu(4, RACK_TOOL_TYPE) == RACK_TOOL_DRILL, "347 tool type is incorrect");
+    
+    // test the endmill params
+    assert(get_tool_param_iu(2, RACK_TOOL_NUM) == 2, "tool is not 2 for tool 2");
+    assertrr(get_tool_param_iu(2, RACK_SIZE) == conv_units_from_to(0.032, U_INCHES, U_INTERNALS), 
+        "351 size is wrong\nExpected %f, was %f", 0.032, conv_units_from_to(get_tool_param_iu(2, RACK_SIZE), U_INTERNALS, U_INCHES));
+    assertrr(get_tool_param_iu(2, RACK_MIN) == conv_units_from_to(0.025, U_INCHES, U_INTERNALS), "353 min is wrong\nExpected %f, was %f", 0.025, conv_units_from_to(get_tool_param_iu(2, RACK_MIN), U_INTERNALS, U_INCHES));
+    assert(get_tool_param_iu(2, RACK_MAX) == conv_units_from_to(0.035, U_INCHES, U_INTERNALS), "354 max is wrong");
+    assert(get_tool_param_iu(2, RACK_LENGTH) == conv_units_from_to(1.5, U_INCHES, U_INTERNALS), "355 length is wrong");
+    assert(get_tool_param_iu(2, RACK_STEP_XY) == conv_units_from_to(0.010, U_INCHES, U_INTERNALS), "356 step xy is wrong");
+    assert(get_tool_param_iu(2, RACK_STEP_Z) == conv_units_from_to(0.007, U_INCHES, U_INTERNALS), "357 step z is wrong");
+    assert(get_tool_param_iu(2, RACK_TOOL_TYPE) == RACK_TOOL_ENDMILL, "358 tool type is incorrect");
+    
+}
+
+// test_get_tool_param();
