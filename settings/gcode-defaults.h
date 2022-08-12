@@ -118,13 +118,13 @@ string TOOL_CHANGE      = OPERATOR_PAUSE + TOOL_CODE + " ; " + FORMAT + EOL;
 string TOOL_CHANGE_TABLE_HEADER = COMMENT_BEGIN + 
   " Tool|       Size           |  Min Sub |  Max Sub |   Count " + COMMENT_END + EOL;
 
-string TOOL_CHANGE_TABLE_FORMAT(int tool_number, real size_mm, real size_inch, real min_drill, real max_drill, int count)
+string TOOL_CHANGE_TABLE_FORMAT(int tool_number, real size_mm, real size_inch, real min_drill, real max_drill, int count, string comment)
 {
   string formatted;
   
   sprintf(formatted, COMMENT_BEGIN + " " + TOOL_CODE + " " + TOOL_MM_FORMAT + " " +
-    TOOL_INCH_FORMAT + " " + TOOL_INCH_FORMAT + " " + TOOL_INCH_FORMAT + " " + COMMENT_END + EOL,
-    tool_number, size_mm, size_inch, min_drill, max_drill);
+    TOOL_INCH_FORMAT + " " + TOOL_INCH_FORMAT + " " + TOOL_INCH_FORMAT + " %8d    %s " + COMMENT_END + EOL,
+    tool_number, size_mm, size_inch, min_drill, max_drill, count, comment);
   return(formatted);
 }
 
