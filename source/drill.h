@@ -12,8 +12,8 @@ char DRILL_SEP  = '\t';
 string g_rack[];
 int g_num_drills;
 int g_drill_sub_cnt[];
-real g_mins[];
-real g_maxs[];
+real g_min_subbed_for[];
+real g_max_subbed_for[];
 
 int m_shut_up;
 int m_last_match;
@@ -189,53 +189,53 @@ int get_drill_for_and_count(int req_size, int do_count)
 		return req_size;
 	}
 	
-	m_last_match = -1;
-	for(i = 0; i < g_num_drills; i++) {
+    m_last_match = -1;
+    for(i = 0; i < g_num_drills; i++) {
         int num_fields = strsplit(fields, g_rack[i], DRILL_SEP);
-	  if ( num_fields < FLD_COUNT) {
-          string spaces_error="";
-          if (strstr(g_rack[i], " ")) {
-              spaces_error="There are spaces in the rack file. Use only tabs.";
-          }
-          string tt;
-          sprintf(tt, "Improperly formatted rack entry:\nm_rack_file_name=%s\nnum_fields=%d, string=\"%s\"\n%s", 
-              m_rack_file_name, num_fields, g_rack[i], spaces_error);
-	    dlgMessageBox(tt);
-	    exit(0);
-	  }
-		tool_text = strsub(fields[FLD_TOOL], 1);
-		tool_num = strtol(tool_text);
-		drill_size  = conv_to_internal_units(fields[FLD_DRILL]);
-		minimum     = conv_to_internal_units(fields[FLD_MIN]);
-		maximum     = conv_to_internal_units(fields[FLD_MAX]);
-//		sprintf(temp_str, "req = %f, tool_num = %d, min = %f, max = %f", 
-//		  u2inch(req_size), tool_num, u2inch(minimum), u2inch(maximum));
-//		dlgMessageBox(temp_str);
+        if ( num_fields < FLD_COUNT) {
+            string spaces_error="";
+            if (strstr(g_rack[i], " ")) {
+                spaces_error="There are spaces in the rack file. Use only tabs.";
+            }
+            string tt;
+            sprintf(tt, "Improperly formatted rack entry:\nm_rack_file_name=%s\nnum_fields=%d, string=\"%s\"\n%s", 
+            m_rack_file_name, num_fields, g_rack[i], spaces_error);
+            dlgMessageBox(tt);
+            exit(0);
+        }
+        tool_text = strsub(fields[FLD_TOOL], 1);
+        tool_num = strtol(tool_text);
+        drill_size  = conv_to_internal_units(fields[FLD_DRILL]);
+        minimum     = conv_to_internal_units(fields[FLD_MIN]);
+        maximum     = conv_to_internal_units(fields[FLD_MAX]);
+        //		sprintf(temp_str, "req = %f, tool_num = %d, min = %f, max = %f", 
+        //		  u2inch(req_size), tool_num, u2inch(minimum), u2inch(maximum));
+        //		dlgMessageBox(temp_str);
 
-		if(in_range_int(req_size, minimum, maximum)) {
-			if (g_drill_sub_cnt[tool_num] == 0) {
-//				sprintf(temp_str, "Using drill T%02d\nDrill size: %5.02fmm "
-//				"(%5.03fin)\nHole size: %5.02fmm (%5.03fin).\n",
-//				tool_num, u2mm(drill_size), u2inch(drill_size), 
-//				u2mm(req_size), u2inch(req_size));
-//				rack_message(temp_str);
-			}
-			if (g_mins[tool_num] == 0) {
-			  g_mins[tool_num] = u2inch(req_size);
-		  }
-			g_mins[tool_num] = min(g_mins[tool_num], u2inch(req_size));
-			g_maxs[tool_num] = max(g_maxs[tool_num], u2inch(req_size));
-			if (do_count) {
-			  g_drill_sub_cnt[tool_num] += 1;
-		  }
-//			sprintf(temp_str, "req = %f, tool_num = %d, min = %f, max = %f", 
-//			  u2inch(req_size), tool_num, g_mins[tool_num], g_maxs[tool_num]);
-//			dlgMessageBox(temp_str);
-			g_did_subs = true;
-			m_last_match = tool_num;
-			return drill_size;
-		}
-	}
+        if(in_range_int(req_size, minimum, maximum)) {
+            if (g_drill_sub_cnt[tool_num] == 0) {
+                //				sprintf(temp_str, "Using drill T%02d\nDrill size: %5.02fmm "
+                //				"(%5.03fin)\nHole size: %5.02fmm (%5.03fin).\n",
+                //				tool_num, u2mm(drill_size), u2inch(drill_size), 
+                //				u2mm(req_size), u2inch(req_size));
+                //				rack_message(temp_str);
+            }
+            if (g_min_subbed_for[tool_num] == 0) {
+                g_min_subbed_for[tool_num] = u2inch(req_size);
+            }
+            g_min_subbed_for[tool_num] = min(g_min_subbed_for[tool_num], u2inch(req_size));
+            g_max_subbed_for[tool_num] = max(g_max_subbed_for[tool_num], u2inch(req_size));
+            if (do_count) {
+                g_drill_sub_cnt[tool_num] += 1;
+            }
+            //			sprintf(temp_str, "req = %f, tool_num = %d, min = %f, max = %f", 
+            //			  u2inch(req_size), tool_num, g_min_subbed_for[tool_num], g_max_subbed_for[tool_num]);
+            //			dlgMessageBox(temp_str);
+            g_did_subs = true;
+            m_last_match = tool_num;
+            return drill_size;
+        }
+    }
 	rack_message("No drill sub for " + real_to_string(u2inch(req_size)) + "\" " +
 		real_to_string(u2mm(req_size)) + "mm");
 
