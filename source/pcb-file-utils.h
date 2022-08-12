@@ -79,6 +79,9 @@ void update_cur_xyz(real x, real y, real z)
   update_cur_z(z);
 }
 
+/*
+ * Move to x,y position at current feed rate.
+ */
 void xy(real x, real y)
 {
 	if (close(x, cur_x) && close(y, cur_y)) {
@@ -111,11 +114,17 @@ void xy(real x, real y)
 //
 // Output Feed commands.
 //
+/*
+ * Set the feed rate.
+ */
 void rate(real f)
 {
 	out(fr(FR_FORMAT, f));
 }
 
+/*
+ * Feed move in x-axis.
+ */
 void fx(real x) 
 {
 	if (! close(x, cur_x)) {
@@ -124,6 +133,9 @@ void fx(real x)
 	}
 }
 
+/*
+ * Feed move in y-axis.
+ */
 void fy(real y) 
 {
 	if (! close(y, cur_y)) {
@@ -132,6 +144,9 @@ void fy(real y)
 	}
 }
 
+/*
+ * Feed move in z-axis.
+ */
 void fz(real z) 
 {
 	if (! close(z, cur_z)) {
@@ -140,14 +155,18 @@ void fz(real z)
 	}
 }
 
-// Since the next move may depend on the Z rate having been set
-// in this routine, it just outputs the move as usual.
+/*
+ * Feed move in z-axis and set feedrate.
+ */
 void fzr(real z, real f) 
 {
 	out( frr(FEED_MOVE_Z_WITH_RATE, z, f)      + EOL); 
 	update_cur_z(z);
 }
 
+/*
+ * Feed move in x, y.
+ */
 void fxy(real x, real y)
 {
 	if (! close(x, cur_x) || ! close(y, cur_y)) {
@@ -156,14 +175,18 @@ void fxy(real x, real y)
 	}
 }
 
-// Since the next move may depend on the XY rate having been set
-// in this routine, it just outputs the move as usual.
+/*
+ * Feed move in x, y, and set feed rate.
+ */
 void fxyr(real x, real y, real f) 
 {
 	out( frrr(FEED_MOVE_XY_WITH_RATE, x, y, f) + EOL);
 	update_cur_xy(x, y);
 }
 
+/*
+ * Feed move in x, y, z, and set feed rate.
+ */
 void fxyz(real x, real y, real z)
 {
 	if (! close(x, cur_x) || ! close(y, cur_y) || ! close(z, cur_z)) {
@@ -171,6 +194,16 @@ void fxyz(real x, real y, real z)
 		update_cur_xy(x, y);
 		update_cur_z(z);
 	}
+}
+
+/*
+ * Feed move clockwise and set feed rate.
+ * Move from current position to x, y along an arc centered an i, j, and feed rate f.
+ */
+void fcwr(real x, real y, real i, real j, real f)
+{
+    out(frrrrr(ARC_CLOCK, x, y, i, j, f) + EOL);
+    update_cur_xy(x, y);
 }
 
 //
@@ -217,6 +250,9 @@ void rxyz(real x, real y, real z)
 	}
 }
 
+/*
+ * Output a comment to the current gcode file.
+ */
 void comm(string str)
 {
 	if (strlen(str) > 0) {
