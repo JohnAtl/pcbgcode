@@ -14,7 +14,7 @@
 
 real internals_to_user(int n)
 {
-  return (convert(n, U_INTERNALS, OUTPUT_UNITS));
+  return (conv_units_from_to(n, U_INTERNALS, OUTPUT_UNITS));
 }
 
 //
@@ -29,7 +29,7 @@ real internals_to_user(int n)
 
 int user_to_internals(real n)
 {
-  return (convert(n, OUTPUT_UNITS, U_INTERNALS));
+  return (conv_units_from_to(n, OUTPUT_UNITS, U_INTERNALS));
 }
 
 //
