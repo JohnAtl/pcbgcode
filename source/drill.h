@@ -40,7 +40,7 @@ else {
  * nv_param drill_shut_up   Set to YES if the user never wants to see drill messages.
  *
  */
-void message(string msg)
+void rack_message(string msg)
 {
     if(m_shut_up)
       return;
@@ -79,6 +79,9 @@ void read_rack_file(string drill_file)
 	string drill_raw[];
 	int num_raw_drills;
 	int i;
+    string tt;
+    
+    // rack_message(fs("Reading: %s", drill_file));
 
 	/* 
 	* Remove comment lines from the rack file.
