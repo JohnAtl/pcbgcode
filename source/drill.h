@@ -191,8 +191,16 @@ int get_drill_for_and_count(int req_size, int do_count)
 	
 	m_last_match = -1;
 	for(i = 0; i < g_num_drills; i++) {
-	  if (strsplit(fields, g_rack[i], DRILL_SEP) != FLD_COUNT) {
-	    dlgMessageBox("Improperly formatted rack entry:\n" + g_rack[i]);
+        int num_fields = strsplit(fields, g_rack[i], DRILL_SEP);
+	  if ( num_fields < FLD_COUNT) {
+          string spaces_error="";
+          if (strstr(g_rack[i], " ")) {
+              spaces_error="There are spaces in the rack file. Use only tabs.";
+          }
+          string tt;
+          sprintf(tt, "Improperly formatted rack entry:\nm_rack_file_name=%s\nnum_fields=%d, string=\"%s\"\n%s", 
+              m_rack_file_name, num_fields, g_rack[i], spaces_error);
+	    dlgMessageBox(tt);
 	    exit(0);
 	  }
 		tool_text = strsub(fields[FLD_TOOL], 1);
