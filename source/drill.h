@@ -210,7 +210,7 @@ int get_drill_for_and_count(int req_size, int do_count)
 //				"(%5.03fin)\nHole size: %5.02fmm (%5.03fin).\n",
 //				tool_num, u2mm(drill_size), u2inch(drill_size), 
 //				u2mm(req_size), u2inch(req_size));
-//				message(temp_str);
+//				rack_message(temp_str);
 			}
 			if (g_mins[tool_num] == 0) {
 			  g_mins[tool_num] = u2inch(req_size);
@@ -228,7 +228,7 @@ int get_drill_for_and_count(int req_size, int do_count)
 			return drill_size;
 		}
 	}
-	message("No drill sub for " + real_to_string(u2inch(req_size)) + "\" " +
+	rack_message("No drill sub for " + real_to_string(u2inch(req_size)) + "\" " +
 		real_to_string(u2mm(req_size)) + "mm");
 
 	return req_size;
