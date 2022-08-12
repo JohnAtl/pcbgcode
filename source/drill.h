@@ -147,149 +147,8 @@ void load_rack()
 
 load_rack();
 
-/**
- * Returns a drill that the user has in stock,
- * based on the min and max values of the hole.
- * Optionally, counts the number of substitutions made.
- *
- * Param      Function
- * req_size   requested drill size in internal units
- * do_count   whether the substitution counts should be updated
- *
- * Returns
- * Drill size to use, or the requested size if no sub was found.
- *
- * Modifies
- * m_last_match   Set to the tool number of the substitute drill, or -1 if none was available.
- *
-**/
-int g_did_subs;
-int get_drill_for_and_count(int req_size, int do_count)
-{
-	int i;
-	int tool_num;
-	int drill_size;
-	int minimum;
-	int maximum;
-//	string temp_str;
-	string fields[];
-	string tool_text;
-	int FLD_TOOL = 0;
-	int FLD_DRILL = 1;
-	int FLD_MIN = 2;
-	int FLD_MAX = 3;
-	int FLD_LEN = 4;
-	int FLD_COUNT = 5;
-
-	//
-	// No longer complains about subs being available if there isn't a
-	// rack file to begin with.
-	//
-	if (!m_have_rack) {
-		return req_size;
-	}
-	
-    m_last_match = -1;
-    for(i = 0; i < g_num_drills; i++) {
-        int num_fields = strsplit(fields, g_rack[i], DRILL_SEP);
-        if ( num_fields < FLD_COUNT) {
-            string spaces_error="";
-            if (strstr(g_rack[i], " ")) {
-                spaces_error="There are spaces in the rack file. Use only tabs.";
-            }
-            string tt;
-            sprintf(tt, "Improperly formatted rack entry:\nm_rack_file_name=%s\nnum_fields=%d, string=\"%s\"\n%s", 
-            m_rack_file_name, num_fields, g_rack[i], spaces_error);
-            dlgMessageBox(tt);
-            exit(0);
-        }
-        tool_text = strsub(fields[FLD_TOOL], 1);
-        tool_num = strtol(tool_text);
-        drill_size  = conv_to_internal_units(fields[FLD_DRILL]);
-        minimum     = conv_to_internal_units(fields[FLD_MIN]);
-        maximum     = conv_to_internal_units(fields[FLD_MAX]);
-        //		sprintf(temp_str, "req = %f, tool_num = %d, min = %f, max = %f", 
-        //		  u2inch(req_size), tool_num, u2inch(minimum), u2inch(maximum));
-        //		dlgMessageBox(temp_str);
-
-        if(in_range_int(req_size, minimum, maximum)) {
-            if (g_drill_sub_cnt[tool_num] == 0) {
-                //				sprintf(temp_str, "Using drill T%02d\nDrill size: %5.02fmm "
-                //				"(%5.03fin)\nHole size: %5.02fmm (%5.03fin).\n",
-                //				tool_num, u2mm(drill_size), u2inch(drill_size), 
-                //				u2mm(req_size), u2inch(req_size));
-                //				rack_message(temp_str);
-            }
-            if (g_min_subbed_for[tool_num] == 0) {
-                g_min_subbed_for[tool_num] = u2inch(req_size);
-            }
-            g_min_subbed_for[tool_num] = min(g_min_subbed_for[tool_num], u2inch(req_size));
-            g_max_subbed_for[tool_num] = max(g_max_subbed_for[tool_num], u2inch(req_size));
-            if (do_count) {
-                g_drill_sub_cnt[tool_num] += 1;
-            }
-            //			sprintf(temp_str, "req = %f, tool_num = %d, min = %f, max = %f", 
-            //			  u2inch(req_size), tool_num, g_min_subbed_for[tool_num], g_max_subbed_for[tool_num]);
-            //			dlgMessageBox(temp_str);
-            g_did_subs = true;
-            m_last_match = tool_num;
-            return drill_size;
-        }
-    }
-	rack_message("No drill sub for " + real_to_string(u2inch(req_size)) + "\" " +
-		real_to_string(u2mm(req_size)) + "mm");
-
-	return req_size;
-}
-
-/*
- * Returns a drill for a requested hole size.
- * Calls get_drill_for_and_count() and retains default side effect of counting hole substitutions.
- * 
- *
- * Param    Function
- * req_size Size requested in internal units.
- *
- * Returns
- * Substitute size, or size requested if no sub is available.
- *
- * Modifies
- *
- */
-int get_drill_for(int req_size)
-{
-  return get_drill_for_and_count(req_size, true);
-}
-
-
-/**
- * Returns a tool number for a given size, or 
- * a default if the size isn't available, there is no
- * rack file, etc.
- * 
- *
- * Param        Function
- * req_size     Size requested in internal units.
- * default_tool Tool to return if a sub is not available.
- *
- * Returns
- * Tool number for size requested, or default_tool if sub was not available.
- *
- * Modifies
- *
- */
-int get_tool_num_for(int req_size, int default_tool)
-{
-	if (!m_have_rack) {
-		return default_tool;
-	}
-	get_drill_for_and_count(req_size, false);
-	if (m_last_match == -1) m_last_match = default_tool;
-	return m_last_match;
-}
-
 enum { RACK_TOOL_NUM  = 0, 
-    RACK_SIZE         = 1, 
+    RACK_TOOL_SIZE    = 1, 
     RACK_MIN          = 2, 
     RACK_MAX          = 3, 
     RACK_LENGTH       = 4,
@@ -311,7 +170,7 @@ enum { RACK_TOOL_NUM  = 0,
  * Returns
  * int          An integer with the following characteristics:
  *                  For RACK_TOOL_NUM, returns the tool number as a regular integer, i.e. tool 4 returns 4.
- *                  For tool measurements, such as RACK_SIZE, returns a value in Eagle internal units.
+ *                  For tool measurements, such as RACK_TOOL_SIZE, returns a value in Eagle internal units.
  *                  For RACK_TOOL_TYPE, returns either RACK_TOOL_DRILL if a drill, or RACK_TOOL_ENDMILL if an endmill.
  *
  */
@@ -336,7 +195,7 @@ int get_tool_param_iu(int tool_num, int param)
                 else if (strsub(params[RACK_TOOL_NUM], 0, 1) == "E")
                     return RACK_TOOL_ENDMILL;
                 else
-                    Fatal("get_tool_param_iu", "Unknown tool type " + strsub(params[RACK_TOOL_NUM], 0, 1));
+                    Fatal("get_tool_param_iu", "Unknown tool type " + params[RACK_TOOL_NUM]);
             }
             return conv_to_internal_units(params[param]);
         }
@@ -351,7 +210,7 @@ void test_get_tool_param()
     
     // test a "normal" drill
     assert(get_tool_param_iu(4, RACK_TOOL_NUM) == 4, "tool is not 4 for tool 4");
-    assert(get_tool_param_iu(4, RACK_SIZE) == conv_units_from_to(0.050, U_INCHES, U_INTERNALS), "343 size is wrong");
+    assert(get_tool_param_iu(4, RACK_TOOL_SIZE) == conv_units_from_to(0.050, U_INCHES, U_INTERNALS), "343 size is wrong");
     assert(get_tool_param_iu(4, RACK_MIN) == conv_units_from_to(1.143, U_MILLIMETERS, U_INTERNALS), "344 min is wrong");
     assert(get_tool_param_iu(4, RACK_MAX) == conv_units_from_to(0.055, U_INCHES, U_INTERNALS), "345 max is wrong");
     assert(get_tool_param_iu(4, RACK_LENGTH) == conv_units_from_to(1.5, U_INCHES, U_INTERNALS), "346 length is wrong");
@@ -359,8 +218,8 @@ void test_get_tool_param()
     
     // test the endmill params
     assert(get_tool_param_iu(2, RACK_TOOL_NUM) == 2, "tool is not 2 for tool 2");
-    assertrr(get_tool_param_iu(2, RACK_SIZE) == conv_units_from_to(0.032, U_INCHES, U_INTERNALS), 
-        "351 size is wrong\nExpected %f, was %f", 0.032, conv_units_from_to(get_tool_param_iu(2, RACK_SIZE), U_INTERNALS, U_INCHES));
+    assertrr(get_tool_param_iu(2, RACK_TOOL_SIZE) == conv_units_from_to(0.032, U_INCHES, U_INTERNALS), 
+        "351 size is wrong\nExpected %f, was %f", 0.032, conv_units_from_to(get_tool_param_iu(2, RACK_TOOL_SIZE), U_INTERNALS, U_INCHES));
     assertrr(get_tool_param_iu(2, RACK_MIN) == conv_units_from_to(0.025, U_INCHES, U_INTERNALS), "353 min is wrong\nExpected %f, was %f", 0.025, conv_units_from_to(get_tool_param_iu(2, RACK_MIN), U_INTERNALS, U_INCHES));
     assert(get_tool_param_iu(2, RACK_MAX) == conv_units_from_to(0.035, U_INCHES, U_INTERNALS), "354 max is wrong");
     assert(get_tool_param_iu(2, RACK_LENGTH) == conv_units_from_to(1.5, U_INCHES, U_INTERNALS), "355 length is wrong");
@@ -371,3 +230,141 @@ void test_get_tool_param()
 }
 
 // test_get_tool_param();
+
+int get_tool_num_at_ndx(int ndx)
+{
+    assert(ndx < g_num_drills, "illegal tool index");
+    
+    return my_strtol(strsub(g_rack[ndx], 1));
+}
+
+/**
+ * Returns a drill that the user has in stock,
+ * based on the min and max values of the hole.
+ * Optionally, counts the number of substitutions made.
+ *
+ * Param      Function
+ * req_size   requested drill size in internal units
+ * do_count   whether the substitution counts should be updated
+ *
+ * Returns
+ * Drill size to use, or the requested size if no sub was found.
+ *
+ * Modifies
+ * m_last_match   Set to the tool number of the substitute drill, or -1 if none was available.
+ *
+**/
+int g_did_subs;
+int get_tool_for_and_count(int req_size, int do_count)
+{
+	int i;
+	int tool_num;
+	int drill_size;
+	int minimum;
+	int maximum;
+	string temp_str;
+	string fields[];
+	string tool_text;
+	int FLD_TOOL = 0;
+	int FLD_DRILL = 1;
+	int FLD_MIN = 2;
+	int FLD_MAX = 3;
+	int FLD_LEN = 4;
+	int FLD_COUNT = 5;
+    int tool_type;
+
+	//
+	// No longer complains about subs being available if there isn't a
+	// rack file to begin with.
+	//
+	if (!m_have_rack) {
+		return 1;
+	}
+	
+    m_last_match = -1;
+    for(i = 0; i < g_num_drills; i++) {
+        tool_num = get_tool_num_at_ndx(i);
+        tool_type = get_tool_param_iu(tool_num, RACK_TOOL_TYPE);
+        drill_size  = get_tool_param_iu(tool_num, RACK_TOOL_SIZE);
+        minimum     = get_tool_param_iu(tool_num, RACK_MIN);
+        maximum     = get_tool_param_iu(tool_num, RACK_MAX);
+        //		sprintf(temp_str, "req = %f, tool_num = %d, min = %f, max = %f", 
+        //		  u2inch(req_size), tool_num, u2inch(minimum), u2inch(maximum));
+        //		dlgMessageBox(temp_str);
+
+        if(in_range_int(req_size, minimum, maximum)) {
+            if (g_drill_sub_cnt[tool_num] == 0) {
+                                sprintf(temp_str, "Using tool %s%02d\nDrill size: %5.02fmm "
+                                "(%5.03fin)\nHole size: %5.02fmm (%5.03fin).\n",
+                                tool_text, tool_num, u2mm(drill_size), u2inch(drill_size),
+                                u2mm(req_size), u2inch(req_size));
+                                rack_message(temp_str);
+            }
+            if (g_min_subbed_for[tool_num] == 0) {
+                g_min_subbed_for[tool_num] = u2inch(req_size);
+            }
+            g_min_subbed_for[tool_num] = min(g_min_subbed_for[tool_num], u2inch(req_size));
+            g_max_subbed_for[tool_num] = max(g_max_subbed_for[tool_num], u2inch(req_size));
+            if (do_count) {
+                g_drill_sub_cnt[tool_num] += 1;
+            }
+            //			sprintf(temp_str, "req = %f, tool_num = %d, min = %f, max = %f", 
+            //			  u2inch(req_size), tool_num, g_min_subbed_for[tool_num], g_max_subbed_for[tool_num]);
+            //			dlgMessageBox(temp_str);
+            g_did_subs = true;
+            m_last_match = tool_num;
+            return tool_num;
+        }
+    }
+	rack_message("No drill sub for " + real_to_string(u2inch(req_size)) + "\" " +
+		real_to_string(u2mm(req_size)) + "mm");
+
+	return 1;
+}
+
+/*
+ * Returns a drill for a requested hole size.
+ * Calls get_tool_for_and_count() and retains default side effect of counting hole substitutions.
+ * 
+ *
+ * Param    Function
+ * req_size Size requested in internal units.
+ *
+ * Returns
+ * Substitute size, or size requested if no sub is available.
+ *
+ * Modifies
+ *
+ */
+int get_tool_for(int req_size)
+{
+  return get_tool_for_and_count(req_size, true);
+}
+
+
+/**
+ * Returns a tool number for a given size, or 
+ * a default if the size isn't available, there is no
+ * rack file, etc.
+ * 
+ *
+ * Param        Function
+ * req_size     Size requested in internal units.
+ * default_tool Tool to return if a sub is not available.
+ *
+ * Returns
+ * Tool number for size requested, or default_tool if sub was not available.
+ *
+ * Modifies
+ *
+ */
+int get_tool_num_for(int req_size, int default_tool)
+{
+	if (!m_have_rack) {
+		return default_tool;
+	}
+	get_tool_for_and_count(req_size, false);
+	if (m_last_match == -1) m_last_match = default_tool;
+	return m_last_match;
+}
+

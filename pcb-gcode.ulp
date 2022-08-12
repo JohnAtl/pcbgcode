@@ -198,11 +198,13 @@ void next_phase(void)
 void push_hole_onto_stack(int req_size, int x, int y)
 {
 	string tempstr;
+    int tool_num;
 	int drill_size;
 
-	drill_size = get_drill_for(req_size);
+    tool_num = get_tool_for(req_size);
+	drill_size = get_tool_param_iu(tool_num, RACK_TOOL_SIZE);
 
-	sprintf(tempstr, "%06d\t%06d\t%06d", drill_size, x, y);
+	sprintf(tempstr, "%06d\t%06d\t%06d\t%06d\t%06d", drill_size, x, y, req_size, tool_num);
 	stack_push(tempstr);
 }
 
@@ -303,6 +305,7 @@ void output_drill_file(int which_side)
 	real drill_size;
 	real drill_x;
 	real drill_y;
+    real hole_size;
 	int drill_tool_num;
 
 	m_current_tool_ndx = 0;
@@ -347,12 +350,12 @@ void output_drill_file(int which_side)
 				drill_size_inch = u2inch(my_strtol(drill_args[DRILL_SIZE]));
 				drill_size_mm  = u2mm(my_strtol(drill_args[DRILL_SIZE]));
 				drill_size = my_strtol(drill_args[DRILL_SIZE]);
+                drill_tool_num = my_strtol(drill_args[DRILL_TOOL_NUM]);
 
 				if (drill_size_mm == 0.0) continue;
 
 				if (drill_size != last_size) {
 					++m_current_tool_ndx;
-					drill_tool_num = get_tool_num_for(my_strtol(drill_args[DRILL_SIZE]), m_current_tool_ndx);
                     if (get_tool_param_iu(drill_tool_num, RACK_TOOL_TYPE) == RACK_TOOL_DRILL) {
     					out(TOOL_CHANGE_TABLE_FORMAT(drill_tool_num,
     					drill_size_mm, drill_size_inch, 
@@ -381,6 +384,8 @@ void output_drill_file(int which_side)
 				drill_size = internals_to_user(my_strtol(drill_args[DRILL_SIZE]));
 				drill_x = scale_x(my_strtol(drill_args[DRILL_X]));
 				drill_y = scale_y(my_strtol(drill_args[DRILL_Y]));
+                hole_size = internals_to_user(my_strtol(drill_args[DRILL_HOLE_SIZE]));
+                drill_tool_num = my_strtol(drill_args[DRILL_TOOL_NUM]);
 				save_extents(drill_x, drill_y);
 
 				if (drill_size == 0.0) continue;
@@ -394,7 +399,7 @@ void output_drill_file(int which_side)
                         output_drill_hole(drill_x, drill_y, DRILL_DEPTH);
                     }
                     else {
-                        output_mill_hole(drill_x, drill_y, DRILL_DEPTH, m_current_tool_num);
+                        output_mill_hole(drill_x, drill_y, DRILL_DEPTH, hole_size, m_current_tool_num);
                     }
 				}
 				else {
@@ -404,7 +409,7 @@ void output_drill_file(int which_side)
 					out(SPINDLE_OFF);
 					rz(TOOL_CHANGE_POS_Z);
 					rxy(TOOL_CHANGE_POS_X, TOOL_CHANGE_POS_Y);
-                    m_current_tool_num = get_tool_num_for(my_strtol(drill_args[DRILL_SIZE]), m_current_tool_ndx);
+                    m_current_tool_num = drill_tool_num;
 					out(fir(TOOL_CHANGE, m_current_tool_num, drill_size));
 					output_tool_changed();
 					
@@ -424,7 +429,7 @@ void output_drill_file(int which_side)
                         output_drill_first_hole(drill_x, drill_y, DRILL_DEPTH);
                     }
                     else {
-                        output_mill_hole(drill_x, drill_y, DRILL_DEPTH, m_current_tool_num);
+                        output_mill_hole(drill_x, drill_y, DRILL_DEPTH, hole_size, m_current_tool_num);
                     }
 					last_size = drill_size;
 				} 
@@ -500,7 +505,7 @@ void spot_drill_hole(int drill_size, int x, int y)
 		}
 	}
 	
-	offset = internals_to_user(get_drill_for(drill_size)) / 2;
+	offset = internals_to_user(drill_size) / 2;
   
 	//
 	// Generate X's for drill preview if drills are turned on for this side.

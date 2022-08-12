@@ -1,0 +1,68 @@
+{
+      "units": "imperial",
+      "resolution-mode": "very_high",
+      "resolution": 1,
+      "tools": {
+        "1": {
+          "units": "metric",
+          "shape": "cylindrical",
+          "length": 10,
+          "diameter": 0.5,
+          "description": ""
+        },
+        "2": {
+          "units": "imperial",
+          "shape": "cylindrical",
+          "length": 0.393701,
+          "diameter": 0.032,
+          "description": ""
+        },
+        "3": {
+          "units": "imperial",
+          "shape": "cylindrical",
+          "length": 0.393701,
+          "diameter": 0.04,
+          "description": ""
+        },
+        "4": {
+          "units": "imperial",
+          "shape": "cylindrical",
+          "length": 0.393701,
+          "diameter": 0.05,
+          "description": ""
+        },
+        "5": {
+          "units": "imperial",
+          "shape": "cylindrical",
+          "length": 0.393701,
+          "diameter": 0.062,
+          "description": ""
+        },
+        "6": {
+          "units": "imperial",
+          "shape": "cylindrical",
+          "length": 0.393701,
+          "diameter": 0.085,
+          "description": ""
+        },
+        "7": {
+          "units": "imperial",
+          "shape": "cylindrical",
+          "length": 0.393701,
+          "diameter": 0.125,
+          "description": ""
+        }
+      },
+      "workpiece": {
+        "automatic": true,
+        "margin": 5,
+        "bounds": {
+          "min": [-4.09897, -2.24477, -2.95344],
+          "max": [74.71097, 35.77277, 0]
+        }
+      },
+      "files": [
+        "04151_lcdi2c.top.etch.tap",
+        "04151_lcdi2c.top.drill.tap"
+      ]
+    }

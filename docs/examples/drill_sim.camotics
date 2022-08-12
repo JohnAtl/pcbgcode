@@ -1,0 +1,46 @@
+{
+      "units": "imperial",
+      "resolution-mode": "very_high",
+      "resolution": 1,
+      "tools": {
+        "1": {
+          "units": "imperial",
+          "shape": "cylindrical",
+          "length": 0.394077,
+          "diameter": 0.015,
+          "description": ""
+        },
+        "2": {
+          "units": "imperial",
+          "shape": "cylindrical",
+          "length": 0.393701,
+          "diameter": 0.032,
+          "description": ""
+        },
+        "3": {
+          "units": "imperial",
+          "shape": "cylindrical",
+          "length": 0.393701,
+          "diameter": 0.032,
+          "description": ""
+        },
+        "4": {
+          "units": "imperial",
+          "shape": "cylindrical",
+          "length": 0.393701,
+          "diameter": 0.125,
+          "description": ""
+        }
+      },
+      "workpiece": {
+        "automatic": true,
+        "margin": 5,
+        "bounds": {
+          "min": [-2.9845, -2.486025, -2.95344],
+          "max": [27.7495, 17.281525, 0]
+        }
+      },
+      "files": [
+        "drills.top.drill.tap"
+      ]
+    }

@@ -590,3 +590,47 @@ void output_drill_hole(real drill_x, real drill_y, real depth)
 		update_cur_xy(drill_x, drill_y);		
 	}
 }
+
+void output_mill_hole(real drill_x, real drill_y, real depth, real hole_size, int tool_num)
+{
+    real cur_depth = 0.0;
+    real cur_dia   = 0.0;
+    real step_size_xy = 0.0;
+    real step_size_z  = 0.0;
+    real tool_size   = 0.0;
+
+    step_size_xy = internals_to_user(get_tool_param_iu(tool_num, RACK_STEP_XY));
+    step_size_z = internals_to_user(get_tool_param_iu(tool_num, RACK_STEP_Z));
+    tool_size = internals_to_user(get_tool_param_iu(tool_num, RACK_TOOL_SIZE));
+
+    comm("Start milling a hole");
+    comm(frrrrrr("X%6.4f Y%6.4f, depth=%6.4f, tool_size=%6.4f, hole_size=%6.4f, step_size=%6.4f",
+        drill_x, drill_y, depth, tool_size, hole_size, step_size_xy));
+
+    rz(DEFAULT_Z_UP);
+    rxy(drill_x, drill_y);
+    fzr(0.0, FEED_RATE_ETCH_Z);
+
+    cur_depth = 0.0;
+    while (cur_depth > depth) {
+        
+        // feed down in z-axis to the next depth
+        cur_depth -= step_size_z;
+        if (cur_depth < depth)
+            cur_depth = depth;
+        fzr(cur_depth, FEED_RATE_ETCH_Z);
+        
+        // expand the hole outward
+        cur_dia = tool_size;
+        while (cur_dia < hole_size) {
+            cur_dia += step_size_xy;
+            if (cur_dia > hole_size)
+                cur_dia = hole_size;
+            fx(drill_x - (cur_dia - tool_size) / 2);
+            fcwr(drill_x + (cur_dia - tool_size) / 2, drill_y, (cur_dia - tool_size) / 2, 0, FEED_RATE_ETCH_XY);
+            fcwr(drill_x - (cur_dia - tool_size) / 2, drill_y, -(cur_dia - tool_size) / 2, 0, FEED_RATE_ETCH_XY);
+        }
+        fxy(drill_x, drill_y);
+    }
+    fz(DEFAULT_Z_UP);
+}

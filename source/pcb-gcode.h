@@ -132,6 +132,8 @@ real BORDER_SIZE = 0.001;
 int DRILL_SIZE = 0;
 int DRILL_X = 1;
 int DRILL_Y = 2;
+int DRILL_HOLE_SIZE = 3;
+int DRILL_TOOL_NUM = 4;
 
 real g_tool_size = 0.01;
 int g_side = TOP;
