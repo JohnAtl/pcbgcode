@@ -205,9 +205,9 @@ int get_drill_for_and_count(int req_size, int do_count)
 	  }
 		tool_text = strsub(fields[FLD_TOOL], 1);
 		tool_num = strtol(tool_text);
-		drill_size  = conv_to_units(fields[FLD_DRILL]);
-		minimum     = conv_to_units(fields[FLD_MIN]);
-		maximum     = conv_to_units(fields[FLD_MAX]);
+		drill_size  = conv_to_internal_units(fields[FLD_DRILL]);
+		minimum     = conv_to_internal_units(fields[FLD_MIN]);
+		maximum     = conv_to_internal_units(fields[FLD_MAX]);
 //		sprintf(temp_str, "req = %f, tool_num = %d, min = %f, max = %f", 
 //		  u2inch(req_size), tool_num, u2inch(minimum), u2inch(maximum));
 //		dlgMessageBox(temp_str);

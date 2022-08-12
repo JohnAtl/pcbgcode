@@ -136,7 +136,7 @@ real convert(real value, int old_units, int new_units)
 // Changes:
 //  none
 //
-int conv_to_units(string s)
+int conv_to_internal_units(string s)
 {
   int val;
   string units;
