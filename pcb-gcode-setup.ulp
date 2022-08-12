@@ -154,31 +154,31 @@ void write_string_param(string name, string value)
 
 void convert_units(int new_units)
 {
-    MILLING_DEPTH = convert(MILLING_DEPTH, m_current_units, new_units);
-    TEXT_DEPTH = convert(TEXT_DEPTH, m_current_units, new_units);
-    SPOT_DRILL_DEPTH = convert(SPOT_DRILL_DEPTH, m_current_units, new_units);
-    ISO_MIN = convert(ISO_MIN, m_current_units, new_units);
-    ISO_MAX = convert(ISO_MAX, m_current_units, new_units);
-    ISO_STEP = convert(ISO_STEP, m_current_units, new_units);
-    DEFAULT_Z_HIGH = convert(DEFAULT_Z_HIGH, m_current_units, new_units);
-    DEFAULT_Z_UP = convert(DEFAULT_Z_UP, m_current_units, new_units);
-    DEFAULT_Z_DOWN = convert(DEFAULT_Z_DOWN, m_current_units, new_units);
-    DRILL_DEPTH = convert(DRILL_DEPTH, m_current_units, new_units);
-    TOOL_CHANGE_POS_X = convert(TOOL_CHANGE_POS_X, m_current_units, new_units);
-    TOOL_CHANGE_POS_Y = convert(TOOL_CHANGE_POS_Y, m_current_units, new_units);
-    TOOL_CHANGE_POS_Z = convert(TOOL_CHANGE_POS_Z, m_current_units, new_units);
-    FEED_RATE_ETCH_XY = convert(FEED_RATE_ETCH_XY, m_current_units, new_units);
-    FEED_RATE_ETCH_Z = convert(FEED_RATE_ETCH_Z, m_current_units, new_units);
-    TOOL_SIZE = convert(TOOL_SIZE, m_current_units, new_units);
-    FEED_RATE_DRILL_Z = convert(FEED_RATE_DRILL_Z, m_current_units, new_units);
-    FEED_RATE_MILL_XY = convert(FEED_RATE_MILL_XY, m_current_units, new_units);
-    FEED_RATE_MILL_Z = convert(FEED_RATE_MILL_Z, m_current_units, new_units);
-    FEED_RATE_TEXT_XY = convert(FEED_RATE_TEXT_XY, m_current_units, new_units);
-    FEED_RATE_TEXT_Z = convert(FEED_RATE_TEXT_Z, m_current_units, new_units);
-    FEED_RATE_STENCIL_XY = convert(FEED_RATE_STENCIL_XY, m_current_units, new_units);
-    FEED_RATE_STENCIL_Z = convert(FEED_RATE_STENCIL_Z, m_current_units, new_units);
-    STENCIL_TOOL_SIZE = convert(STENCIL_TOOL_SIZE, m_current_units, new_units);
-    EPSILON = convert(EPSILON, m_current_units, new_units);
+    MILLING_DEPTH = conv_units_from_to(MILLING_DEPTH, m_current_units, new_units);
+    TEXT_DEPTH = conv_units_from_to(TEXT_DEPTH, m_current_units, new_units);
+    SPOT_DRILL_DEPTH = conv_units_from_to(SPOT_DRILL_DEPTH, m_current_units, new_units);
+    ISO_MIN = conv_units_from_to(ISO_MIN, m_current_units, new_units);
+    ISO_MAX = conv_units_from_to(ISO_MAX, m_current_units, new_units);
+    ISO_STEP = conv_units_from_to(ISO_STEP, m_current_units, new_units);
+    DEFAULT_Z_HIGH = conv_units_from_to(DEFAULT_Z_HIGH, m_current_units, new_units);
+    DEFAULT_Z_UP = conv_units_from_to(DEFAULT_Z_UP, m_current_units, new_units);
+    DEFAULT_Z_DOWN = conv_units_from_to(DEFAULT_Z_DOWN, m_current_units, new_units);
+    DRILL_DEPTH = conv_units_from_to(DRILL_DEPTH, m_current_units, new_units);
+    TOOL_CHANGE_POS_X = conv_units_from_to(TOOL_CHANGE_POS_X, m_current_units, new_units);
+    TOOL_CHANGE_POS_Y = conv_units_from_to(TOOL_CHANGE_POS_Y, m_current_units, new_units);
+    TOOL_CHANGE_POS_Z = conv_units_from_to(TOOL_CHANGE_POS_Z, m_current_units, new_units);
+    FEED_RATE_ETCH_XY = conv_units_from_to(FEED_RATE_ETCH_XY, m_current_units, new_units);
+    FEED_RATE_ETCH_Z = conv_units_from_to(FEED_RATE_ETCH_Z, m_current_units, new_units);
+    TOOL_SIZE = conv_units_from_to(TOOL_SIZE, m_current_units, new_units);
+    FEED_RATE_DRILL_Z = conv_units_from_to(FEED_RATE_DRILL_Z, m_current_units, new_units);
+    FEED_RATE_MILL_XY = conv_units_from_to(FEED_RATE_MILL_XY, m_current_units, new_units);
+    FEED_RATE_MILL_Z = conv_units_from_to(FEED_RATE_MILL_Z, m_current_units, new_units);
+    FEED_RATE_TEXT_XY = conv_units_from_to(FEED_RATE_TEXT_XY, m_current_units, new_units);
+    FEED_RATE_TEXT_Z = conv_units_from_to(FEED_RATE_TEXT_Z, m_current_units, new_units);
+    FEED_RATE_STENCIL_XY = conv_units_from_to(FEED_RATE_STENCIL_XY, m_current_units, new_units);
+    FEED_RATE_STENCIL_Z = conv_units_from_to(FEED_RATE_STENCIL_Z, m_current_units, new_units);
+    STENCIL_TOOL_SIZE = conv_units_from_to(STENCIL_TOOL_SIZE, m_current_units, new_units);
+    EPSILON = conv_units_from_to(EPSILON, m_current_units, new_units);
 
     set_uom_suffix(OUTPUT_UNITS);
     dlgRedisplay();
