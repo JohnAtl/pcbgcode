@@ -289,7 +289,7 @@ void pythagorean_sort() {
  *  m_current_tool
  *  g_side
 */
-void drill(int which_side)
+void output_drill_file(int which_side)
 {
 	int num_lines;
 	int i;
@@ -1682,11 +1682,11 @@ switch (g_phase) {
 
  case PH_TOP_DRILL:
    if (GENERATE_TOP_DRILL == YES)
-     drill(TOP);
+     output_drill_file(TOP);
    break;
  case PH_BOTTOM_DRILL:
    if (GENERATE_BOTTOM_DRILL == YES)
-     drill(BOTTOM);
+     output_drill_file(BOTTOM);
    break;
 
  case PH_MILL:
