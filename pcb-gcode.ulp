@@ -15,8 +15,8 @@
 #include "settings/pcb-gcode-options.h"
 #include "settings/user-gcode.h"
 #include "source/math.h"
-#include "source/drill.h"
 #include "source/library.h"
+#include "source/drill.h"
 #include "source/pcb-file-utils.h"
 #include "source/filename_subs.h"
 
@@ -170,7 +170,7 @@ void next_phase(void)
 		g_phase++;
 	}
     
-    dlgMessageBox(fi("next_phase(): g_phase=%d", g_phase));
+    // dlgMessageBox(fi("next_phase(): g_phase=%d", g_phase));
 }
 
 //////////////////////////////////////////////////
@@ -1721,7 +1721,6 @@ if (g_phase < PH_LAST_PHASE) {
 	exit(g_cmd);
 }
 else {
-    dlgMessageBox("exiting");
 	g_cmd = "window fit;\n";
 	exit(g_cmd);
 }
