@@ -572,6 +572,9 @@ void device_draw(int x1, int y1, int x2, int y2, int state, real z_down_or_radiu
 	real rx1, ry1, rx2, ry2;
 	
 	string str;
+    
+    real i_coord;
+    real j_coord;
 	
 	rx1 = scale_x(x1);
 	ry1 = scale_y(y1);
@@ -664,25 +667,35 @@ void device_draw(int x1, int y1, int x2, int y2, int state, real z_down_or_radiu
 			rz(DEFAULT_Z_UP);
 			rxy(end_x, end_y);
 			fzr(z_down_or_radius, FEED_RATE_MILL_Z);
+
+            // cx and cy are in absolute coords, convert to relative for I,J
+            i_coord = end_x - cx;
+            j_coord = end_y - cy;
 			
 			if (g_side == TOP || MIRROR_BOTTOM == YES) {
-        			out(frrrr(ARC_CLOCK, m_arc_begin_x, m_arc_begin_y, m_arc_radius, fr_xy));
+                fcwr(m_arc_begin_x, m_arc_begin_y, i_coord, j_coord, fr_xy);
       		}
       		else {
-        			out(frrrr(ARC_CCLOCK, m_arc_begin_x, m_arc_begin_y, m_arc_radius, fr_xy));
+                fccwr(m_arc_begin_x, m_arc_begin_y, i_coord, j_coord, fr_xy);
       		}
 		  	break;
 
 ////////// mlmSolutions 5 Feb 14
 
 		case ST_ARC:
+            i_coord = (rx2 - rx1) / 2;
+            j_coord = (ry2 - ry1) / 2;
 			if (m_z_up){
 				rz(DEFAULT_Z_UP);
 				rxy(rx1, ry1);
 				fzr(z_down_or_radius, fr_z);
 			}
-			if (((g_side == TOP) && m_cw) || ((g_side != TOP) && !m_cw)) str = ARC_CLOCK; else str = ARC_CCLOCK;
-				out(frrrr(str, rx2, ry2, internals_to_user(m_rad), fr_xy));
+			if (((g_side == TOP) && m_cw) || ((g_side != TOP) && !m_cw)) {
+			    fcwr(rx2, ry2, i_coord, j_coord, fr_xy);
+			} 
+            else {
+                fccwr(rx2, ry2, i_coord, j_coord, fr_xy);
+            }
 			break;
 
 //////////

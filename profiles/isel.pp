@@ -23,7 +23,6 @@ string PARAM      = "#";							/* some use P, some # for parameters */
 string FORMAT     = "%-6.0f ";      /* coordinate format */
 string FR_FORMAT  = "F%-5.0f "; 	/* feedrate format */
 string IJ_FORMAT  = "I" + FORMAT + "J" + FORMAT;
-string R_FORMAT   = "R" + FORMAT;
 
 //
 // Modes
@@ -124,7 +123,7 @@ string TOOL_CHANGE_TABLE_FORMAT(int tool_number, real size_mm, real size_inch, r
 //
 // Circles / Arcs / Helical
 //
-string ARC_CLOCK     = ARC_CW + MOVE_XY + R_FORMAT + FR_FORMAT + EOL;
-string ARC_CCLOCK  = ARC_CCW + MOVE_XY + R_FORMAT + FR_FORMAT + EOL;
+string ARC_CLOCK     = ARC_CW + MOVE_XY + IJ_FORMAT + FR_FORMAT + EOL;
+string ARC_CCLOCK  = ARC_CCW + MOVE_XY + IJ_FORMAT + FR_FORMAT + EOL;
 
 string HELI_CLOCK = ARC_CW + MOVE_XYZ + IJ_FORMAT + FR_FORMAT + EOL;

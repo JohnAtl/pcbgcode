@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="50" unitdist="mil" unit="inch" style="lines" multiple="1" display="no" altdistance="5" altunitdist="mil" altunit="inch"/>
+<grid distance="0.025" unitdist="inch" unit="inch" style="lines" multiple="1" display="no" altdistance="5" altunitdist="mil" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
 <layer number="16" name="Bottom" color="1" fill="1" visible="yes" active="yes"/>
@@ -39,7 +39,7 @@
 <layer number="43" name="vRestrict" color="2" fill="10" visible="yes" active="yes"/>
 <layer number="44" name="Drills" color="7" fill="1" visible="no" active="yes"/>
 <layer number="45" name="Holes" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="46" name="Milling" color="3" fill="1" visible="no" active="yes"/>
+<layer number="46" name="Milling" color="3" fill="1" visible="yes" active="yes"/>
 <layer number="47" name="Measures" color="7" fill="1" visible="no" active="yes"/>
 <layer number="48" name="Document" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="49" name="Reference" color="7" fill="1" visible="yes" active="yes"/>
@@ -68,6 +68,15 @@
 <wire x1="0" y1="17.78" x2="29.21" y2="17.78" width="0.1778" layer="20"/>
 <wire x1="29.21" y1="17.78" x2="29.21" y2="0" width="0.1778" layer="20"/>
 <wire x1="29.21" y1="0" x2="0" y2="0" width="0.1778" layer="20"/>
+<wire x1="12.7" y1="1.27" x2="15.24" y2="2.54" width="0.1778" layer="46" curve="-180"/>
+<wire x1="19.05" y1="1.27" x2="16.51" y2="2.54" width="0.1778" layer="46" curve="-180"/>
+<wire x1="16.51" y1="7.62" x2="15.24" y2="6.35" width="0.1778" layer="46" curve="-180"/>
+<wire x1="17.78" y1="6.35" x2="17.78" y2="7.62" width="0.1778" layer="46" curve="-180"/>
+<circle x="2.54" y="7.62" radius="1.905" width="0.1778" layer="46"/>
+<wire x1="5.715" y1="7.62" x2="9.525" y2="7.62" width="0.1778" layer="46" curve="-180"/>
+<wire x1="9.525" y1="3.81" x2="5.715" y2="3.81" width="0.1778" layer="46" curve="-180"/>
+<wire x1="2.54" y1="5.08" x2="2.54" y2="1.905" width="0.1778" layer="46" curve="-180"/>
+<wire x1="1.905" y1="1.905" x2="1.905" y2="5.08" width="0.1778" layer="46" curve="-180"/>
 </plain>
 <libraries>
 </libraries>
@@ -267,14 +276,6 @@ design rules under a new name.</description>
 <signals>
 <signal name="S$1">
 <wire x1="1.27" y1="1.27" x2="5.08" y2="1.27" width="0.1778" layer="1"/>
-</signal>
-<signal name="_OUTLINES_">
-<polygon width="0.1778" layer="16" isolate="0.0254" orphans="yes" rank="6">
-<vertex x="-0.1143" y="-0.1143"/>
-<vertex x="29.3243" y="-0.1143"/>
-<vertex x="29.3243" y="17.8943"/>
-<vertex x="-0.1143" y="17.8943"/>
-</polygon>
 </signal>
 <signal name="S$2">
 <wire x1="6.35" y1="1.27" x2="8.89" y2="1.27" width="0.1778" layer="16"/>
