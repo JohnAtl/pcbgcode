@@ -44,6 +44,7 @@ string FEED     = "G01 ";
 string ARC_CW   = "G02 ";
 string ARC_CCW  = "G03 ";
 string DWELL    = "G04 " + PARAM + "%f" + EOL;
+string SET_XY_PLANE = "G17" + EOL;
 
 //
 // M codes
@@ -129,7 +130,9 @@ string TOOL_CHANGE_TABLE_FORMAT(int tool_number, real size_mm, real size_inch, r
 }
 
 //
-// Circles / Arcs
+// Circles / Arcs / Helical
 //
 string ARC_CLOCK     = ARC_CW + MOVE_XY + IJ_FORMAT + FR_FORMAT + EOL;
 string ARC_CCLOCK  = ARC_CCW + MOVE_XY + IJ_FORMAT + FR_FORMAT + EOL;
+
+string HELI_CLOCK = ARC_CW + MOVE_XYZ + IJ_FORMAT + FR_FORMAT + EOL;

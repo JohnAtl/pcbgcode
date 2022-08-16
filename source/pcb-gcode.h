@@ -35,6 +35,11 @@ enum {
   OUTPUT_INCHES       = 3,
 	OUTPUT_INTERNALS	= 4
 };
+
+enum {
+    HOLE_MILL_CONCENTRIC    = 0,
+    HOLE_MILL_HELICAL       = 1
+}
        
 enum { NO = 0, YES = 1 };
 enum { false = 0, true = 1 };

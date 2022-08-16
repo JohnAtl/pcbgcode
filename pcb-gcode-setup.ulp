@@ -23,6 +23,8 @@ string M_UOM_SUFFIXES[] = {
 	"in"	// inches
 };
 
+int m_hole_mill_style = HOLE_MILL_STYLE;
+
 int m_setup_was_changed = NO;
 string m_cmd;
 
@@ -370,6 +372,11 @@ void save_pcb_defaults()
 		write_int_defined("OUTPUT_UNITS", "U_MILS");
 		if (OUTPUT_UNITS != U_INCHES) printf("//");
 		write_int_defined("OUTPUT_UNITS", "U_INCHES");
+        
+        if (HOLE_MILL_STYLE != HOLE_MILL_CONCENTRIC) printf("// ");
+        write_int_defined("HOLE_MILL_STYLE", "HOLE_MILL_CONCENTRIC");
+        if (HOLE_MILL_STYLE != HOLE_MILL_HELICAL) printf("// ");
+        write_int_defined("HOLE_MILL_STYLE", "HOLE_MILL_HELICAL");
 		
 		write_string_param("NC_OPERATOR_MESSAGE", NC_OPERATOR_MESSAGE);
 		
@@ -513,7 +520,7 @@ int Result = dlgDialog("pcb-gcode Setup") {
 			"<td><h6><center>Copyright 2003-2022 by"
 			" John Johnson Software, LLC.</center>"
 			"<center>All Rights Reserved</center>"
-			"<center>Version <em>3.7.0</em></center></h6></td>"
+			"<center>Version <em>3.7.0</em> ALPHA NOT FOR RELEASE</center></h6></td>"
 			"</tr>"
 			"<tr><td></td><td><center>You have EAGLE version " + m_eagle_compatibility + "</center></td></tr>"
 			"</table>");
@@ -583,24 +590,20 @@ int Result = dlgDialog("pcb-gcode Setup") {
                 dlgCell(0, 1) dlgLabel("Depth ");
                 dlgCell(0, 2) { dlgRealEdit(MILLING_DEPTH); dlgLabel(m_uom_suffix, YES); }
                 
-                dlgCell(1, 0) dlgCheckBox("Mill drill holes", GENERATE_MILL_HOLES);
-                dlgCell(1, 1) dlgLabel("Depth");
-                dlgCell(1, 2) { dlgRealEdit(MILL_HOLE_DEPTH); dlgLabel(m_uom_suffix, YES); }
-                dlgCell(1, 3) dlgLabel("Depth step size");
-                dlgCell(1, 4) { dlgRealEdit(MILL_HOLE_DEPTH_STEP_SIZE); dlgLabel(m_uom_suffix, YES); }
-                dlgCell(1, 5) dlgLabel("Concentric step size");
-                dlgCell(1, 6) { dlgRealEdit(MILL_HOLE_CONCENTRIC_STEP_SIZE); dlgLabel(m_uom_suffix, YES); }
+                dlgCell(1, 0) dlgLabel("Mill drill holes");
+                dlgCell(1, 1) dlgRadioButton("Concentric", HOLE_MILL_STYLE);
+                dlgCell(1, 2) dlgRadioButton("Helical", HOLE_MILL_STYLE);
+                dlgCell(2, 0) dlgLabel("Further setup for hole milling required in your .drl file");
 
-
-                dlgCell(2, 0) dlgCheckBox("Generate text", GENERATE_TEXT);
-                dlgCell(2, 1) dlgLabel("Depth ");
-                dlgCell(2, 2) { dlgRealEdit(TEXT_DEPTH); dlgLabel(m_uom_suffix, YES); }
+                dlgCell(3, 0) dlgCheckBox("Generate text", GENERATE_TEXT);
+                dlgCell(3, 1) dlgLabel("Depth ");
+                dlgCell(3, 2) { dlgRealEdit(TEXT_DEPTH); dlgLabel(m_uom_suffix, YES); }
                 
-                dlgCell(3, 0) dlgCheckBox("Spot drill holes", SPOT_DRILL);
-                dlgCell(3, 1) dlgLabel("Depth");
-                dlgCell(3, 2) { dlgRealEdit(SPOT_DRILL_DEPTH);  dlgLabel(m_uom_suffix, YES); }
+                dlgCell(4, 0) dlgCheckBox("Spot drill holes", SPOT_DRILL);
+                dlgCell(4, 1) dlgLabel("Depth");
+                dlgCell(4, 2) { dlgRealEdit(SPOT_DRILL_DEPTH);  dlgLabel(m_uom_suffix, YES); }
                 
-                dlgCell(4, 0) dlgCheckBox("Prefer climb", CLIMB_MILLING);
+                dlgCell(5, 0) dlgCheckBox("Prefer climb", CLIMB_MILLING);
                  
             }
             dlgGridLayout {

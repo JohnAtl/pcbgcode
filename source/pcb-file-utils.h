@@ -206,6 +206,15 @@ void fcwr(real x, real y, real i, real j, real f)
     update_cur_xy(x, y);
 }
 
+/*
+ * Helical move clockwise to x, y centered at i, j, move z, and feed rate f.
+ */
+void fheli_cw_zr(real x, real y, real z, real i, real j, real f)
+{
+    out(frrrrrr(HELI_CLOCK, x, y, z, i, j, f));
+    update_cur_xyz(x, y, z);
+}
+    
 //
 // Output Rapid commands.
 //
@@ -366,6 +375,8 @@ void begin_gcode(real spindle_speed)
 	out(get_mode());
 
 	out(ABSOLUTE_MODE);
+    comm("Set XY plane for z interpolation");
+    out(SET_XY_PLANE);
 
 	out(fr(SPINDLE_SPEED, spindle_speed));
 	
@@ -598,6 +609,11 @@ void output_mill_hole(real drill_x, real drill_y, real depth, real hole_size, in
     real step_size_xy = 0.0;
     real step_size_z  = 0.0;
     real tool_size   = 0.0;
+    real right_x = 0.0;
+    real left_x = 0.0;
+    real half_depth = 0.0;
+    real old_depth = 0.0;
+    int last_pass = false;
 
     step_size_xy = internals_to_user(get_tool_param_iu(tool_num, RACK_STEP_XY));
     step_size_z = internals_to_user(get_tool_param_iu(tool_num, RACK_STEP_Z));
@@ -606,31 +622,79 @@ void output_mill_hole(real drill_x, real drill_y, real depth, real hole_size, in
     comm("Start milling a hole");
     comm(frrrrrr("X%6.4f Y%6.4f, depth=%6.4f, tool_size=%6.4f, hole_size=%6.4f, step_size=%6.4f",
         drill_x, drill_y, depth, tool_size, hole_size, step_size_xy));
+    
+    if (HOLE_MILL_STYLE == HOLE_MILL_CONCENTRIC)    
+        comm("concentric selected");
+    else
+        comm("helical selected");
 
     rz(DEFAULT_Z_UP);
-    rxy(drill_x, drill_y);
-    fzr(0.0, FEED_RATE_ETCH_Z);
+    
+    if (hole_size <= tool_size) {
+        comm("hole_size < tool_size");
+		out(frrr(DRILL_HOLE, drill_x, drill_y, depth));
+		update_cur_xy(drill_x, drill_y);		
+    }
+    else {
+        if (HOLE_MILL_STYLE == HOLE_MILL_CONCENTRIC) {
+            rxy(drill_x, drill_y);
+            fzr(0.0, FEED_RATE_ETCH_Z);
 
-    cur_depth = 0.0;
-    while (cur_depth > depth) {
+            cur_depth = 0.0;
+            while (cur_depth > depth) {
         
-        // feed down in z-axis to the next depth
-        cur_depth -= step_size_z;
-        if (cur_depth < depth)
-            cur_depth = depth;
-        fzr(cur_depth, FEED_RATE_ETCH_Z);
+                // feed down in z-axis to the next depth
+                cur_depth -= step_size_z;
+                if (cur_depth < depth)
+                    cur_depth = depth;
+                fzr(cur_depth, FEED_RATE_ETCH_Z);
         
-        // expand the hole outward
-        cur_dia = tool_size;
-        while (cur_dia < hole_size) {
-            cur_dia += step_size_xy;
-            if (cur_dia > hole_size)
-                cur_dia = hole_size;
-            fx(drill_x - (cur_dia - tool_size) / 2);
-            fcwr(drill_x + (cur_dia - tool_size) / 2, drill_y, (cur_dia - tool_size) / 2, 0, FEED_RATE_ETCH_XY);
-            fcwr(drill_x - (cur_dia - tool_size) / 2, drill_y, -(cur_dia - tool_size) / 2, 0, FEED_RATE_ETCH_XY);
+                // expand the hole outward
+                cur_dia = tool_size;
+                while (cur_dia < hole_size) {
+                    cur_dia += step_size_xy;
+                    if (cur_dia > hole_size)
+                        cur_dia = hole_size;
+                    fx(drill_x - (cur_dia - tool_size) / 2);
+                    fcwr(drill_x + (cur_dia - tool_size) / 2, drill_y, (cur_dia - tool_size) / 2, 0, FEED_RATE_ETCH_XY);
+                    fcwr(drill_x - (cur_dia - tool_size) / 2, drill_y, -(cur_dia - tool_size) / 2, 0, FEED_RATE_ETCH_XY);
+                }
+                fxy(drill_x, drill_y);
+            }
         }
-        fxy(drill_x, drill_y);
+        else if (HOLE_MILL_STYLE == HOLE_MILL_HELICAL) {
+            right_x = drill_x + hole_size/2 - tool_size/2;
+            left_x = drill_x - hole_size/2 + tool_size/2;
+            rxy(right_x, drill_y);
+            fzr(0.0, FEED_RATE_ETCH_Z);
+
+            last_pass = false;
+            cur_depth = 0.0;
+            while (cur_depth > depth) {
+        
+                // feed down in z-axis to the next depth
+                old_depth = cur_depth;
+                half_depth -= (step_size_z / 2);
+                cur_depth -= step_size_z;
+                if (cur_depth < depth) {
+                    cur_depth = depth;
+                    half_depth = old_depth - (old_depth - depth) / 2;
+                    last_pass = true;
+                }
+                //             x        y       z                i          j       f
+                fheli_cw_zr(left_x, drill_y, half_depth, drill_x - right_x, 0, FEED_RATE_ETCH_XY);
+                fheli_cw_zr(right_x, drill_y, cur_depth, drill_x - left_x, 0, FEED_RATE_ETCH_XY);
+                if (last_pass) {
+                    fzr(cur_depth, FEED_RATE_ETCH_Z);
+                    //      x        y            i          j       f
+                    fcwr(left_x, drill_y, drill_x - right_x, 0, FEED_RATE_ETCH_XY);
+                    fcwr(right_x, drill_y,drill_x - left_x, 0, FEED_RATE_ETCH_XY);
+                }
+            }
+        }
+        else {
+            Fatal("output_mill_hole", "HOLE_MILL_STYLE is invalid");
+        }
     }
     fz(DEFAULT_Z_UP);
 }
