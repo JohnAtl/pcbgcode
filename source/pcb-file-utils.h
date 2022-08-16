@@ -207,6 +207,16 @@ void fcwr(real x, real y, real i, real j, real f)
 }
 
 /*
+ * Feed move clockwise and set feed rate.
+ * Move from current position to x, y along an arc centered an i, j, and feed rate f.
+ */
+void fccwr(real x, real y, real i, real j, real f)
+{
+    out(frrrrr(ARC_CCLOCK, x, y, i, j, f) + EOL);
+    update_cur_xy(x, y);
+}
+
+/*
  * Helical move clockwise to x, y centered at i, j, move z, and feed rate f.
  */
 void fheli_cw_zr(real x, real y, real z, real i, real j, real f)
