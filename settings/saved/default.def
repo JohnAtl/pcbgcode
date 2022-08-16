@@ -1,7 +1,7 @@
 //
 // Default values for generating gcode from a PCB.
 //
-// These settings were last changed with pcb-gcode-setup: 8/5/22 4:33 PM
+// These settings were last changed with pcb-gcode-setup: 8/15/22 1:14 PM
 //
 //
 // Changes you make in this file will be overwritten if you use pcb-gcode-setup.
@@ -28,6 +28,11 @@ int SIMPLE_DRILL_CODE = NO;
 int GENERATE_MILLING = NO;
 int CLIMB_MILLING = YES;
 
+int GENERATE_MILL_HOLES = NO;
+real MILL_HOLE_DEPTH = -0.032000;
+real MILL_HOLE_DEPTH_STEP_SIZE = -0.010000;
+real MILL_HOLE_CONCENTRIC_STEP_SIZE = 0.010000;
+
 int GENERATE_TEXT = NO;
 
 int SPOT_DRILL = YES;
@@ -41,6 +46,8 @@ int FLIP_BOARD_IN_Y = NO;
 //int OUTPUT_UNITS = U_MILLIMETERS;
 //int OUTPUT_UNITS = U_MILS;
 int OUTPUT_UNITS = U_INCHES;
+// int HOLE_MILL_STYLE = HOLE_MILL_CONCENTRIC;
+int HOLE_MILL_STYLE = HOLE_MILL_HELICAL;
 string NC_OPERATOR_MESSAGE = "";
 int PREVIEW_WINDOW_WIDTH = 800;
 int PREVIEW_WINDOW_HEIGHT = 600;

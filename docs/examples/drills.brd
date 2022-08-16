@@ -64,7 +64,10 @@
 <hole x="21.59" y="11.43" drill="9.525"/>
 <hole x="21.59" y="3.81" drill="1.524"/>
 <hole x="25.4" y="3.81" drill="1.27"/>
-<rectangle x1="0" y1="0" x2="29.21" y2="19.05" layer="1"/>
+<wire x1="0" y1="0" x2="0" y2="17.78" width="0.1778" layer="20"/>
+<wire x1="0" y1="17.78" x2="29.21" y2="17.78" width="0.1778" layer="20"/>
+<wire x1="29.21" y1="17.78" x2="29.21" y2="0" width="0.1778" layer="20"/>
+<wire x1="29.21" y1="0" x2="0" y2="0" width="0.1778" layer="20"/>
 </plain>
 <libraries>
 </libraries>
@@ -262,6 +265,20 @@ design rules under a new name.</description>
 <elements>
 </elements>
 <signals>
+<signal name="S$1">
+<wire x1="1.27" y1="1.27" x2="5.08" y2="1.27" width="0.1778" layer="1"/>
+</signal>
+<signal name="_OUTLINES_">
+<polygon width="0.1778" layer="16" isolate="0.0254" orphans="yes" rank="6">
+<vertex x="-0.1143" y="-0.1143"/>
+<vertex x="29.3243" y="-0.1143"/>
+<vertex x="29.3243" y="17.8943"/>
+<vertex x="-0.1143" y="17.8943"/>
+</polygon>
+</signal>
+<signal name="S$2">
+<wire x1="6.35" y1="1.27" x2="8.89" y2="1.27" width="0.1778" layer="16"/>
+</signal>
 </signals>
 <mfgpreviewcolors>
 <mfgpreviewcolor name="soldermaskcolor" color="0xC8008000"/>
