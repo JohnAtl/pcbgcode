@@ -648,7 +648,7 @@ void output_mill_hole(real drill_x, real drill_y, real depth, real hole_size, in
     else {
         if (HOLE_MILL_STYLE == HOLE_MILL_CONCENTRIC) {
             rxy(drill_x, drill_y);
-            fzr(0.0, FEED_RATE_MILL_Z);
+            fzr(0.0, FEED_RATE_ETCH_Z);
 
             cur_depth = 0.0;
             while (cur_depth > depth) {
@@ -657,7 +657,7 @@ void output_mill_hole(real drill_x, real drill_y, real depth, real hole_size, in
                 cur_depth -= step_size_z;
                 if (cur_depth < depth)
                     cur_depth = depth;
-                fzr(cur_depth, FEED_RATE_MILL_Z);
+                fzr(cur_depth, FEED_RATE_ETCH_Z);
         
                 // expand the hole outward
                 cur_dia = tool_size;
@@ -666,8 +666,8 @@ void output_mill_hole(real drill_x, real drill_y, real depth, real hole_size, in
                     if (cur_dia > hole_size)
                         cur_dia = hole_size;
                     fx(drill_x - (cur_dia - tool_size) / 2);
-                    fcwr(drill_x + (cur_dia - tool_size) / 2, drill_y, (cur_dia - tool_size) / 2, 0, FEED_RATE_MILL_XY);
-                    fcwr(drill_x - (cur_dia - tool_size) / 2, drill_y, -(cur_dia - tool_size) / 2, 0, FEED_RATE_MILL_XY);
+                    fcwr(drill_x + (cur_dia - tool_size) / 2, drill_y, (cur_dia - tool_size) / 2, 0, FEED_RATE_ETCH_XY);
+                    fcwr(drill_x - (cur_dia - tool_size) / 2, drill_y, -(cur_dia - tool_size) / 2, 0, FEED_RATE_ETCH_XY);
                 }
                 fxy(drill_x, drill_y);
             }
@@ -676,7 +676,7 @@ void output_mill_hole(real drill_x, real drill_y, real depth, real hole_size, in
             right_x = drill_x + hole_size/2 - tool_size/2;
             left_x = drill_x - hole_size/2 + tool_size/2;
             rxy(right_x, drill_y);
-            fzr(0.0, FEED_RATE_MILL_Z);
+            fzr(0.0, FEED_RATE_ETCH_Z);
 
             last_pass = false;
             cur_depth = 0.0;
@@ -692,13 +692,13 @@ void output_mill_hole(real drill_x, real drill_y, real depth, real hole_size, in
                     last_pass = true;
                 }
                 //             x        y       z                i          j       f
-                fheli_cw_zr(left_x, drill_y, half_depth, drill_x - right_x, 0, FEED_RATE_MILL_XY);
-                fheli_cw_zr(right_x, drill_y, cur_depth, drill_x - left_x, 0, FEED_RATE_MILL_XY);
+                fheli_cw_zr(left_x, drill_y, half_depth, drill_x - right_x, 0, FEED_RATE_ETCH_XY);
+                fheli_cw_zr(right_x, drill_y, cur_depth, drill_x - left_x, 0, FEED_RATE_ETCH_XY);
                 if (last_pass) {
-                    fzr(cur_depth, FEED_RATE_MILL_Z);
+                    fzr(cur_depth, FEED_RATE_ETCH_Z);
                     //      x        y            i          j       f
-                    fcwr(left_x, drill_y, drill_x - right_x, 0, FEED_RATE_MILL_XY);
-                    fcwr(right_x, drill_y,drill_x - left_x, 0, FEED_RATE_MILL_XY);
+                    fcwr(left_x, drill_y, drill_x - right_x, 0, FEED_RATE_ETCH_XY);
+                    fcwr(right_x, drill_y,drill_x - left_x, 0, FEED_RATE_ETCH_XY);
                 }
             }
         }
