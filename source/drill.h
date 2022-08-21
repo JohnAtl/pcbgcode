@@ -92,7 +92,10 @@ void read_rack_file(string drill_file)
 	string first_char;
 	for (i=0; i<num_raw_drills; i++) {
 		first_char = strsub(ltrim(drill_raw[i]), 0, 1);
-		if (first_char != "#") {
+        if (strsub(drill_raw[i], 0, 4) == "tool") {
+            continue;
+        }
+		else if (first_char != "#") {
 			g_rack[g_num_drills++] = drill_raw[i];
 		}
 	}
@@ -294,11 +297,11 @@ int get_tool_for_and_count(int req_size, int do_count)
 
         if(in_range_int(req_size, minimum, maximum)) {
             if (g_drill_sub_cnt[tool_num] == 0) {
-                                sprintf(temp_str, "Using tool %s%02d\nDrill size: %5.02fmm "
-                                "(%5.03fin)\nHole size: %5.02fmm (%5.03fin).\n",
-                                tool_text, tool_num, u2mm(drill_size), u2inch(drill_size),
-                                u2mm(req_size), u2inch(req_size));
-                                rack_message(temp_str);
+                sprintf(temp_str, "Using tool %s%02d\nDrill size: %5.02fmm "
+                    "(%5.03fin)\nHole size: %5.02fmm (%5.03fin).\n",
+                tool_text, tool_num, u2mm(drill_size), u2inch(drill_size),
+                u2mm(req_size), u2inch(req_size));
+                rack_message(temp_str);
             }
             if (g_min_subbed_for[tool_num] == 0) {
                 g_min_subbed_for[tool_num] = u2inch(req_size);
