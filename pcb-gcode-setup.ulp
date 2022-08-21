@@ -514,7 +514,7 @@ int Result = dlgDialog("pcb-gcode Setup") {
 			"<td><h6><center>Copyright 2003-2022 by"
 			" John Johnson Software, LLC.</center>"
 			"<center>All Rights Reserved</center>"
-			"<center>Version <em>3.7.0</em> ALPHA NOT FOR RELEASE</center></h6></td>"
+			"<center>Version <em>3.7.2-alpha</em> ALPHA NOT FOR RELEASE</center></h6></td>"
 			"</tr>"
 			"<tr><td></td><td><center>You have EAGLE version " + m_eagle_compatibility + "</center></td></tr>"
 			"</table>");
@@ -1092,12 +1092,12 @@ switch (Result) {
 	// Accept
 	case 1:
 		if (m_setup_was_changed)
-			m_cmd = "run pcb-gcode-setup;\n";
+			m_cmd = "run " + g_path + "/pcb-gcode-setup;\n";
 		break;
 	// Accept and make board
 	case 2:
 //	dlgMessageBox("g_path = \"" + g_path + "\"");
-		m_cmd = "run pcb-gcode;\n";
+		m_cmd = "run " + g_path + "/pcb-gcode;\n";
 		break;
 }
 
