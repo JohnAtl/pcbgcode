@@ -193,7 +193,8 @@ void next_phase(void)
 // Returns:
 //  none
 // Changes:
-//  the stack
+//  the stack entry will have:
+//      drill_size \t tool_num \t x \t y \t requested_size
 //
 void push_hole_onto_stack(int req_size, int x, int y)
 {
@@ -204,7 +205,7 @@ void push_hole_onto_stack(int req_size, int x, int y)
     tool_num = get_tool_for(req_size);
 	drill_size = get_tool_param_iu(tool_num, RACK_TOOL_SIZE);
 
-	sprintf(tempstr, "%06d\t%06d\t%06d\t%06d\t%06d", drill_size, x, y, req_size, tool_num);
+	sprintf(tempstr, "%06d\t%06d\t%06d\t%06d\t%06d", drill_size, tool_num, x, y, req_size);
 	stack_push(tempstr);
 }
 
@@ -229,58 +230,65 @@ real distance(real x1, real y1, real x2, real y2) {
 //  the stack
 //
 void pythagorean_sort_stack() {
-	real drill_size1;
-	real drill_x1;
-	real drill_y1;
-	real drill_size2;
-	real drill_x2;
-	real drill_y2;
-	real drill_size3;
-	real drill_x3;
-	real drill_y3;
-  int i;
-  int j;
-  string drill_args1[];
-  string drill_args2[];
-  string drill_args3[];
-  string tmp;
+    real drill_size1;
+    real tool_num1;
+    real drill_x1;
+    real drill_y1;
+    real drill_size2;
+    real tool_num2;
+    real drill_x2;
+    real drill_y2;
+    real drill_size3;
+    real tool_num3;
+    real drill_x3;
+    real drill_y3;
+    int i;
+    int j;
+    string drill_args1[];
+    string drill_args2[];
+    string drill_args3[];
+    string tmp;
   
-  real before_distance;
-  real after_distance;
+    real before_distance;
+    real after_distance;
 
-  // Sort by size, x, then y
-  stack_sort();
+    // Sort by size, tool, x, then y
+    stack_sort();
 
-  for (i = 0; i <= stack_count(); i++) {
-		strsplit(drill_args1, stack_elem(i), '\t');
-		drill_size1 = internals_to_user(my_strtol(drill_args1[DRILL_SIZE]));
-		drill_x1 = scale_x(my_strtol(drill_args1[DRILL_X]));
-		drill_y1 = scale_y(my_strtol(drill_args1[DRILL_Y]));
+    for (i = 0; i <= stack_count(); i++) {
+        strsplit(drill_args1, stack_elem(i), '\t');
+        drill_size1 = internals_to_user(my_strtol(drill_args1[DRILL_SIZE]));
+        tool_num1 = my_strtol(drill_args1[DRILL_TOOL_NUM]);
+        drill_x1 = scale_x(my_strtol(drill_args1[DRILL_X]));
+        drill_y1 = scale_y(my_strtol(drill_args1[DRILL_Y]));
 		
-		j = i + 2;
-    while (j <= stack_count()) {
-  		strsplit(drill_args2, stack_elem(i+1), '\t');
-  		drill_size2 = internals_to_user(my_strtol(drill_args2[DRILL_SIZE]));
-  		drill_x2 = scale_x(my_strtol(drill_args2[DRILL_X]));
-  		drill_y2 = scale_y(my_strtol(drill_args2[DRILL_Y]));
+        j = i + 2;
+        while (j <= stack_count()) {
+            strsplit(drill_args2, stack_elem(i+1), '\t');
+            drill_size2 = internals_to_user(my_strtol(drill_args2[DRILL_SIZE]));
+            tool_num2 = my_strtol(drill_args2[DRILL_TOOL_NUM]);
+            drill_x2 = scale_x(my_strtol(drill_args2[DRILL_X]));
+            drill_y2 = scale_y(my_strtol(drill_args2[DRILL_Y]));
 
-  		strsplit(drill_args3, stack_elem(j), '\t');
-  		drill_size3 = internals_to_user(my_strtol(drill_args3[DRILL_SIZE]));
-  		drill_x3 = scale_x(my_strtol(drill_args3[DRILL_X]));
-  		drill_y3 = scale_y(my_strtol(drill_args3[DRILL_Y]));    
+            strsplit(drill_args3, stack_elem(j), '\t');
+            drill_size3 = internals_to_user(my_strtol(drill_args3[DRILL_SIZE]));
+            tool_num3 = my_strtol(drill_args3[DRILL_TOOL_NUM]);
+            drill_x3 = scale_x(my_strtol(drill_args3[DRILL_X]));
+            drill_y3 = scale_y(my_strtol(drill_args3[DRILL_Y]));    
 
-      if (drill_size2 != drill_size1 || drill_size3 != drill_size1)
-        break;
+            if (drill_size2 != drill_size1 || drill_size3 != drill_size1 ||
+                tool_num2 != tool_num1 || tool_num3 != tool_num1)
+                break;
 
-      if (distance(drill_x1, drill_y1, drill_x3, drill_y3) < distance(drill_x1, drill_y1, drill_x2, drill_y2)) {
-        tmp = stack_elem(j);
-        stack_put(j, stack_elem(i+1));
-        stack_put(i+1, tmp);
-        j = i + 1;
-      }
-      j++;
+            if (distance(drill_x1, drill_y1, drill_x3, drill_y3) < distance(drill_x1, drill_y1, drill_x2, drill_y2)) {
+                tmp = stack_elem(j);
+                stack_put(j, stack_elem(i+1));
+                stack_put(i+1, tmp);
+                j = i + 1;
+            }
+            j++;
+        }
     }
-  }
 }
 
 /*
@@ -307,6 +315,7 @@ void output_drill_file(int which_side)
 	real drill_y;
     real hole_size;
 	int drill_tool_num;
+    int last_drill_tool_num;
 
 	m_current_tool_ndx = 0;
 	g_side = which_side;
@@ -327,8 +336,24 @@ void output_drill_file(int which_side)
 		} 
 		// B.elements
 
-		// Sorts the drills by size, then distance from previous hole.
+        // Dump the drill stack to a file for troubleshooting
+        // output(g_path + "/before_stack.txt", FILEMODE_WRITE_TEXT) {
+        //     printf("before stack sort\n");
+        //     for (i=stack_fwd_iter(); i != END_OF_STACK; i=stack_fwd_next()) {
+        //         printf("%s\n", stack_elem(i));
+        //     }
+        // }
+        
+		// Sorts the drills by size, tool_number, then distance from previous hole.
 		pythagorean_sort_stack();
+        
+        // Dump the drill stack to a file for troubleshooting
+        // output(g_path + "/after_stack.txt", FILEMODE_WRITE_TEXT) {
+        //     printf("after stack sort\n");
+        //     for (i=stack_fwd_iter(); i != END_OF_STACK; i=stack_fwd_next()) {
+        //         printf("%s\n", stack_elem(i));
+        //     }
+        // }
 
 		//
 		// Create the drill g-code file.
@@ -354,7 +379,7 @@ void output_drill_file(int which_side)
 
 				if (drill_size_mm == 0.0) continue;
 
-				if (drill_size != last_size) {
+				if (drill_size != last_size || drill_tool_num != last_drill_tool_num) {
 					++m_current_tool_ndx;
                     if (get_tool_param_iu(drill_tool_num, RACK_TOOL_TYPE) == RACK_TOOL_DRILL) {
     					out(TOOL_CHANGE_TABLE_FORMAT(drill_tool_num,
@@ -370,6 +395,7 @@ void output_drill_file(int which_side)
                     }
 				}
 				last_size = drill_size;
+                last_drill_tool_num = drill_tool_num;
 			} 
 			// for
 
@@ -394,7 +420,7 @@ void output_drill_file(int which_side)
         // Check to see if the drill size has changed,
         // if so, output a tool change and optional zero code.
         //
-				if (drill_size == last_size) {
+				if (drill_size == last_size && drill_tool_num == last_drill_tool_num) {
                     if (get_tool_param_iu(m_current_tool_num, RACK_TOOL_TYPE) == RACK_TOOL_DRILL) {
                         output_drill_hole(drill_x, drill_y, DRILL_DEPTH);
                     }
@@ -432,6 +458,7 @@ void output_drill_file(int which_side)
                         output_mill_hole(drill_x, drill_y, DRILL_DEPTH, hole_size, m_current_tool_num);
                     }
 					last_size = drill_size;
+                    last_drill_tool_num = drill_tool_num;
 				} 
 				// if drill_size != last_size
 			} 
@@ -497,6 +524,7 @@ void spot_drill_hole(int drill_size, int x, int y)
 
 	if (SPOT_DRILL == YES) {
 		if (m_first_spot_drill) {
+            comm("spot drill holes");
 			output_drill_first_hole(drill_x, drill_y, SPOT_DRILL_DEPTH);
 			m_first_spot_drill = NO;
 		}
