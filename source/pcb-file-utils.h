@@ -686,7 +686,7 @@ void output_mill_hole(real drill_x, real drill_y, real depth, real hole_size, in
                 old_depth = cur_depth;
                 half_depth -= (step_size_z / 2);
                 cur_depth -= step_size_z;
-                if (cur_depth < depth) {
+                if (cur_depth <= depth) {
                     cur_depth = depth;
                     half_depth = old_depth - (old_depth - depth) / 2;
                     last_pass = true;
@@ -695,6 +695,7 @@ void output_mill_hole(real drill_x, real drill_y, real depth, real hole_size, in
                 fheli_cw_zr(left_x, drill_y, half_depth, drill_x - right_x, 0, FEED_RATE_ETCH_XY);
                 fheli_cw_zr(right_x, drill_y, cur_depth, drill_x - left_x, 0, FEED_RATE_ETCH_XY);
                 if (last_pass) {
+                    comm("last pass");
                     fzr(cur_depth, FEED_RATE_ETCH_Z);
                     //      x        y            i          j       f
                     fcwr(left_x, drill_y, drill_x - right_x, 0, FEED_RATE_ETCH_XY);
