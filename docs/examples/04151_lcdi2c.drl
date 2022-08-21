@@ -18,4 +18,5 @@
 # Tip: Set the TAB size of your editor to 12 characters.
 #
 tool	drill_size	minimum	maximum	length	step	step_z
-E01	0.032in	0.010in	0.128in	1.5in	0.010in	0.007in
+T01	0.032in	0.001in	0.040in	1.5in
+E02	0.032in	0.041in	0.128in	1.5in	0.010in	0.007in
