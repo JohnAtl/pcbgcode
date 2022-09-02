@@ -1,3 +1,1 @@
-The is the repo for pcb-gcode, a plugin for the Eagle schematic and board layout program. This plugin allows you to make printed circuit boards using a router or milling machine. This eliminates the need to use toxic chemicals to produce PCBs. Side benefit: no more ruined clothes due to ferric chloride stains.
-
 Please see docs/pcbgcode.pdf.
