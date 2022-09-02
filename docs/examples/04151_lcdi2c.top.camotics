@@ -3,6 +3,13 @@
       "resolution-mode": "very_high",
       "resolution": 1,
       "tools": {
+        "0": {
+          "units": "imperial",
+          "shape": "cylindrical",
+          "length": 0.393701,
+          "diameter": 0.007,
+          "description": ""
+        },
         "1": {
           "units": "metric",
           "shape": "cylindrical",
@@ -11,58 +18,38 @@
           "description": ""
         },
         "2": {
-          "units": "imperial",
+          "units": "metric",
           "shape": "cylindrical",
-          "length": 0.393701,
-          "diameter": 0.032,
+          "length": 10,
+          "diameter": 0.813,
           "description": ""
         },
         "3": {
-          "units": "imperial",
+          "units": "metric",
           "shape": "cylindrical",
-          "length": 0.393701,
-          "diameter": 0.04,
+          "length": 10,
+          "diameter": 1.01,
           "description": ""
         },
         "4": {
-          "units": "imperial",
+          "units": "metric",
           "shape": "cylindrical",
-          "length": 0.393701,
-          "diameter": 0.05,
-          "description": ""
-        },
-        "5": {
-          "units": "imperial",
-          "shape": "cylindrical",
-          "length": 0.393701,
-          "diameter": 0.062,
-          "description": ""
-        },
-        "6": {
-          "units": "imperial",
-          "shape": "cylindrical",
-          "length": 0.393701,
-          "diameter": 0.085,
-          "description": ""
-        },
-        "7": {
-          "units": "imperial",
-          "shape": "cylindrical",
-          "length": 0.393701,
-          "diameter": 0.125,
+          "length": 10,
+          "diameter": 2.16,
           "description": ""
         }
       },
       "workpiece": {
-        "automatic": true,
+        "automatic": false,
         "margin": 5,
         "bounds": {
-          "min": [-4.09897, -2.24477, -2.95344],
-          "max": [74.71097, 35.77277, 0]
+          "min": [-4.124116, -2.269916, -1.778],
+          "max": [74.736116, 35.797916, -0.1524]
         }
       },
       "files": [
         "04151_lcdi2c.top.etch.tap",
-        "04151_lcdi2c.top.drill.tap"
+        "04151_lcdi2c.top.drill.tap",
+        "04151_lcdi2c.top.mill.tap"        
       ]
     }
