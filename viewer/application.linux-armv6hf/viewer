@@ -1,4 +1,0 @@
-#!/bin/sh
-
-APPDIR=$(dirname "$0")
-java -Xms64m -Xmx256m -Djna.nosys=true -Djava.library.path="$APPDIR:$APPDIR/lib" -cp "$APPDIR:$APPDIR/lib/viewer.jar:$APPDIR/lib/core.jar:$APPDIR/lib/jogl-all.jar:$APPDIR/lib/gluegen-rt.jar:$APPDIR/lib/jogl-all-natives-linux-armv6hf.jar:$APPDIR/lib/gluegen-rt-natives-linux-armv6hf.jar" viewer "$@"
