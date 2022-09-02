@@ -23,6 +23,8 @@ string M_UOM_SUFFIXES[] = {
 	"in"	// inches
 };
 
+int m_hole_mill_style = HOLE_MILL_STYLE;
+
 int m_setup_was_changed = NO;
 string m_cmd;
 
@@ -154,31 +156,31 @@ void write_string_param(string name, string value)
 
 void convert_units(int new_units)
 {
-    MILLING_DEPTH = convert(MILLING_DEPTH, m_current_units, new_units);
-    TEXT_DEPTH = convert(TEXT_DEPTH, m_current_units, new_units);
-    SPOT_DRILL_DEPTH = convert(SPOT_DRILL_DEPTH, m_current_units, new_units);
-    ISO_MIN = convert(ISO_MIN, m_current_units, new_units);
-    ISO_MAX = convert(ISO_MAX, m_current_units, new_units);
-    ISO_STEP = convert(ISO_STEP, m_current_units, new_units);
-    DEFAULT_Z_HIGH = convert(DEFAULT_Z_HIGH, m_current_units, new_units);
-    DEFAULT_Z_UP = convert(DEFAULT_Z_UP, m_current_units, new_units);
-    DEFAULT_Z_DOWN = convert(DEFAULT_Z_DOWN, m_current_units, new_units);
-    DRILL_DEPTH = convert(DRILL_DEPTH, m_current_units, new_units);
-    TOOL_CHANGE_POS_X = convert(TOOL_CHANGE_POS_X, m_current_units, new_units);
-    TOOL_CHANGE_POS_Y = convert(TOOL_CHANGE_POS_Y, m_current_units, new_units);
-    TOOL_CHANGE_POS_Z = convert(TOOL_CHANGE_POS_Z, m_current_units, new_units);
-    FEED_RATE_ETCH_XY = convert(FEED_RATE_ETCH_XY, m_current_units, new_units);
-    FEED_RATE_ETCH_Z = convert(FEED_RATE_ETCH_Z, m_current_units, new_units);
-    TOOL_SIZE = convert(TOOL_SIZE, m_current_units, new_units);
-    FEED_RATE_DRILL_Z = convert(FEED_RATE_DRILL_Z, m_current_units, new_units);
-    FEED_RATE_MILL_XY = convert(FEED_RATE_MILL_XY, m_current_units, new_units);
-    FEED_RATE_MILL_Z = convert(FEED_RATE_MILL_Z, m_current_units, new_units);
-    FEED_RATE_TEXT_XY = convert(FEED_RATE_TEXT_XY, m_current_units, new_units);
-    FEED_RATE_TEXT_Z = convert(FEED_RATE_TEXT_Z, m_current_units, new_units);
-    FEED_RATE_STENCIL_XY = convert(FEED_RATE_STENCIL_XY, m_current_units, new_units);
-    FEED_RATE_STENCIL_Z = convert(FEED_RATE_STENCIL_Z, m_current_units, new_units);
-    STENCIL_TOOL_SIZE = convert(STENCIL_TOOL_SIZE, m_current_units, new_units);
-    EPSILON = convert(EPSILON, m_current_units, new_units);
+    MILLING_DEPTH = conv_units_from_to(MILLING_DEPTH, m_current_units, new_units);
+    TEXT_DEPTH = conv_units_from_to(TEXT_DEPTH, m_current_units, new_units);
+    SPOT_DRILL_DEPTH = conv_units_from_to(SPOT_DRILL_DEPTH, m_current_units, new_units);
+    ISO_MIN = conv_units_from_to(ISO_MIN, m_current_units, new_units);
+    ISO_MAX = conv_units_from_to(ISO_MAX, m_current_units, new_units);
+    ISO_STEP = conv_units_from_to(ISO_STEP, m_current_units, new_units);
+    DEFAULT_Z_HIGH = conv_units_from_to(DEFAULT_Z_HIGH, m_current_units, new_units);
+    DEFAULT_Z_UP = conv_units_from_to(DEFAULT_Z_UP, m_current_units, new_units);
+    DEFAULT_Z_DOWN = conv_units_from_to(DEFAULT_Z_DOWN, m_current_units, new_units);
+    DRILL_DEPTH = conv_units_from_to(DRILL_DEPTH, m_current_units, new_units);
+    TOOL_CHANGE_POS_X = conv_units_from_to(TOOL_CHANGE_POS_X, m_current_units, new_units);
+    TOOL_CHANGE_POS_Y = conv_units_from_to(TOOL_CHANGE_POS_Y, m_current_units, new_units);
+    TOOL_CHANGE_POS_Z = conv_units_from_to(TOOL_CHANGE_POS_Z, m_current_units, new_units);
+    FEED_RATE_ETCH_XY = conv_units_from_to(FEED_RATE_ETCH_XY, m_current_units, new_units);
+    FEED_RATE_ETCH_Z = conv_units_from_to(FEED_RATE_ETCH_Z, m_current_units, new_units);
+    TOOL_SIZE = conv_units_from_to(TOOL_SIZE, m_current_units, new_units);
+    FEED_RATE_DRILL_Z = conv_units_from_to(FEED_RATE_DRILL_Z, m_current_units, new_units);
+    FEED_RATE_MILL_XY = conv_units_from_to(FEED_RATE_MILL_XY, m_current_units, new_units);
+    FEED_RATE_MILL_Z = conv_units_from_to(FEED_RATE_MILL_Z, m_current_units, new_units);
+    FEED_RATE_TEXT_XY = conv_units_from_to(FEED_RATE_TEXT_XY, m_current_units, new_units);
+    FEED_RATE_TEXT_Z = conv_units_from_to(FEED_RATE_TEXT_Z, m_current_units, new_units);
+    FEED_RATE_STENCIL_XY = conv_units_from_to(FEED_RATE_STENCIL_XY, m_current_units, new_units);
+    FEED_RATE_STENCIL_Z = conv_units_from_to(FEED_RATE_STENCIL_Z, m_current_units, new_units);
+    STENCIL_TOOL_SIZE = conv_units_from_to(STENCIL_TOOL_SIZE, m_current_units, new_units);
+    EPSILON = conv_units_from_to(EPSILON, m_current_units, new_units);
 
     set_uom_suffix(OUTPUT_UNITS);
     dlgRedisplay();
@@ -303,75 +305,80 @@ sprintf(m_eagle_compatibility, "%d.%d (%s)", EAGLE_VERSION, EAGLE_RELEASE, m_com
 //
 void save_pcb_defaults()
 {
-	fileerror();
-	output(g_path + "/settings/pcb-defaults.h", FILEMODE_WRITE_TEXT) {
+    fileerror();
+    output(g_path + "/settings/pcb-defaults.h", FILEMODE_WRITE_TEXT) {
 
-		int now = time();
+        int now = time();
 
-		printf(
-      "//\n// Default values for generating gcode from a PCB.\n//\n");
-		printf("// These settings were last changed with "
-			"pcb-gcode-setup: %s\n//\n", t2string(now));
-		printf("//\n// Changes you make in this file will be overwritten "
-			"if you use pcb-gcode-setup.\n//\n\n");
+        printf(
+            "//\n// Default values for generating gcode from a PCB.\n//\n");
+        printf("// These settings were last changed with "
+            "pcb-gcode-setup: %s\n//\n", t2string(now));
+        printf("//\n// Changes you make in this file will be overwritten "
+            "if you use pcb-gcode-setup.\n//\n\n");
 
-    write_bool_param("SINGLE_PASS", SINGLE_PASS);
-		write_real_param("ISO_MIN", ISO_MIN);
-		write_real_param("ISO_MAX", ISO_MAX);
-		write_real_param("ISO_STEP", ISO_STEP);
-		printf("\n");
+        write_bool_param("SINGLE_PASS", SINGLE_PASS);
+        write_real_param("ISO_MIN", ISO_MIN);
+        write_real_param("ISO_MAX", ISO_MAX);
+        write_real_param("ISO_STEP", ISO_STEP);
+        printf("\n");
 
-		write_bool_param("GENERATE_TOP_OUTLINES", GENERATE_TOP_OUTLINES);
-		write_bool_param("GENERATE_TOP_DRILL", GENERATE_TOP_DRILL);
-		write_bool_param("GENERATE_TOP_FILL", GENERATE_TOP_FILL);
-		write_bool_param("GENERATE_TOP_STENCIL", GENERATE_TOP_STENCIL);
-		printf("\n");
+        write_bool_param("GENERATE_TOP_OUTLINES", GENERATE_TOP_OUTLINES);
+        write_bool_param("GENERATE_TOP_DRILL", GENERATE_TOP_DRILL);
+        write_bool_param("GENERATE_TOP_FILL", GENERATE_TOP_FILL);
+        write_bool_param("GENERATE_TOP_STENCIL", GENERATE_TOP_STENCIL);
+        printf("\n");
 
-		write_bool_param("GENERATE_BOTTOM_OUTLINES", GENERATE_BOTTOM_OUTLINES);
-		write_bool_param("GENERATE_BOTTOM_DRILL", GENERATE_BOTTOM_DRILL);
-		write_bool_param("GENERATE_BOTTOM_FILL", GENERATE_BOTTOM_FILL);
-		write_bool_param("GENERATE_BOTTOM_STENCIL", GENERATE_BOTTOM_STENCIL);
-		printf("\n");
+        write_bool_param("GENERATE_BOTTOM_OUTLINES", GENERATE_BOTTOM_OUTLINES);
+        write_bool_param("GENERATE_BOTTOM_DRILL", GENERATE_BOTTOM_DRILL);
+        write_bool_param("GENERATE_BOTTOM_FILL", GENERATE_BOTTOM_FILL);
+        write_bool_param("GENERATE_BOTTOM_STENCIL", GENERATE_BOTTOM_STENCIL);
+        printf("\n");
 
-    write_bool_param("MIRROR_BOTTOM", MIRROR_BOTTOM);
-    write_bool_param("SIMPLE_DRILL_CODE", SIMPLE_DRILL_CODE);
-		printf("\n");
+        write_bool_param("MIRROR_BOTTOM", MIRROR_BOTTOM);
+        write_bool_param("SIMPLE_DRILL_CODE", SIMPLE_DRILL_CODE);
+        printf("\n");
 
-		write_bool_param("GENERATE_MILLING", GENERATE_MILLING);
-		write_bool_param("CLIMB_MILLING", CLIMB_MILLING);
-		printf("\n");
-
-		write_bool_param("GENERATE_TEXT", GENERATE_TEXT);
-		printf("\n");
+        write_bool_param("GENERATE_MILLING", GENERATE_MILLING);
+        write_bool_param("CLIMB_MILLING", CLIMB_MILLING);
+        printf("\n");
+        
+        write_bool_param("GENERATE_TEXT", GENERATE_TEXT);
+        printf("\n");
     
-    write_bool_param("SPOT_DRILL", SPOT_DRILL);
-    write_real_param("SPOT_DRILL_DEPTH", SPOT_DRILL_DEPTH);
-    printf("\n");
+        write_bool_param("SPOT_DRILL", SPOT_DRILL);
+        write_real_param("SPOT_DRILL_DEPTH", SPOT_DRILL_DEPTH);
+        printf("\n");
 
-		write_bool_param("DO_TOOL_CHANGE_WITH_ZERO_STEP",
-			DO_TOOL_CHANGE_WITH_ZERO_STEP);
-		printf("\n");
+        write_bool_param("DO_TOOL_CHANGE_WITH_ZERO_STEP",
+        DO_TOOL_CHANGE_WITH_ZERO_STEP);
+        printf("\n");
 
-		write_bool_param("FLIP_BOARD_IN_Y", FLIP_BOARD_IN_Y);
-		printf("\n");
+        write_bool_param("FLIP_BOARD_IN_Y", FLIP_BOARD_IN_Y);
+        printf("\n");
     
-		// Place a // in front of units not being used
-		if (OUTPUT_UNITS != U_MICRONS) printf("//");
-		write_int_defined("OUTPUT_UNITS", "U_MICRONS");
-		if (OUTPUT_UNITS != U_MILLIMETERS) printf("//");
-		write_int_defined("OUTPUT_UNITS", "U_MILLIMETERS");
-		if (OUTPUT_UNITS != U_MILS) printf("//");
-		write_int_defined("OUTPUT_UNITS", "U_MILS");
-		if (OUTPUT_UNITS != U_INCHES) printf("//");
-		write_int_defined("OUTPUT_UNITS", "U_INCHES");
+        // Place a // in front of units not being used
+        if (OUTPUT_UNITS != U_MICRONS) printf("//");
+        write_int_defined("OUTPUT_UNITS", "U_MICRONS");
+        if (OUTPUT_UNITS != U_MILLIMETERS) printf("//");
+        write_int_defined("OUTPUT_UNITS", "U_MILLIMETERS");
+        if (OUTPUT_UNITS != U_MILS) printf("//");
+        write_int_defined("OUTPUT_UNITS", "U_MILS");
+        if (OUTPUT_UNITS != U_INCHES) printf("//");
+        write_int_defined("OUTPUT_UNITS", "U_INCHES");
+        
+        if (HOLE_MILL_STYLE != HOLE_MILL_CONCENTRIC) printf("// ");
+        write_int_defined("HOLE_MILL_STYLE", "HOLE_MILL_CONCENTRIC");
+        if (HOLE_MILL_STYLE != HOLE_MILL_HELICAL) printf("// ");
+        write_int_defined("HOLE_MILL_STYLE", "HOLE_MILL_HELICAL");
 		
-		write_string_param("NC_OPERATOR_MESSAGE", NC_OPERATOR_MESSAGE);
+        write_string_param("NC_OPERATOR_MESSAGE", NC_OPERATOR_MESSAGE);
 		
-		write_int_param("PREVIEW_WINDOW_WIDTH", PREVIEW_WINDOW_WIDTH);
-		write_int_param("PREVIEW_WINDOW_HEIGHT", PREVIEW_WINDOW_HEIGHT);
-	}
-	if(fileerror())
-		exit(1);
+        write_int_param("PREVIEW_WINDOW_WIDTH", PREVIEW_WINDOW_WIDTH);
+        write_int_param("PREVIEW_WINDOW_HEIGHT", PREVIEW_WINDOW_HEIGHT);
+    }
+    if(fileerror())
+        exit(1);
 }
 
 //
@@ -507,7 +514,7 @@ int Result = dlgDialog("pcb-gcode Setup") {
 			"<td><h6><center>Copyright 2003-2022 by"
 			" John Johnson Software, LLC.</center>"
 			"<center>All Rights Reserved</center>"
-			"<center>Version <em>3.6.5</em></center></h6></td>"
+			"<center>Version <em>3.7.2-alpha</em> ALPHA NOT FOR RELEASE</center></h6></td>"
 			"</tr>"
 			"<tr><td></td><td><center>You have EAGLE version " + m_eagle_compatibility + "</center></td></tr>"
 			"</table>");
@@ -573,20 +580,27 @@ int Result = dlgDialog("pcb-gcode Setup") {
             }
               
             dlgGridLayout {
-              dlgCell(0, 0) dlgCheckBox("Generate milling", GENERATE_MILLING);
-              dlgCell(0, 1) dlgLabel("Depth ");
-              dlgCell(0, 2) { dlgRealEdit(MILLING_DEPTH); dlgLabel(m_uom_suffix, YES); }
+                dlgCell(0, 0) dlgCheckBox("Generate milling", GENERATE_MILLING);
+                dlgCell(0, 1) dlgLabel("Depth ");
+                dlgCell(0, 2) { dlgRealEdit(MILLING_DEPTH); dlgLabel(m_uom_suffix, YES); }
+                
+                dlgCell(1, 0) dlgLabel("Mill drill holes");
+                dlgCell(1, 1) dlgRadioButton("Concentric", HOLE_MILL_STYLE);
+                dlgCell(1, 2) dlgRadioButton("Helical", HOLE_MILL_STYLE);
+                dlgCell(2, 0) dlgLabel("Further setup for hole milling required in your .drl file");
 
-                 dlgCell(1, 0) dlgCheckBox("Generate text", GENERATE_TEXT);
-                 dlgCell(1, 1) dlgLabel("Depth ");
-                 dlgCell(1, 2) { dlgRealEdit(TEXT_DEPTH); dlgLabel(m_uom_suffix, YES); }
-                 dlgCell(2, 0) dlgCheckBox("Spot drill holes", SPOT_DRILL);
-                 dlgCell(2, 1) dlgLabel("Depth");
-                 dlgCell(2, 2) { dlgRealEdit(SPOT_DRILL_DEPTH);  dlgLabel(m_uom_suffix, YES); }
-                 dlgCell(3, 0) dlgCheckBox("Prefer climb", CLIMB_MILLING);
+                dlgCell(3, 0) dlgCheckBox("Generate text", GENERATE_TEXT);
+                dlgCell(3, 1) dlgLabel("Depth ");
+                dlgCell(3, 2) { dlgRealEdit(TEXT_DEPTH); dlgLabel(m_uom_suffix, YES); }
+                
+                dlgCell(4, 0) dlgCheckBox("Spot drill holes", SPOT_DRILL);
+                dlgCell(4, 1) dlgLabel("Depth");
+                dlgCell(4, 2) { dlgRealEdit(SPOT_DRILL_DEPTH);  dlgLabel(m_uom_suffix, YES); }
+                
+                dlgCell(5, 0) dlgCheckBox("Prefer climb", CLIMB_MILLING);
                  
-               }
-               dlgGridLayout {
+            }
+            dlgGridLayout {
                  dlgCell(0, 0, 0, 1) dlgLabel("Isolation");
                  dlgCell(0, 1) {
                    dlgCheckBox("Single pass", SINGLE_PASS) {
@@ -625,13 +639,18 @@ int Result = dlgDialog("pcb-gcode Setup") {
                dlgLabel("Tool settings are on the Machine tab.");
              }
            }
-         }
+         } // Board group
         dlgStretch(1);
-       }
+       } // dlgVBoxLayout
+       // dlgVBoxLayout {
+       //     dlgGroup("Mill Holes") {
+       //         dlgVBoxLayout {
+       //                    dlgLabel("Inside the VBoxLayout");
+       //                }
+       //            }
+       // }
        dlgStretch(20);
-     }
-     dlgHBoxLayout {
-     }
+     } // dlgHBoxLayout
       dlgHBoxLayout {
 			  dlgLabel("Operator message for gcode file:");
 			  dlgStringEdit(NC_OPERATOR_MESSAGE);
@@ -1073,12 +1092,12 @@ switch (Result) {
 	// Accept
 	case 1:
 		if (m_setup_was_changed)
-			m_cmd = "run pcb-gcode-setup;\n";
+			m_cmd = "run " + g_path + "/pcb-gcode-setup;\n";
 		break;
 	// Accept and make board
 	case 2:
 //	dlgMessageBox("g_path = \"" + g_path + "\"");
-		m_cmd = "run pcb-gcode;\n";
+		m_cmd = "run " + g_path + "/pcb-gcode;\n";
 		break;
 }
 

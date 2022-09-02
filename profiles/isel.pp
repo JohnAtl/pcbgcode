@@ -23,7 +23,6 @@ string PARAM      = "#";							/* some use P, some # for parameters */
 string FORMAT     = "%-6.0f ";      /* coordinate format */
 string FR_FORMAT  = "F%-5.0f "; 	/* feedrate format */
 string IJ_FORMAT  = "I" + FORMAT + "J" + FORMAT;
-string R_FORMAT   = "R" + FORMAT;
 
 //
 // Modes
@@ -103,29 +102,28 @@ string DRILL_HOLE       = DRILL_CODE + MOVE_XY + EOL;
 // Tool change
 //
 string TOOL_CODE        = "T%02d ";
-string TOOL_MM_FORMAT   = "%1.3fmm";
-string TOOL_INCH_FORMAT = "%1.4fin";
+string TOOL_MM_FORMAT   = "%8.3fmm";
+string TOOL_INCH_FORMAT = "%8.4fin";
 string TOOL_CHANGE      = OPERATOR_PAUSE + TOOL_CODE + " ; " + FORMAT + EOL;
 
 string TOOL_CHANGE_TABLE_HEADER = COMMENT_BEGIN + 
-  " Tool|       Size       |  Min Sub |  Max Sub |   Count " + COMMENT_END + EOL;
+    " Tool|       Size           |  Min Sub |  Max Sub |   Count " + COMMENT_END + EOL;
 
-string TOOL_CHANGE_TABLE_FORMAT(int tool_number, real size_mm, real size_inch, real min_drill, real max_drill, int count)
+string TOOL_CHANGE_TABLE_FORMAT(int tool_number, real size_mm, real size_inch, real min_drill, real max_drill, int count, string comment)
 {
   string formatted;
   
   sprintf(formatted, COMMENT_BEGIN + " " + 
-    TOOL_CODE + "| " + TOOL_MM_FORMAT + " " +
-    TOOL_INCH_FORMAT + " | " + TOOL_INCH_FORMAT + " | " +
-    TOOL_INCH_FORMAT + " | " + 
-    "   %4d" + " " + 
-    COMMENT_END + EOL,
-    tool_number, size_mm, size_inch, min_drill, max_drill, count);
+    TOOL_CODE + " " + TOOL_MM_FORMAT + " " + TOOL_INCH_FORMAT + " " + 
+	TOOL_INCH_FORMAT + " " + TOOL_INCH_FORMAT + " %8d   %s " + COMMENT_END + EOL,
+    tool_number, size_mm, size_inch, min_drill, max_drill, count, comment);
   return(formatted);
 }
 
 //
-// Circles / Arcs
+// Circles / Arcs / Helical
 //
-string ARC_CLOCK     = ARC_CW + MOVE_XY + R_FORMAT + FR_FORMAT + EOL;
-string ARC_CCLOCK  = ARC_CCW + MOVE_XY + R_FORMAT + FR_FORMAT + EOL;
+string ARC_CLOCK     = ARC_CW + MOVE_XY + IJ_FORMAT + FR_FORMAT + EOL;
+string ARC_CCLOCK  = ARC_CCW + MOVE_XY + IJ_FORMAT + FR_FORMAT + EOL;
+
+string HELI_CLOCK = ARC_CW + MOVE_XYZ + IJ_FORMAT + FR_FORMAT + EOL;

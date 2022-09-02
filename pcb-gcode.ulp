@@ -15,13 +15,13 @@
 #include "settings/pcb-gcode-options.h"
 #include "settings/user-gcode.h"
 #include "source/math.h"
-#include "source/drill.h"
 #include "source/library.h"
+#include "source/drill.h"
 #include "source/pcb-file-utils.h"
 #include "source/filename_subs.h"
 
 #usage "<center><b>pcb-gcode&trade; Gcode Generation Utility</b><br>"
-			 " Version 3.6.5<p>"
+			 " Version 3.7.2-alpha<p>"
 			 "Copyright&copy; 2003 - 2022 by John Johnson Software, LLC<br>"
 			 "All Rights Reserved</center>"
        "<p>"
@@ -61,8 +61,11 @@ string m_file_name = "";
 // Which side we're currently working on.
 g_side = TOP;
 
-// Tool currently being used.
-int m_current_tool = 0;
+// Index of current being used.
+int m_current_tool_ndx = 0;
+
+// Current tool number being used (e.g. agrees with e.g. T02)
+int m_current_tool_num = 0;
 
 // Amount to isolate traces.
 real m_isolate = 0.0;
@@ -82,6 +85,7 @@ string g_cmd_temp;
 ////////// mlmSolutions added 29 Jan 14
 
 real m_v_x[], m_v_y[], m_v_rad[];
+real m_v_xc[], m_v_yc[]; // JJ
 real m_tool_x, m_tool_y, m_vx1, m_vy1, m_vx2, m_vy2, m_rad;
 int m_v_index[], m_v_prev[], m_v_next[], m_v_step[], m_v_cont[], m_v_curve[], m_c_start[], m_c_end[]; 
 int m_contours, m_cw, m_v_n=1, m_fwd, m_dist, m_dist_min, m_dist_min_index;
@@ -144,11 +148,11 @@ void preview()
 void next_phase(void)
 {
 	if (g_phase == PH_TOP_OUT_GEN && GENERATE_TOP_OUTLINES != YES) {
-		g_phase += 2;
+		g_phase = PH_BOTTOM_OUT_GEN;
 		return;
 	}
 	if (g_phase == PH_BOTTOM_OUT_GEN && GENERATE_BOTTOM_OUTLINES != YES) {
-		g_phase += 2;
+		g_phase = PH_TOP_DRILL;
 		return;
 	}
 
@@ -169,6 +173,8 @@ void next_phase(void)
 	else {
 		g_phase++;
 	}
+    
+    // dlgMessageBox(fi("next_phase(): g_phase=%d", g_phase));
 }
 
 //////////////////////////////////////////////////
@@ -188,16 +194,19 @@ void next_phase(void)
 // Returns:
 //  none
 // Changes:
-//  the stack
+//  the stack entry will have:
+//      drill_size \t tool_num \t x \t y \t requested_size
 //
-void add_hole(int req_size, int x, int y)
+void push_hole_onto_stack(int req_size, int x, int y)
 {
 	string tempstr;
+    int tool_num;
 	int drill_size;
 
-	drill_size = get_drill_for(req_size);
+    tool_num = get_tool_for(req_size);
+	drill_size = get_tool_param_iu(tool_num, RACK_TOOL_SIZE);
 
-	sprintf(tempstr, "%06d\t%06d\t%06d", drill_size, x, y);
+	sprintf(tempstr, "%06d\t%06d\t%06d\t%06d\t%06d", drill_size, tool_num, x, y, req_size);
 	stack_push(tempstr);
 }
 
@@ -221,59 +230,66 @@ real distance(real x1, real y1, real x2, real y2) {
 // Changes: 
 //  the stack
 //
-void pythagorean_sort() {
-	real drill_size1;
-	real drill_x1;
-	real drill_y1;
-	real drill_size2;
-	real drill_x2;
-	real drill_y2;
-	real drill_size3;
-	real drill_x3;
-	real drill_y3;
-  int i;
-  int j;
-  string drill_args1[];
-  string drill_args2[];
-  string drill_args3[];
-  string tmp;
+void pythagorean_sort_stack() {
+    real drill_size1;
+    real tool_num1;
+    real drill_x1;
+    real drill_y1;
+    real drill_size2;
+    real tool_num2;
+    real drill_x2;
+    real drill_y2;
+    real drill_size3;
+    real tool_num3;
+    real drill_x3;
+    real drill_y3;
+    int i;
+    int j;
+    string drill_args1[];
+    string drill_args2[];
+    string drill_args3[];
+    string tmp;
   
-  real before_distance;
-  real after_distance;
+    real before_distance;
+    real after_distance;
 
-  // Sort by size, x, then y
-  stack_sort();
+    // Sort by size, tool, x, then y
+    stack_sort();
 
-  for (i = 0; i <= stack_count(); i++) {
-		strsplit(drill_args1, stack_elem(i), '\t');
-		drill_size1 = internals_to_user(my_strtol(drill_args1[DRILL_SIZE]));
-		drill_x1 = scale_x(my_strtol(drill_args1[DRILL_X]));
-		drill_y1 = scale_y(my_strtol(drill_args1[DRILL_Y]));
+    for (i = 0; i <= stack_count(); i++) {
+        strsplit(drill_args1, stack_elem(i), '\t');
+        drill_size1 = internals_to_user(my_strtol(drill_args1[DRILL_SIZE]));
+        tool_num1 = my_strtol(drill_args1[DRILL_TOOL_NUM]);
+        drill_x1 = scale_x(my_strtol(drill_args1[DRILL_X]));
+        drill_y1 = scale_y(my_strtol(drill_args1[DRILL_Y]));
 		
-		j = i + 2;
-    while (j <= stack_count()) {
-  		strsplit(drill_args2, stack_elem(i+1), '\t');
-  		drill_size2 = internals_to_user(my_strtol(drill_args2[DRILL_SIZE]));
-  		drill_x2 = scale_x(my_strtol(drill_args2[DRILL_X]));
-  		drill_y2 = scale_y(my_strtol(drill_args2[DRILL_Y]));
+        j = i + 2;
+        while (j <= stack_count()) {
+            strsplit(drill_args2, stack_elem(i+1), '\t');
+            drill_size2 = internals_to_user(my_strtol(drill_args2[DRILL_SIZE]));
+            tool_num2 = my_strtol(drill_args2[DRILL_TOOL_NUM]);
+            drill_x2 = scale_x(my_strtol(drill_args2[DRILL_X]));
+            drill_y2 = scale_y(my_strtol(drill_args2[DRILL_Y]));
 
-  		strsplit(drill_args3, stack_elem(j), '\t');
-  		drill_size3 = internals_to_user(my_strtol(drill_args3[DRILL_SIZE]));
-  		drill_x3 = scale_x(my_strtol(drill_args3[DRILL_X]));
-  		drill_y3 = scale_y(my_strtol(drill_args3[DRILL_Y]));    
+            strsplit(drill_args3, stack_elem(j), '\t');
+            drill_size3 = internals_to_user(my_strtol(drill_args3[DRILL_SIZE]));
+            tool_num3 = my_strtol(drill_args3[DRILL_TOOL_NUM]);
+            drill_x3 = scale_x(my_strtol(drill_args3[DRILL_X]));
+            drill_y3 = scale_y(my_strtol(drill_args3[DRILL_Y]));    
 
-      if (drill_size2 != drill_size1 || drill_size3 != drill_size1)
-        break;
+            if (drill_size2 != drill_size1 || drill_size3 != drill_size1 ||
+                tool_num2 != tool_num1 || tool_num3 != tool_num1)
+                break;
 
-      if (distance(drill_x1, drill_y1, drill_x3, drill_y3) < distance(drill_x1, drill_y1, drill_x2, drill_y2)) {
-        tmp = stack_elem(j);
-        stack_put(j, stack_elem(i+1));
-        stack_put(i+1, tmp);
-        j = i + 1;
-      }
-      j++;
+            if (distance(drill_x1, drill_y1, drill_x3, drill_y3) < distance(drill_x1, drill_y1, drill_x2, drill_y2)) {
+                tmp = stack_elem(j);
+                stack_put(j, stack_elem(i+1));
+                stack_put(i+1, tmp);
+                j = i + 1;
+            }
+            j++;
+        }
     }
-  }
 }
 
 /*
@@ -284,10 +300,10 @@ void pythagorean_sort() {
  * Returns:
  *  none
  * Changes:
- *  m_current_tool
+ *  m_current_tool_ndx
  *  g_side
 */
-void drill(int which_side)
+void output_drill_file(int which_side)
 {
 	int num_lines;
 	int i;
@@ -298,29 +314,47 @@ void drill(int which_side)
 	real drill_size;
 	real drill_x;
 	real drill_y;
+    real hole_size;
 	int drill_tool_num;
+    int last_drill_tool_num;
 
-	m_current_tool = 0;
+	m_current_tool_ndx = 0;
 	g_side = which_side;
 
 	//
 	// Build a stack with all the holes.
 	//
 	board(B) {
-		B.holes(H) add_hole(H.drill, H.x, H.y);
-		B.signals(S) S.vias(V) add_hole(V.drill, V.x, V.y);
+		B.holes(H) push_hole_onto_stack(H.drill, H.x, H.y);
+		B.signals(S) S.vias(V) push_hole_onto_stack(V.drill, V.x, V.y);
 		B.elements(E) {
 			E.package.contacts(C) {
 				if (C.pad) {
-					add_hole(C.pad.drill, C.pad.x, C.pad.y);
+					push_hole_onto_stack(C.pad.drill, C.pad.x, C.pad.y);
 				}
 			}
-			E.package.holes(H) add_hole(H.drill, H.x, H.y);
+			E.package.holes(H) push_hole_onto_stack(H.drill, H.x, H.y);
 		} 
 		// B.elements
 
-		// Sorts the drills by size, then distance from previous hole.
-		pythagorean_sort();
+        // Dump the drill stack to a file for troubleshooting
+        // output(g_path + "/before_stack.txt", FILEMODE_WRITE_TEXT) {
+        //     printf("before stack sort\n");
+        //     for (i=stack_fwd_iter(); i != END_OF_STACK; i=stack_fwd_next()) {
+        //         printf("%s\n", stack_elem(i));
+        //     }
+        // }
+        
+		// Sorts the drills by size, tool_number, then distance from previous hole.
+		pythagorean_sort_stack();
+        
+        // Dump the drill stack to a file for troubleshooting
+        // output(g_path + "/after_stack.txt", FILEMODE_WRITE_TEXT) {
+        //     printf("after stack sort\n");
+        //     for (i=stack_fwd_iter(); i != END_OF_STACK; i=stack_fwd_next()) {
+        //         printf("%s\n", stack_elem(i));
+        //     }
+        // }
 
 		//
 		// Create the drill g-code file.
@@ -332,6 +366,9 @@ void drill(int which_side)
 			//
 			// Create a tool table at the beginning of the file.
 			//
+            comm("Rack file: " + elided_path(m_rack_file_name, 30));
+            comm("Min Sub is the minimum hole size this tool was subbed for.");
+            comm("Max Sub is the maximum hole size this tool was subbed for.");
 			out(TOOL_CHANGE_TABLE_HEADER);
 			for (i=stack_fwd_iter(); i != END_OF_STACK; i=stack_fwd_next()) {
 				if (i==END_OF_STACK) break;
@@ -339,18 +376,27 @@ void drill(int which_side)
 				drill_size_inch = u2inch(my_strtol(drill_args[DRILL_SIZE]));
 				drill_size_mm  = u2mm(my_strtol(drill_args[DRILL_SIZE]));
 				drill_size = my_strtol(drill_args[DRILL_SIZE]);
+                drill_tool_num = my_strtol(drill_args[DRILL_TOOL_NUM]);
 
 				if (drill_size_mm == 0.0) continue;
 
-				if (drill_size != last_size) {
-					++m_current_tool;
-					drill_tool_num = get_tool_num_for(my_strtol(drill_args[DRILL_SIZE]), m_current_tool);
-					out(TOOL_CHANGE_TABLE_FORMAT(drill_tool_num,
-					drill_size_mm, drill_size_inch, 
-					g_mins[drill_tool_num], g_maxs[drill_tool_num], 
-					g_drill_sub_cnt[drill_tool_num]));
+				if (drill_size != last_size || drill_tool_num != last_drill_tool_num) {
+					++m_current_tool_ndx;
+                    if (get_tool_param_iu(drill_tool_num, RACK_TOOL_TYPE) == RACK_TOOL_DRILL) {
+    					out(TOOL_CHANGE_TABLE_FORMAT(drill_tool_num,
+    					drill_size_mm, drill_size_inch, 
+    					g_min_subbed_for[drill_tool_num], g_max_subbed_for[drill_tool_num], 
+    					g_drill_sub_cnt[drill_tool_num], ""));
+                    }
+                    else {
+    					out(TOOL_CHANGE_TABLE_FORMAT(drill_tool_num,
+    					drill_size_mm, drill_size_inch, 
+    					g_min_subbed_for[drill_tool_num], g_max_subbed_for[drill_tool_num], 
+    					g_drill_sub_cnt[drill_tool_num], "THIS IS AN ENDMILL"));
+                    }
 				}
 				last_size = drill_size;
+                last_drill_tool_num = drill_tool_num;
 			} 
 			// for
 
@@ -359,12 +405,14 @@ void drill(int which_side)
 			//
 			// Generate drill code.
 			//
-			m_current_tool = 0;
+			m_current_tool_ndx = 0;
 			for (i=stack_fwd_iter(); i != END_OF_STACK; i=stack_fwd_next()) {
 				strsplit(drill_args, stack_elem(i), '\t');
 				drill_size = internals_to_user(my_strtol(drill_args[DRILL_SIZE]));
 				drill_x = scale_x(my_strtol(drill_args[DRILL_X]));
 				drill_y = scale_y(my_strtol(drill_args[DRILL_Y]));
+                hole_size = internals_to_user(my_strtol(drill_args[DRILL_HOLE_SIZE]));
+                drill_tool_num = my_strtol(drill_args[DRILL_TOOL_NUM]);
 				save_extents(drill_x, drill_y);
 
 				if (drill_size == 0.0) continue;
@@ -373,17 +421,23 @@ void drill(int which_side)
         // Check to see if the drill size has changed,
         // if so, output a tool change and optional zero code.
         //
-				if (drill_size == last_size) {
-					output_drill_hole(drill_x, drill_y, DRILL_DEPTH);
+				if (drill_size == last_size && drill_tool_num == last_drill_tool_num) {
+                    if (get_tool_param_iu(m_current_tool_num, RACK_TOOL_TYPE) == RACK_TOOL_DRILL) {
+                        output_drill_hole(drill_x, drill_y, DRILL_DEPTH);
+                    }
+                    else {
+                        output_mill_hole(drill_x, drill_y, DRILL_DEPTH, hole_size, m_current_tool_num);
+                    }
 				}
 				else {
-					m_current_tool++;
+					m_current_tool_ndx++;
 					// Tool change routine
 					output_tool_change_begin();
 					out(SPINDLE_OFF);
 					rz(TOOL_CHANGE_POS_Z);
 					rxy(TOOL_CHANGE_POS_X, TOOL_CHANGE_POS_Y);
-					out(fir(TOOL_CHANGE, get_tool_num_for(my_strtol(drill_args[DRILL_SIZE]), m_current_tool), drill_size));
+                    m_current_tool_num = drill_tool_num;
+					out(fir(TOOL_CHANGE, m_current_tool_num, drill_size));
 					output_tool_changed();
 					
 					// Output zero steps and a pause
@@ -398,8 +452,14 @@ void drill(int which_side)
 					out(fr(SPINDLE_ON, SPINDLE_ON_TIME));
 					output_tool_change_end();
 
-					output_drill_first_hole(drill_x, drill_y, DRILL_DEPTH);
+                    if (get_tool_param_iu(m_current_tool_num, RACK_TOOL_TYPE) == RACK_TOOL_DRILL) {
+                        output_drill_first_hole(drill_x, drill_y, DRILL_DEPTH);
+                    }
+                    else {
+                        output_mill_hole(drill_x, drill_y, DRILL_DEPTH, hole_size, m_current_tool_num);
+                    }
 					last_size = drill_size;
+                    last_drill_tool_num = drill_tool_num;
 				} 
 				// if drill_size != last_size
 			} 
@@ -465,6 +525,7 @@ void spot_drill_hole(int drill_size, int x, int y)
 
 	if (SPOT_DRILL == YES) {
 		if (m_first_spot_drill) {
+            comm("spot drill holes");
 			output_drill_first_hole(drill_x, drill_y, SPOT_DRILL_DEPTH);
 			m_first_spot_drill = NO;
 		}
@@ -473,7 +534,7 @@ void spot_drill_hole(int drill_size, int x, int y)
 		}
 	}
 	
-	offset = internals_to_user(get_drill_for(drill_size)) / 2;
+	offset = internals_to_user(drill_size) / 2;
   
 	//
 	// Generate X's for drill preview if drills are turned on for this side.
@@ -533,6 +594,8 @@ void spot_drill(UL_BOARD B)
 real m_arc_begin_x;
 real m_arc_begin_y;
 real m_arc_radius;
+real m_arc_center_x;
+real m_arc_center_y;
 int pair_count = 0;
 int MAX_COORDS_PER_LINE = 4;
 void device_draw(int x1, int y1, int x2, int y2, int state, real z_down_or_radius, real fr_xy, real fr_z)
@@ -540,6 +603,9 @@ void device_draw(int x1, int y1, int x2, int y2, int state, real z_down_or_radiu
 	real rx1, ry1, rx2, ry2;
 	
 	string str;
+    
+    real i_coord;
+    real j_coord;
 	
 	rx1 = scale_x(x1);
 	ry1 = scale_y(y1);
@@ -632,25 +698,44 @@ void device_draw(int x1, int y1, int x2, int y2, int state, real z_down_or_radiu
 			rz(DEFAULT_Z_UP);
 			rxy(end_x, end_y);
 			fzr(z_down_or_radius, FEED_RATE_MILL_Z);
+
+            // cx and cy are in absolute coords, convert to relative for I,J
+            i_coord = end_x - cx;
+            j_coord = end_y - cy;
 			
 			if (g_side == TOP || MIRROR_BOTTOM == YES) {
-        			out(frrrr(ARC_CLOCK, m_arc_begin_x, m_arc_begin_y, m_arc_radius, fr_xy));
+                fcwr(m_arc_begin_x, m_arc_begin_y, i_coord, j_coord, fr_xy);
       		}
       		else {
-        			out(frrrr(ARC_CCLOCK, m_arc_begin_x, m_arc_begin_y, m_arc_radius, fr_xy));
+                fccwr(m_arc_begin_x, m_arc_begin_y, i_coord, j_coord, fr_xy);
       		}
 		  	break;
 
 ////////// mlmSolutions 5 Feb 14
+            
+        case ST_ARC_CENTER:
+            sprintf(str, "ARC CENTER: rx1=%f, ry1=%f, rx2=%f, ry2=%f", rx1, ry1, rx2, ry2);
+            comm(str);
+            m_arc_center_x = rx1;
+            m_arc_center_y = ry1;
+            break;
 
 		case ST_ARC:
+            sprintf(str, "ARC: rx1=%f, ry1=%f, rx2=%f, ry2=%f, cx=%f, cy=%f", rx1, ry1, rx2, ry2, m_arc_center_x, m_arc_center_y);
+            comm(str);
+            i_coord = m_arc_center_x - rx1;
+            j_coord = m_arc_center_y - ry1;
 			if (m_z_up){
 				rz(DEFAULT_Z_UP);
 				rxy(rx1, ry1);
 				fzr(z_down_or_radius, fr_z);
 			}
-			if (((g_side == TOP) && m_cw) || ((g_side != TOP) && !m_cw)) str = ARC_CLOCK; else str = ARC_CCLOCK;
-				out(frrrr(str, rx2, ry2, internals_to_user(m_rad), fr_xy));
+			if (((g_side == TOP) && m_cw) || ((g_side != TOP) && !m_cw)) {
+			    fcwr(rx2, ry2, i_coord, j_coord, fr_xy);
+			} 
+            else {
+                fccwr(rx2, ry2, i_coord, j_coord, fr_xy);
+            }
 			break;
 
 //////////
@@ -953,6 +1038,8 @@ void output_mill_code()
 						// save arc data
 						m_v_x[m_v_n] = P.arc.x1;
 						m_v_y[m_v_n] = P.arc.y1;
+                        m_v_xc[m_v_n] = P.arc.xc;
+                        m_v_yc[m_v_n] = P.arc.yc;
 						m_v_rad[m_v_n] = P.arc.radius;
 						m_v_curve[m_v_n] = W.curve;
 						m_v_prev[m_v_n] = m_v_n - 1;
@@ -963,6 +1050,8 @@ void output_mill_code()
 
 						m_v_x[m_v_n] = P.arc.x2;
 						m_v_y[m_v_n] = P.arc.y2;
+                        m_v_xc[m_v_n] = P.arc.xc;
+                        m_v_yc[m_v_n] = P.arc.yc;
 						m_v_rad[m_v_n] = P.arc.radius;
 						m_v_curve[m_v_n] = W.curve;
 						m_v_prev[m_v_n] = m_v_n - 1;
@@ -1070,6 +1159,7 @@ void output_mill_code()
 					if (m_v_rad[m_j] > 0) {	//its an arc
 						if ((m_j % 2) == 0) m_cw = false; else m_cw = true;	//if its the end of an Eagle arc, m_cw=false
 						m_rad = m_v_rad[m_j]; if (abs(m_v_curve[m_j]) >180) m_rad = m_rad * -1;
+                        device_draw(m_v_xc[m_j], m_v_yc[m_j], 0, 0, ST_ARC_CENTER, 0, 0, 0);
 						device_draw(m_vx1, m_vy1, m_vx2, m_vy2, ST_ARC, MILLING_DEPTH, FEED_RATE_MILL_XY, FEED_RATE_MILL_Z);
 					} else {	//its a line
 						device_draw(m_vx1, m_vy1, m_vx2, m_vy2, state, MILLING_DEPTH, FEED_RATE_MILL_XY, FEED_RATE_MILL_Z);
@@ -1679,11 +1769,11 @@ switch (g_phase) {
 
  case PH_TOP_DRILL:
    if (GENERATE_TOP_DRILL == YES)
-     drill(TOP);
+     output_drill_file(TOP);
    break;
  case PH_BOTTOM_DRILL:
    if (GENERATE_BOTTOM_DRILL == YES)
-     drill(BOTTOM);
+     output_drill_file(BOTTOM);
    break;
 
  case PH_MILL:

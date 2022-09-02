@@ -14,7 +14,7 @@
 
 real internals_to_user(int n)
 {
-  return (convert(n, U_INTERNALS, OUTPUT_UNITS));
+  return (conv_units_from_to(n, U_INTERNALS, OUTPUT_UNITS));
 }
 
 //
@@ -29,7 +29,7 @@ real internals_to_user(int n)
 
 int user_to_internals(real n)
 {
-  return (convert(n, OUTPUT_UNITS, U_INTERNALS));
+  return (conv_units_from_to(n, OUTPUT_UNITS, U_INTERNALS));
 }
 
 //
@@ -133,8 +133,6 @@ int my_strtol(string s)
   return strtol(result);
 }
 
-
-
 //
 // Show a dialog with a message and details.
 //
@@ -177,6 +175,24 @@ void Fatal(string msg, string details)
   exit(1);
 }
 
+void assert(int condition, string message)
+{
+    if (!condition) {
+        dlgMessageBox("assertion failed:\n" + message);
+        exit(1);
+    }
+}
+
+void assertrr(int condition, string message, real x, real y)
+{
+    string tt;
+    
+    if (!condition) {
+        sprintf(tt, message, x, y);
+        dlgMessageBox("assertion failed:\n" + tt);
+        exit(1);
+    }
+}
 
 int file_exists(string file)
 {

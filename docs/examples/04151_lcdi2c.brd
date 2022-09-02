@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="6.3">
+<eagle version="9.6.2">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
+<setting keepoldvectorfont="yes"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.005" unitdist="inch" unit="inch" style="lines" multiple="1" display="no" altdistance="0.025" altunitdist="inch" altunit="inch"/>
+<grid distance="0.025" unitdist="inch" unit="inch" style="lines" multiple="1" display="yes" altdistance="0.025" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
 <layer number="16" name="Bottom" color="1" fill="1" visible="yes" active="yes"/>
@@ -63,13 +64,14 @@
 <text x="68.58" y="27.94" size="3.81" layer="46" font="vector" ratio="10" rot="MR270">04151 A</text>
 <hole x="3.81" y="30.226" drill="3.175"/>
 <hole x="3.81" y="3.302" drill="3.175"/>
-<wire x1="0" y1="0" x2="0" y2="29.845" width="0.4064" layer="46"/>
+<wire x1="0" y1="2.794" x2="0" y2="29.845" width="0.4064" layer="46"/>
 <wire x1="0" y1="29.845" x2="3.683" y2="33.528" width="0.4064" layer="46" curve="-90"/>
 <wire x1="3.683" y1="33.528" x2="67.31" y2="33.528" width="0.4064" layer="46"/>
 <wire x1="67.31" y1="33.528" x2="70.612" y2="30.226" width="0.4064" layer="46" curve="-90"/>
 <wire x1="70.612" y1="30.226" x2="70.612" y2="2.921" width="0.4064" layer="46"/>
 <wire x1="70.612" y1="2.921" x2="67.691" y2="0" width="0.4064" layer="46" curve="-90"/>
-<wire x1="67.691" y1="0" x2="0" y2="0" width="0.4064" layer="46"/>
+<wire x1="67.691" y1="0" x2="3.429" y2="0" width="0.4064" layer="46"/>
+<wire x1="3.429" y1="0" x2="0" y2="2.794" width="0.4064" layer="46" curve="-90"/>
 </plain>
 <libraries>
 <library name="con-rj">
@@ -523,16 +525,23 @@ design rules under a new name.</description>
 <param name="slThermalsForVias" value="0"/>
 <param name="dpMaxLengthDifference" value="10mm"/>
 <param name="dpGapFactor" value="2.5"/>
-<param name="checkGrid" value="0"/>
 <param name="checkAngle" value="0"/>
 <param name="checkFont" value="1"/>
 <param name="checkRestrict" value="1"/>
+<param name="checkStop" value="0"/>
+<param name="checkValues" value="0"/>
+<param name="checkNames" value="1"/>
+<param name="checkWireStubs" value="1"/>
+<param name="checkPolygonWidth" value="0"/>
 <param name="useDiameter" value="13"/>
 <param name="maxErrors" value="50"/>
 </designrules>
 <autorouter>
 <pass name="Default">
 <param name="RoutingGrid" value="10mil"/>
+<param name="AutoGrid" value="1"/>
+<param name="Efforts" value="0"/>
+<param name="TopRouterVariant" value="1"/>
 <param name="tpViaShape" value="round"/>
 <param name="PrefDir.1" value="0"/>
 <param name="PrefDir.2" value="0"/>
@@ -625,18 +634,51 @@ design rules under a new name.</description>
 </pass>
 </autorouter>
 <elements>
-<element name="U$1" library="con-rj" package="RJ-12" value="RJ-12" x="20.574" y="18.542" rot="R180"/>
-<element name="IC1" library="micro-philips" package="SO16W" value="PCF8574T" x="39.878" y="19.05" rot="MR270"/>
-<element name="U$2" library="con-lstb" package="MA07-2" value="MA07-2-SGL" x="6.096" y="17.78" rot="MR270"/>
-<element name="R1" library="pot" package="PT-SPIN" value="" x="24.511" y="5.842"/>
-<element name="S2" library="switch-dil" package="DIP03YL" value="" x="54.356" y="6.731"/>
-<element name="R2" library="rcl" package="R1206" value="" x="51.562" y="17.526" rot="MR0"/>
-<element name="R3" library="rcl" package="R1206" value="" x="51.435" y="20.828" rot="MR0"/>
-<element name="R4" library="rcl" package="R1206" value="" x="50.038" y="23.749" rot="MR0"/>
-<element name="C1" library="rcl" package="C1206" value="100nf" x="39.878" y="26.289" rot="MR0"/>
-<element name="SG1" library="buzzer" package="F/CM12P" value="F/CM12P" x="59.944" y="25.781" rot="R90"/>
-<element name="C4" library="rcl" package="C1206" value="100nf" x="13.589" y="29.718" rot="MR270"/>
-<element name="IC2" library="linear" package="TO92" value="78L05Z" x="27.178" y="29.337"/>
+<element name="U$1" library="con-rj" package="RJ-12" value="RJ-12" x="20.574" y="18.542" smashed="yes" rot="R180"/>
+<element name="IC1" library="micro-philips" package="SO16W" value="PCF8574T" x="39.878" y="19.05" smashed="yes" rot="MR270">
+<attribute name="NAME" x="43.561" y="24.638" size="1.27" layer="26" rot="MR0"/>
+<attribute name="VALUE" x="43.561" y="12.192" size="1.27" layer="28" rot="MR0"/>
+</element>
+<element name="U$2" library="con-lstb" package="MA07-2" value="MA07-2-SGL" x="6.096" y="17.78" smashed="yes" rot="MR270">
+<attribute name="NAME" x="3.175" y="26.67" size="1.27" layer="26" ratio="10" rot="MR270"/>
+<attribute name="VALUE" x="10.287" y="20.32" size="1.27" layer="28" ratio="10" rot="MR270"/>
+</element>
+<element name="R1" library="pot" package="PT-SPIN" value="" x="24.511" y="5.842" smashed="yes">
+<attribute name="NAME" x="21.336" y="9.017" size="1.778" layer="25" ratio="10"/>
+<attribute name="VALUE" x="19.431" y="4.064" size="1.778" layer="27" ratio="10"/>
+</element>
+<element name="S2" library="switch-dil" package="DIP03YL" value="" x="54.356" y="6.731" smashed="yes">
+<attribute name="NAME" x="48.9458" y="2.9718" size="1.27" layer="25" ratio="10" rot="R90"/>
+<attribute name="VALUE" x="59.1312" y="3.5814" size="1.27" layer="27" ratio="10" rot="R90"/>
+</element>
+<element name="R2" library="rcl" package="R1206" value="" x="51.562" y="17.526" smashed="yes" rot="MR0">
+<attribute name="NAME" x="52.959" y="18.669" size="1.27" layer="26" rot="MR0"/>
+<attribute name="VALUE" x="52.959" y="15.113" size="1.27" layer="28" rot="MR0"/>
+</element>
+<element name="R3" library="rcl" package="R1206" value="" x="51.435" y="20.828" smashed="yes" rot="MR0">
+<attribute name="NAME" x="52.832" y="21.971" size="1.27" layer="26" rot="MR0"/>
+<attribute name="VALUE" x="52.832" y="18.415" size="1.27" layer="28" rot="MR0"/>
+</element>
+<element name="R4" library="rcl" package="R1206" value="" x="50.038" y="23.749" smashed="yes" rot="MR0">
+<attribute name="NAME" x="51.435" y="24.892" size="1.27" layer="26" rot="MR0"/>
+<attribute name="VALUE" x="51.435" y="21.336" size="1.27" layer="28" rot="MR0"/>
+</element>
+<element name="C1" library="rcl" package="C1206" value="100nf" x="39.878" y="26.289" smashed="yes" rot="MR0">
+<attribute name="NAME" x="41.148" y="27.432" size="1.27" layer="26" rot="MR0"/>
+<attribute name="VALUE" x="41.148" y="23.876" size="1.27" layer="28" rot="MR0"/>
+</element>
+<element name="SG1" library="buzzer" package="F/CM12P" value="F/CM12P" x="59.944" y="25.781" smashed="yes" rot="R90">
+<attribute name="NAME" x="52.959" y="28.321" size="1.27" layer="25" ratio="10" rot="R90"/>
+<attribute name="VALUE" x="63.754" y="21.336" size="1.27" layer="27" ratio="10" rot="R90"/>
+</element>
+<element name="C4" library="rcl" package="C1206" value="100nf" x="13.589" y="29.718" smashed="yes" rot="MR270">
+<attribute name="NAME" x="12.446" y="30.988" size="1.27" layer="26" rot="MR270"/>
+<attribute name="VALUE" x="16.002" y="30.988" size="1.27" layer="28" rot="MR270"/>
+</element>
+<element name="IC2" library="linear" package="TO92" value="78L05Z" x="27.178" y="29.337" smashed="yes">
+<attribute name="NAME" x="29.591" y="30.988" size="1.27" layer="25" ratio="10"/>
+<attribute name="VALUE" x="30.099" y="28.067" size="1.27" layer="27" ratio="10"/>
+</element>
 <element name="C5" library="rcl" package="!FAT_E2,5-5" value="" x="21.209" y="30.099" smashed="yes" rot="R90">
 <attribute name="NAME" x="17.653" y="29.718" size="1.27" layer="25" ratio="10" rot="R90"/>
 <attribute name="VALUE" x="23.622" y="32.512" size="1.27" layer="27" ratio="10" rot="R90"/>
@@ -716,11 +758,12 @@ design rules under a new name.</description>
 <wire x1="1.778" y1="1.143" x2="14.732" y2="1.143" width="0.4064" layer="16"/>
 <wire x1="14.732" y1="1.143" x2="18.161" y2="4.572" width="0.4064" layer="16"/>
 <polygon width="0.3048" layer="1" isolate="0.5334" orphans="yes" rank="6">
+<vertex x="0" y="33.528"/>
 <vertex x="0" y="0"/>
 <vertex x="70.612" y="0"/>
 <vertex x="70.612" y="33.528"/>
-<vertex x="0" y="33.528"/>
 </polygon>
+<wire x1="52.857" y1="20.828" x2="52.984" y2="17.526" width="0" layer="19" extent="16-16"/>
 </signal>
 <signal name="VCC">
 <contactref element="U$1" pad="2_VCC"/>
@@ -1017,6 +1060,13 @@ design rules under a new name.</description>
 <wire x1="40.767" y1="28.575" x2="34.29" y2="28.575" width="0.4064" layer="16"/>
 </signal>
 </signals>
+<mfgpreviewcolors>
+<mfgpreviewcolor name="soldermaskcolor" color="0xC8008000"/>
+<mfgpreviewcolor name="silkscreencolor" color="0xFFFEFEFE"/>
+<mfgpreviewcolor name="backgroundcolor" color="0xFF282828"/>
+<mfgpreviewcolor name="coppercolor" color="0xFFFFBF00"/>
+<mfgpreviewcolor name="substratecolor" color="0xFF786E46"/>
+</mfgpreviewcolors>
 </board>
 </drawing>
 </eagle>

@@ -12,3 +12,8 @@ docs/pcbgcode.toc
 
 *.b##
 *.s##
+~$*.xlsx
+viewer/applet/data/optimize_me.txt
+viewer/**/optimize_me.txt
+*.b#1
+*.b#*
