@@ -1073,12 +1073,12 @@ switch (Result) {
 	// Accept
 	case 1:
 		if (m_setup_was_changed)
-			m_cmd = "run pcb-gcode-setup;\n";
+			m_cmd = "run " + g_path + "/pcb-gcode-setup;\n";
 		break;
 	// Accept and make board
 	case 2:
 //	dlgMessageBox("g_path = \"" + g_path + "\"");
-		m_cmd = "run pcb-gcode;\n";
+		m_cmd = "run " + g_path + "/pcb-gcode;\n";
 		break;
 }
 

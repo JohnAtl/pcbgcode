@@ -82,6 +82,7 @@ string g_cmd_temp;
 ////////// mlmSolutions added 29 Jan 14
 
 real m_v_x[], m_v_y[], m_v_rad[];
+real m_v_xc[], m_v_yc[]; // JJ
 real m_tool_x, m_tool_y, m_vx1, m_vy1, m_vx2, m_vy2, m_rad;
 int m_v_index[], m_v_prev[], m_v_next[], m_v_step[], m_v_cont[], m_v_curve[], m_c_start[], m_c_end[]; 
 int m_contours, m_cw, m_v_n=1, m_fwd, m_dist, m_dist_min, m_dist_min_index;
@@ -533,6 +534,8 @@ void spot_drill(UL_BOARD B)
 real m_arc_begin_x;
 real m_arc_begin_y;
 real m_arc_radius;
+real m_arc_center_x;
+real m_arc_center_y;
 int pair_count = 0;
 int MAX_COORDS_PER_LINE = 4;
 void device_draw(int x1, int y1, int x2, int y2, int state, real z_down_or_radius, real fr_xy, real fr_z)
@@ -540,7 +543,10 @@ void device_draw(int x1, int y1, int x2, int y2, int state, real z_down_or_radiu
 	real rx1, ry1, rx2, ry2;
 	
 	string str;
-	
+
+    real i_coord;
+    real j_coord;
+
 	rx1 = scale_x(x1);
 	ry1 = scale_y(y1);
 	rx2 = scale_x(x2);
@@ -643,7 +649,19 @@ void device_draw(int x1, int y1, int x2, int y2, int state, real z_down_or_radiu
 
 ////////// mlmSolutions 5 Feb 14
 
+            
+        case ST_ARC_CENTER:
+            sprintf(str, "ARC CENTER: rx1=%f, ry1=%f, rx2=%f, ry2=%f", rx1, ry1, rx2, ry2);
+            comm(str);
+            m_arc_center_x = rx1;
+            m_arc_center_y = ry1;
+            break;
+ 
 		case ST_ARC:
+            sprintf(str, "ARC: rx1=%f, ry1=%f, rx2=%f, ry2=%f, cx=%f, cy=%f", rx1, ry1, rx2, ry2, m_arc_center_x, m_arc_center_y);
+            comm(str);
+            i_coord = m_arc_center_x - rx1;
+            j_coord = m_arc_center_y - ry1;
 			if (m_z_up){
 				rz(DEFAULT_Z_UP);
 				rxy(rx1, ry1);
@@ -953,6 +971,8 @@ void output_mill_code()
 						// save arc data
 						m_v_x[m_v_n] = P.arc.x1;
 						m_v_y[m_v_n] = P.arc.y1;
+                        m_v_xc[m_v_n] = P.arc.xc;
+                        m_v_yc[m_v_n] = P.arc.yc;
 						m_v_rad[m_v_n] = P.arc.radius;
 						m_v_curve[m_v_n] = W.curve;
 						m_v_prev[m_v_n] = m_v_n - 1;
@@ -963,6 +983,8 @@ void output_mill_code()
 
 						m_v_x[m_v_n] = P.arc.x2;
 						m_v_y[m_v_n] = P.arc.y2;
+                        m_v_xc[m_v_n] = P.arc.xc;
+                        m_v_yc[m_v_n] = P.arc.yc;
 						m_v_rad[m_v_n] = P.arc.radius;
 						m_v_curve[m_v_n] = W.curve;
 						m_v_prev[m_v_n] = m_v_n - 1;
@@ -1070,6 +1092,7 @@ void output_mill_code()
 					if (m_v_rad[m_j] > 0) {	//its an arc
 						if ((m_j % 2) == 0) m_cw = false; else m_cw = true;	//if its the end of an Eagle arc, m_cw=false
 						m_rad = m_v_rad[m_j]; if (abs(m_v_curve[m_j]) >180) m_rad = m_rad * -1;
+                        device_draw(m_v_xc[m_j], m_v_yc[m_j], 0, 0, ST_ARC_CENTER, 0, 0, 0);
 						device_draw(m_vx1, m_vy1, m_vx2, m_vy2, ST_ARC, MILLING_DEPTH, FEED_RATE_MILL_XY, FEED_RATE_MILL_Z);
 					} else {	//its a line
 						device_draw(m_vx1, m_vy1, m_vx2, m_vy2, state, MILLING_DEPTH, FEED_RATE_MILL_XY, FEED_RATE_MILL_Z);
