@@ -79,9 +79,6 @@ void update_cur_xyz(real x, real y, real z)
   update_cur_z(z);
 }
 
-/*
- * Move to x,y position at current feed rate.
- */
 void xy(real x, real y)
 {
 	if (close(x, cur_x) && close(y, cur_y)) {
@@ -114,17 +111,11 @@ void xy(real x, real y)
 //
 // Output Feed commands.
 //
-/*
- * Set the feed rate.
- */
 void rate(real f)
 {
 	out(fr(FR_FORMAT, f));
 }
 
-/*
- * Feed move in x-axis.
- */
 void fx(real x) 
 {
 	if (! close(x, cur_x)) {
@@ -133,9 +124,6 @@ void fx(real x)
 	}
 }
 
-/*
- * Feed move in y-axis.
- */
 void fy(real y) 
 {
 	if (! close(y, cur_y)) {
@@ -144,9 +132,6 @@ void fy(real y)
 	}
 }
 
-/*
- * Feed move in z-axis.
- */
 void fz(real z) 
 {
 	if (! close(z, cur_z)) {
@@ -155,18 +140,14 @@ void fz(real z)
 	}
 }
 
-/*
- * Feed move in z-axis and set feedrate.
- */
+// Since the next move may depend on the Z rate having been set
+// in this routine, it just outputs the move as usual.
 void fzr(real z, real f) 
 {
 	out( frr(FEED_MOVE_Z_WITH_RATE, z, f)      + EOL); 
 	update_cur_z(z);
 }
 
-/*
- * Feed move in x, y.
- */
 void fxy(real x, real y)
 {
 	if (! close(x, cur_x) || ! close(y, cur_y)) {
@@ -175,18 +156,14 @@ void fxy(real x, real y)
 	}
 }
 
-/*
- * Feed move in x, y, and set feed rate.
- */
+// Since the next move may depend on the XY rate having been set
+// in this routine, it just outputs the move as usual.
 void fxyr(real x, real y, real f) 
 {
 	out( frrr(FEED_MOVE_XY_WITH_RATE, x, y, f) + EOL);
 	update_cur_xy(x, y);
 }
 
-/*
- * Feed move in x, y, z, and set feed rate.
- */
 void fxyz(real x, real y, real z)
 {
 	if (! close(x, cur_x) || ! close(y, cur_y) || ! close(z, cur_z)) {
@@ -196,35 +173,6 @@ void fxyz(real x, real y, real z)
 	}
 }
 
-/*
- * Feed move clockwise and set feed rate.
- * Move from current position to x, y along an arc centered an i, j, and feed rate f.
- */
-void fcwr(real x, real y, real i, real j, real f)
-{
-    out(frrrrr(ARC_CLOCK, x, y, i, j, f) + EOL);
-    update_cur_xy(x, y);
-}
-
-/*
- * Feed move clockwise and set feed rate.
- * Move from current position to x, y along an arc centered an i, j, and feed rate f.
- */
-void fccwr(real x, real y, real i, real j, real f)
-{
-    out(frrrrr(ARC_CCLOCK, x, y, i, j, f) + EOL);
-    update_cur_xy(x, y);
-}
-
-/*
- * Helical move clockwise to x, y centered at i, j, move z, and feed rate f.
- */
-void fheli_cw_zr(real x, real y, real z, real i, real j, real f)
-{
-    out(frrrrrr(HELI_CLOCK, x, y, z, i, j, f));
-    update_cur_xyz(x, y, z);
-}
-    
 //
 // Output Rapid commands.
 //
@@ -269,9 +217,6 @@ void rxyz(real x, real y, real z)
 	}
 }
 
-/*
- * Output a comment to the current gcode file.
- */
 void comm(string str)
 {
 	if (strlen(str) > 0) {
@@ -385,8 +330,6 @@ void begin_gcode(real spindle_speed)
 	out(get_mode());
 
 	out(ABSOLUTE_MODE);
-    comm("Set XY plane for z interpolation");
-    out(SET_XY_PLANE);
 
 	out(fr(SPINDLE_SPEED, spindle_speed));
 	
@@ -610,102 +553,4 @@ void output_drill_hole(real drill_x, real drill_y, real depth)
 		out(frrr(DRILL_HOLE, drill_x, drill_y, depth));
 		update_cur_xy(drill_x, drill_y);		
 	}
-}
-
-void output_mill_hole(real drill_x, real drill_y, real depth, real hole_size, int tool_num)
-{
-    real cur_depth = 0.0;
-    real cur_dia   = 0.0;
-    real step_size_xy = 0.0;
-    real step_size_z  = 0.0;
-    real tool_size   = 0.0;
-    real right_x = 0.0;
-    real left_x = 0.0;
-    real half_depth = 0.0;
-    real old_depth = 0.0;
-    int last_pass = false;
-
-    step_size_xy = internals_to_user(get_tool_param_iu(tool_num, RACK_STEP_XY));
-    step_size_z = internals_to_user(get_tool_param_iu(tool_num, RACK_STEP_Z));
-    tool_size = internals_to_user(get_tool_param_iu(tool_num, RACK_TOOL_SIZE));
-
-    comm("Start milling a hole");
-    comm(frrrrrr("X%6.4f Y%6.4f, depth=%6.4f, tool_size=%6.4f, hole_size=%6.4f, step_size=%6.4f",
-        drill_x, drill_y, depth, tool_size, hole_size, step_size_xy));
-    
-    if (HOLE_MILL_STYLE == HOLE_MILL_CONCENTRIC)    
-        comm("concentric selected");
-    else
-        comm("helical selected");
-
-    rz(DEFAULT_Z_UP);
-    
-    if (hole_size <= tool_size) {
-        comm("hole_size < tool_size");
-		out(frrr(DRILL_HOLE, drill_x, drill_y, depth));
-		update_cur_xy(drill_x, drill_y);		
-    }
-    else {
-        if (HOLE_MILL_STYLE == HOLE_MILL_CONCENTRIC) {
-            rxy(drill_x, drill_y);
-            fzr(0.0, FEED_RATE_ETCH_Z);
-
-            cur_depth = 0.0;
-            while (cur_depth > depth) {
-        
-                // feed down in z-axis to the next depth
-                cur_depth -= step_size_z;
-                if (cur_depth < depth)
-                    cur_depth = depth;
-                fzr(cur_depth, FEED_RATE_ETCH_Z);
-        
-                // expand the hole outward
-                cur_dia = tool_size;
-                while (cur_dia < hole_size) {
-                    cur_dia += step_size_xy;
-                    if (cur_dia > hole_size)
-                        cur_dia = hole_size;
-                    fx(drill_x - (cur_dia - tool_size) / 2);
-                    fcwr(drill_x + (cur_dia - tool_size) / 2, drill_y, (cur_dia - tool_size) / 2, 0, FEED_RATE_ETCH_XY);
-                    fcwr(drill_x - (cur_dia - tool_size) / 2, drill_y, -(cur_dia - tool_size) / 2, 0, FEED_RATE_ETCH_XY);
-                }
-                fxy(drill_x, drill_y);
-            }
-        }
-        else if (HOLE_MILL_STYLE == HOLE_MILL_HELICAL) {
-            right_x = drill_x + hole_size/2 - tool_size/2;
-            left_x = drill_x - hole_size/2 + tool_size/2;
-            rxy(right_x, drill_y);
-            fzr(0.0, FEED_RATE_ETCH_Z);
-
-            last_pass = false;
-            cur_depth = 0.0;
-            while (cur_depth > depth) {
-        
-                // feed down in z-axis to the next depth
-                old_depth = cur_depth;
-                half_depth -= (step_size_z / 2);
-                cur_depth -= step_size_z;
-                if (cur_depth <= depth) {
-                    cur_depth = depth;
-                    half_depth = old_depth - (old_depth - depth) / 2;
-                    last_pass = true;
-                }
-                //             x        y       z                i          j       f
-                fheli_cw_zr(left_x, drill_y, half_depth, drill_x - right_x, 0, FEED_RATE_ETCH_XY);
-                fheli_cw_zr(right_x, drill_y, cur_depth, drill_x - left_x, 0, FEED_RATE_ETCH_XY);
-                if (last_pass) {
-                    comm("last pass");
-                    fzr(cur_depth, FEED_RATE_ETCH_Z);
-                    //      x        y            i          j       f
-                    fcwr(left_x, drill_y, drill_x - right_x, 0, FEED_RATE_ETCH_XY);
-                    fcwr(right_x, drill_y,drill_x - left_x, 0, FEED_RATE_ETCH_XY);
-                }
-            }
-        }
-        else {
-            Fatal("output_mill_hole", "HOLE_MILL_STYLE is invalid");
-        }
-    }
-    fz(DEFAULT_Z_UP);
 }

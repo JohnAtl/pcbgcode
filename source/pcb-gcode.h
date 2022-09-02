@@ -35,11 +35,6 @@ enum {
   OUTPUT_INCHES       = 3,
 	OUTPUT_INTERNALS	= 4
 };
-
-enum {
-    HOLE_MILL_CONCENTRIC    = 0,
-    HOLE_MILL_HELICAL       = 1
-}
        
 enum { NO = 0, YES = 1 };
 enum { false = 0, true = 1 };
@@ -81,23 +76,23 @@ int MILL_BOARD = 3;
 int MILL_TEXT  = 4;
 
 enum {
-    PH_INVALID			 =  0,
-    PH_TOP_OUT_GEN       =  1,
-    PH_TOP_OUT_WRITE     =  2,
-    PH_TOP_FILL_GEN      =  3,
-    PH_TOP_FILL_WRITE    =  4,
-    PH_TOP_STENCIL       =  5,
-    PH_BOTTOM_OUT_GEN    =  6,
-    PH_BOTTOM_OUT_WRITE  =  7,
-    PH_BOTTOM_FILL_GEN   =  8,
-    PH_BOTTOM_FILL_WRITE =  9,
-    PH_BOTTOM_STENCIL    = 10,
-    PH_TOP_DRILL         = 11,
-    PH_BOTTOM_DRILL      = 12,
-    PH_MILL              = 13,
-    PH_TEXT              = 14,
+	PH_INVALID					 =  0,
+  PH_TOP_OUT_GEN       =  1,
+  PH_TOP_OUT_WRITE     =  2,
+  PH_TOP_FILL_GEN      =  3,
+  PH_TOP_FILL_WRITE    =  4,
+  PH_TOP_STENCIL       =  5,
+  PH_BOTTOM_OUT_GEN    =  6,
+  PH_BOTTOM_OUT_WRITE  =  7,
+  PH_BOTTOM_FILL_GEN   =  8,
+  PH_BOTTOM_FILL_WRITE =  9,
+  PH_BOTTOM_STENCIL    = 10,
+  PH_TOP_DRILL         = 11,
+  PH_BOTTOM_DRILL      = 12,
+  PH_MILL              = 13,
+	PH_TEXT				       = 14,
 
-    PH_LAST_PHASE        = 15
+  PH_LAST_PHASE = 15
 };
 
 string FILEMODE_WRITE_TEXT = "wt";
@@ -135,15 +130,9 @@ real ROUND_FACTOR = 1000;
 
 real BORDER_SIZE = 0.001;
 
-/*
- * Indexes for stack elements when used for drill holes.
- */
 int DRILL_SIZE = 0;
-int DRILL_TOOL_NUM = 1;
-int DRILL_X = 2;
-int DRILL_Y = 3;
-int DRILL_HOLE_SIZE = 4;
-
+int DRILL_X = 1;
+int DRILL_Y = 2;
 
 real g_tool_size = 0.01;
 int g_side = TOP;

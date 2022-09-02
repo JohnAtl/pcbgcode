@@ -63,7 +63,7 @@ string get_units(string s)
 // Changes:
 //  none
 //
-real conv_units_from_to(real value, int old_units, int new_units)
+real convert(real value, int old_units, int new_units)
 {
   real temp;
   real result;
@@ -86,7 +86,7 @@ real conv_units_from_to(real value, int old_units, int new_units)
     temp = value;
     break;
     default:
-    dlgMessageBox(":Invalid value for old_units in conv_units_from_to()");
+    dlgMessageBox(":Invalid value for old_units in convert()");
     exit(0);
   }
 
@@ -108,7 +108,7 @@ real conv_units_from_to(real value, int old_units, int new_units)
     result = temp;
     break;
     default:
-    dlgMessageBox(":Invalid value for new_units (" + int_to_string(new_units) + ") in conv_units_from_to()");
+    dlgMessageBox(":Invalid value for new_units (" + int_to_string(new_units) + ") in convert()");
     exit(0);
   }
 
@@ -136,7 +136,7 @@ real conv_units_from_to(real value, int old_units, int new_units)
 // Changes:
 //  none
 //
-int conv_to_internal_units(string s)
+int conv_to_units(string s)
 {
   int val;
   string units;
@@ -150,23 +150,23 @@ int conv_to_internal_units(string s)
   num = strtod(s);
   
   if(units == "mm")
-    val = conv_units_from_to(num, U_MILLIMETERS, U_INTERNALS);
+    val = convert(num, U_MILLIMETERS, U_INTERNALS);
   else if (units == "in")
-    val = conv_units_from_to(num, U_INCHES, U_INTERNALS);
+    val = convert(num, U_INCHES, U_INTERNALS);
   else if (units == "ml")
-    val = conv_units_from_to(num, U_MILS, U_INTERNALS);
+    val = convert(num, U_MILS, U_INTERNALS);
   else if (units == "mc")
     val = num;
   else if (units == "#") {
-    val = conv_units_from_to(get_drill_size_inches(num), U_INCHES, U_INTERNALS);
+    val = convert(get_drill_size_inches(num), U_INCHES, U_INTERNALS);
   }
   else {
     if (num <= 0.25)
-      val = conv_units_from_to(num, U_INCHES, U_INTERNALS);
+      val = convert(num, U_INCHES, U_INTERNALS);
     else if (num <= 6) 
-      val = conv_units_from_to(num, U_MILLIMETERS, U_INTERNALS);
+      val = convert(num, U_MILLIMETERS, U_INTERNALS);
     else
-      val = conv_units_from_to(get_drill_size_inches(num), U_INCHES, U_INTERNALS);
+      val = convert(get_drill_size_inches(num), U_INCHES, U_INTERNALS);
   }
 
   return val;

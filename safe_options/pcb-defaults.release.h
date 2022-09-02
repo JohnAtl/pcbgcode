@@ -1,7 +1,7 @@
 //
 // Default values for generating gcode from a PCB.
 //
-// These settings were last changed with pcb-gcode-setup: 8/21/22 1:59 PM
+// These settings were last changed with pcb-gcode-setup: 8/5/22 4:33 PM
 //
 //
 // Changes you make in this file will be overwritten if you use pcb-gcode-setup.
@@ -41,8 +41,6 @@ int FLIP_BOARD_IN_Y = NO;
 //int OUTPUT_UNITS = U_MILLIMETERS;
 //int OUTPUT_UNITS = U_MILS;
 int OUTPUT_UNITS = U_INCHES;
-// int HOLE_MILL_STYLE = HOLE_MILL_CONCENTRIC;
-int HOLE_MILL_STYLE = HOLE_MILL_HELICAL;
 string NC_OPERATOR_MESSAGE = "";
 int PREVIEW_WINDOW_WIDTH = 800;
 int PREVIEW_WINDOW_HEIGHT = 600;
