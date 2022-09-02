@@ -543,7 +543,10 @@ void device_draw(int x1, int y1, int x2, int y2, int state, real z_down_or_radiu
 	real rx1, ry1, rx2, ry2;
 	
 	string str;
-	
+
+    real i_coord;
+    real j_coord;
+
 	rx1 = scale_x(x1);
 	ry1 = scale_y(y1);
 	rx2 = scale_x(x2);
@@ -659,7 +662,6 @@ void device_draw(int x1, int y1, int x2, int y2, int state, real z_down_or_radiu
             comm(str);
             i_coord = m_arc_center_x - rx1;
             j_coord = m_arc_center_y - ry1;
-             			if (m_z_up){
 			if (m_z_up){
 				rz(DEFAULT_Z_UP);
 				rxy(rx1, ry1);
